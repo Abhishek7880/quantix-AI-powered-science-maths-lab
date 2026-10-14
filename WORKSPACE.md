@@ -7,7 +7,7 @@ saved settings keep working.
 Hand-over notes for this workspace: what exists, where it lives, how to run it, how to restore it from a backup,
 and how to continue the work. The README explains each feature in depth; this file is the map.
 
-*Last updated: 14 Oct 2026. Test suite: 248 passed.*
+*Last updated: 14 Oct 2026. Test suite: 262 passed.*
 
 ---
 
@@ -52,7 +52,7 @@ cd D:\Abhishek\Repos\industrial-ai-vision
 .\start_ui.bat                 # stops any old server, starts the supervisor, prints the page URLs
 # or:  .venv\Scripts\python.exe -m src.serve       (supervisor: restarts the API when src\*.py changes)
 .\stop_server.ps1              # stops the server process tree (never touches a running training job)
-.venv\Scripts\python.exe -m pytest -q              # 248 tests
+.venv\Scripts\python.exe -m pytest -q              # 262 tests
 ```
 
 **Publish / update the public site** (Hugging Face Space, free):
@@ -161,13 +161,14 @@ Keep at least one copy off this disk (pen drive / cloud) — a backup on the sam
    ```
    (`requirements.txt` instead of the lock file if a pinned version is no longer available.)
 3. If `import torch` fails with WinError 1114, apply the DLL fix in §2.
-4. `.venv\Scripts\python.exe -m pytest -q` → expect all tests to pass (248), then `.\start_ui.bat`.
+4. `.venv\Scripts\python.exe -m pytest -q` → expect all tests to pass (262), then `.\start_ui.bat`.
 
 ## 7. Work log
 
 | Date | Done |
 |---|---|
 | 13 Oct 2026 | Project built end to end: YOLO training/inference/camera/evaluation/ONNX, REST API with error envelope, upload page, 2D/3D shape recogniser with mensuration + rotatable transparent 3D model (labels, diagonals, manual lines), Graph Plotter (2D/3D, sliders), dev supervisor. Train page removed on request. Formula Library (1,022 formulas, sketches, PDFs). |
+| 14 Oct 2026 (LIVE) | **Quantix Lite is online (free): https://abhishek7080-quantix.static.hf.space** — Hugging Face Static Space `Abhishek7080/quantix` (Docker Spaces need PRO, Oracle had no ARM capacity). `tools/build_static.py --upload` rebuilds + uploads (needs `hf auth login`). Works: everything except photo AI (shape detection, auto-measure, handwriting photos → "full version" note). Calculator, equation solver and molar mass run the project's own Python in the browser via Pyodide 0.28.3 (`deploy/static/static_api.js`); 242 PDFs pre-built; contact form via Web3Forms once `contact.web3forms_key` is set in config.yaml. `src/eqsolve.py` split out of handwriting.py. |
 | 14 Oct 2026 (deploy + signature) | **Hosting prepared for Hugging Face Spaces** (free Docker CPU): public mode `IAV_PUBLIC=1` (owner-only routes 403, heavy AI routes 40/min per visitor, visitor photos not stored, only own `models/*.pt` loadable, minimal system info), `deploy/huggingface/` (Dockerfile on python:3.14-slim + CPU torch, pinned `requirements-deploy.txt`, Space README), `tools/deploy_space.py` (builds `D:\Abhishek\Deploy\quantix-space`, refuses to publish private values, uploads with `huggingface_hub`, sets Space secrets IAV_ADMIN_TOKEN / IAV_SMTP_USER / IAV_SMTP_PASSWORD / IAV_NOTIFY_TO and variable IAV_INBOX_URL; Space admin key saved in `secrets/space_admin_key.txt`). Image built and smoke-tested locally in Docker (all pages, prediction 3.8 s, measure, handwriting, EN/HI PDFs, calculator, contact + inbox). **Footer signature** on every page: "Designed & built by *Abhishek Yadav*" (handwriting font, writes itself once) + title, email, phone from `author:` in config.yaml (email/phone inserted by script, not in page source); `<meta name="author">`. |
 | 14 Oct 2026 (social) | Social-media links: `social:` in config.yaml (GitHub, LinkedIn, YouTube set; Instagram, X, Facebook, Threads, Telegram, WhatsApp, Discord ready) → brand icons in the footer of every page + "Follow us" on the Contact page (EN/हिन्दी). `src/social.py` accepts a URL or username, publishes only https links to that platform's own domain, strips share trackers (?si=, ?utm_…); `GET /api/v1/social` re-reads config.yaml, so edits show on refresh. Icons: `src/web/social_icons.js` (Simple Icons, CC0). Footer stacks on phones. |
 | 14 Oct 2026 (keyboard) | Full keyboard access, audited page by page with an automated Tab-through: shared focus ring + "Skip to content" (EN/हिन्दी) on every page, Measure canvas cross-hair (arrows / Enter / Shift+Enter / Ctrl+arrows), formula cells copy with Enter, home result images open the lightbox with Enter and focus returns on Esc, Solver symbol menu takes focus + arrow keys + Esc back to the symbol. |
