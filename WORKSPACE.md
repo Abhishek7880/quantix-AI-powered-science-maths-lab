@@ -138,8 +138,11 @@ industrial-ai-vision/
 messages and `outputs/contact/admin_token.txt` — keep backups private. `secrets/` (the email password) is left out:
 after a restore, run `tools/setup_email.py` again.
 
-> The project folder sits inside the `D:\Abhishek\Repos` git repository, which belongs to other work — do not commit
-> this project there. Use the zip backups (or give the project its own git repo).
+> **Own git repository:** https://github.com/Abhishek7880/quantix-AI-powered-science-maths-lab (public, branch `main`,
+> commits as Abhishek Yadav <abhishekyadav24991@gmail.com>). The folder sits inside the `D:\Abhishek\Repos` work
+> repository, which ignores it through its local `.git/info/exclude` — never commit this project there.
+> Save changes to GitHub: `git add -A`, `git commit -m "…"`, `git push`. Not on GitHub (see `.gitignore`): `.venv`,
+> `outputs` (contact messages, admin key), `secrets`, datasets and training images, all models except the two the site needs.
 
 **Make a new backup** (from the project folder; the zip is verified after writing):
 ```powershell
