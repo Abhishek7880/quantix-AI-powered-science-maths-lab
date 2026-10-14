@@ -1,0 +1,28 @@
+# Quantix on an Oracle Cloud Always Free VM (Ubuntu, ARM Ampere A1). Uploaded and started by tools/deploy_oracle.py.
+#   app   : the website (same Dockerfile as the local test build), restarts by itself after crashes / reboots
+#   caddy : HTTPS in front of it — gets and renews a free Let's Encrypt certificate for SITE_HOST automatically
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env                      # admin key, email account, alert address (chmod 600, never in git)
+    volumes:
+      - ./data:/app/outputs             # contact messages + logs survive updates and restarts
+    expose: ["7860"]
+    deploy:
+      resources:
+        limits: { memory: 6g }          # keeps a runaway request from starving the server
+  caddy:
+    image: caddy:2.10
+    restart: unless-stopped
+    depends_on: [app]
+    ports: ["80:80", "443:443"]
+    environment:
+      SITE_HOST: ${SITE_HOST}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data                # the certificate
+      - caddy_config:/config
+volumes:
+  caddy_data:
+  caddy_config:

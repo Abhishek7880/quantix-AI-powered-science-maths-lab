@@ -1,0 +1,141 @@
+{
+  "id": "arithmetic",
+  "title": "Arithmetic & Quantitative Aptitude",
+  "icon": "%",
+  "order": 1,
+  "description": "Number system, percentages, profit & loss, interest, ratio, averages, time & work, speed & distance and other competitive-exam arithmetic.",
+  "sections": [
+    {"title": "Number system", "items": [
+      ["Natural numbers", "ℕ = {1, 2, 3, …}", ""],
+      ["Whole numbers", "W = {0, 1, 2, 3, …}", ""],
+      ["Integers", "ℤ = {…, −2, −1, 0, 1, 2, …}", ""],
+      ["Rational number", "p / q, q ≠ 0, p, q ∈ ℤ", "terminating or repeating decimal"],
+      ["Sum of first n natural numbers", "1 + 2 + … + n = n(n + 1) / 2", ""],
+      ["Sum of squares", "1² + 2² + … + n² = n(n + 1)(2n + 1) / 6", ""],
+      ["Sum of cubes", "1³ + 2³ + … + n³ = [n(n + 1) / 2]²", ""],
+      ["Sum of first n odd numbers", "1 + 3 + 5 + … + (2n − 1) = n²", ""],
+      ["Sum of first n even numbers", "2 + 4 + … + 2n = n(n + 1)", ""],
+      ["Number of factors", "N = p^a · q^b · r^c  ⇒  factors = (a + 1)(b + 1)(c + 1)", "p, q, r primes"],
+      ["Sum of factors", "(p^(a+1) − 1)/(p − 1) · (q^(b+1) − 1)/(q − 1) · …", ""],
+      ["Number of primes below 100", "25", "2, 3, 5, 7, 11, …, 97"],
+      ["Dividend relation", "Dividend = Divisor × Quotient + Remainder", ""],
+      ["Unit digit cycle", "2, 3, 7, 8 repeat every 4 powers; 4, 9 every 2; 0, 1, 5, 6 constant", "use exponent mod 4"],
+      ["Euler's totient", "φ(n) = n(1 − 1/p₁)(1 − 1/p₂)…", "p = distinct prime factors of n"],
+      ["Trailing zeros of n!", "⌊n/5⌋ + ⌊n/25⌋ + ⌊n/125⌋ + …", ""]
+    ]},
+    {"title": "Divisibility rules", "items": [
+      ["By 2", "last digit even", ""],
+      ["By 3", "sum of digits divisible by 3", ""],
+      ["By 4", "last two digits divisible by 4", ""],
+      ["By 5", "last digit 0 or 5", ""],
+      ["By 6", "divisible by 2 and 3", ""],
+      ["By 7", "double the last digit, subtract from the rest; result divisible by 7", ""],
+      ["By 8", "last three digits divisible by 8", ""],
+      ["By 9", "sum of digits divisible by 9", ""],
+      ["By 11", "(sum of odd-place digits) − (sum of even-place digits) = 0 or multiple of 11", ""],
+      ["By 12", "divisible by 3 and 4", ""],
+      ["By 25", "last two digits 00, 25, 50 or 75", ""]
+    ]},
+    {"title": "HCF & LCM", "items": [
+      ["Product rule (two numbers)", "HCF × LCM = a × b", ""],
+      ["HCF of fractions", "HCF of numerators / LCM of denominators", ""],
+      ["LCM of fractions", "LCM of numerators / HCF of denominators", ""],
+      ["Largest number dividing a, b, c leaving remainder r", "HCF(a − r, b − r, c − r)", ""],
+      ["Largest number leaving same remainder", "HCF(|a − b|, |b − c|, |c − a|)", ""],
+      ["Smallest number leaving remainder r with each divisor", "LCM(divisors) + r", ""]
+    ]},
+    {"title": "Percentage", "items": [
+      ["Percentage", "x% of N = x · N / 100", ""],
+      ["Percentage change", "(New − Old) / Old × 100", ""],
+      ["Increase by x%", "New = Old × (1 + x/100)", ""],
+      ["Decrease by x%", "New = Old × (1 − x/100)", ""],
+      ["Successive change", "Net % = x + y + xy/100", "use negative for decrease"],
+      ["Price rises x%, keep expense same", "Reduce consumption by x/(100 + x) × 100 %", ""],
+      ["A is x% more than B", "B is x/(100 + x) × 100 % less than A", ""],
+      ["Population after n years", "P(1 + r/100)ⁿ", ""],
+      ["Depreciation after n years", "P(1 − r/100)ⁿ", ""]
+    ]},
+    {"title": "Profit, loss & discount", "items": [
+      ["Profit", "Profit = SP − CP", "SP selling price, CP cost price"],
+      ["Loss", "Loss = CP − SP", ""],
+      ["Profit %", "Profit / CP × 100", ""],
+      ["Loss %", "Loss / CP × 100", ""],
+      ["Selling price (profit)", "SP = CP × (100 + P%) / 100", ""],
+      ["Selling price (loss)", "SP = CP × (100 − L%) / 100", ""],
+      ["Cost price from SP", "CP = SP × 100 / (100 + P%)", ""],
+      ["Discount", "Discount = MP − SP", "MP marked price"],
+      ["Discount %", "Discount / MP × 100", ""],
+      ["Successive discounts", "Net discount = d₁ + d₂ − d₁d₂/100", ""],
+      ["Same SP, x% gain and x% loss", "Overall loss% = x² / 100", ""],
+      ["False weight", "Gain % = Error / (True value − Error) × 100", ""]
+    ]},
+    {"title": "Simple & compound interest", "items": [
+      ["Simple interest", "SI = P × R × T / 100", "P principal, R rate % p.a., T years"],
+      ["Amount (SI)", "A = P + SI = P(1 + RT/100)", ""],
+      ["Compound interest — amount", "A = P(1 + R/100)ⁿ", "compounded yearly"],
+      ["Compound interest", "CI = P[(1 + R/100)ⁿ − 1]", ""],
+      ["Half-yearly compounding", "A = P(1 + R/200)²ⁿ", ""],
+      ["Quarterly compounding", "A = P(1 + R/400)⁴ⁿ", ""],
+      ["CI − SI for 2 years", "P(R/100)²", ""],
+      ["CI − SI for 3 years", "P(R/100)²(3 + R/100)", ""],
+      ["Continuous compounding", "A = P·e^(rt)", "r as a decimal"],
+      ["Rule of 72", "Years to double ≈ 72 / R", ""]
+    ]},
+    {"title": "Ratio, proportion & partnership", "items": [
+      ["Ratio", "a : b = a / b", ""],
+      ["Proportion", "a : b = c : d  ⇔  ad = bc", ""],
+      ["Mean proportional", "√(ab)", ""],
+      ["Third proportional", "b² / a", "of a and b"],
+      ["Fourth proportional", "bc / a", "of a, b, c"],
+      ["Componendo–dividendo", "a/b = c/d ⇒ (a + b)/(a − b) = (c + d)/(c − d)", ""],
+      ["Partnership", "Profit share ∝ Capital × Time", ""],
+      ["Divide N in ratio a : b", "N·a/(a + b) and N·b/(a + b)", ""]
+    ]},
+    {"title": "Averages, mixtures & alligation", "items": [
+      ["Average", "Sum of observations / Number of observations", ""],
+      ["Average of first n natural numbers", "(n + 1) / 2", ""],
+      ["Weighted average", "(n₁a₁ + n₂a₂) / (n₁ + n₂)", ""],
+      ["Alligation rule", "Cheaper : Dearer = (d − m) : (m − c)", "c cheaper price, d dearer price, m mean price"],
+      ["Repeated replacement", "Final pure = Initial × (1 − x/V)ⁿ", "x removed and replaced n times from volume V"]
+    ]},
+    {"title": "Time & work, pipes & cisterns", "items": [
+      ["Work rate", "If A finishes in a days, A's 1-day work = 1/a", ""],
+      ["Working together", "Time = ab / (a + b)", "A in a days, B in b days"],
+      ["Three together", "Time = 1 / (1/a + 1/b + 1/c)", ""],
+      ["Men–days–hours", "M₁D₁H₁ / W₁ = M₂D₂H₂ / W₂", ""],
+      ["Pipes", "Filling pipe: +1/a; emptying pipe: −1/b per hour", ""],
+      ["Fill & empty together", "Time = ab / (b − a)", "fill in a, empty in b (b > a)"]
+    ]},
+    {"title": "Speed, distance & time", "items": [
+      ["Basic", "Distance = Speed × Time", ""],
+      ["Unit conversion", "1 km/h = 5/18 m/s;  1 m/s = 18/5 km/h", ""],
+      ["Average speed (equal distances)", "2xy / (x + y)", ""],
+      ["Relative speed — same direction", "|u − v|", ""],
+      ["Relative speed — opposite directions", "u + v", ""],
+      ["Train crossing a pole", "Time = Length of train / Speed", ""],
+      ["Train crossing platform", "Time = (L_train + L_platform) / Speed", ""],
+      ["Boat downstream", "u + v", "u boat speed, v stream speed"],
+      ["Boat upstream", "u − v", ""],
+      ["Boat speed in still water", "(Downstream + Upstream) / 2", ""],
+      ["Stream speed", "(Downstream − Upstream) / 2", ""],
+      ["Meeting after start", "Time = Distance / (u + v)", ""]
+    ]},
+    {"title": "Ages, clocks & calendars", "items": [
+      ["Clock hand angle", "θ = |30H − 5.5M|°", "H hours, M minutes"],
+      ["Minute hand speed", "6° per minute", ""],
+      ["Hour hand speed", "0.5° per minute", ""],
+      ["Hands coincide", "every 65 5/11 minutes (11 times in 12 h)", ""],
+      ["Odd days — ordinary year", "1 odd day", ""],
+      ["Odd days — leap year", "2 odd days", ""],
+      ["Odd days in 100 / 200 / 300 / 400 years", "5 / 3 / 1 / 0", ""],
+      ["Leap year", "divisible by 4; century years divisible by 400", ""]
+    ]},
+    {"title": "Permutations & probability (aptitude)", "items": [
+      ["Fundamental principle", "m ways then n ways ⇒ m × n ways", ""],
+      ["Arrangements of n distinct objects", "n!", ""],
+      ["Circular arrangements", "(n − 1)!", ""],
+      ["Arrangements with repetition", "n! / (p! q! r!)", ""],
+      ["Probability", "P(E) = Favourable outcomes / Total outcomes", ""]
+    ]}
+  ]
+}

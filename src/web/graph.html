@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graph Plotter · Quantix</title>
+<style>
+  :root {
+    --bg: #f4f6f9; --panel: #ffffff; --ink: #1c2430; --muted: #5d6b7e; --line: #dde3ea;
+    --accent: #1f6feb; --accent-ink: #ffffff; --err: #cf222e; --err-bg: #ffebe9; --warn: #9a6700;
+    --shadow: 0 1px 3px rgba(16,24,40,.08), 0 4px 12px rgba(16,24,40,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1117; --panel: #161b22; --ink: #e6edf3; --muted: #9aa7b4; --line: #2b333d;
+      --accent: #4493f8; --accent-ink: #0e1117; --err: #f85149; --err-bg: #3a1618; --warn: #d29922; --shadow: 0 1px 3px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1117; --panel: #161b22; --ink: #e6edf3; --muted: #9aa7b4; --line: #2b333d;
+    --accent: #4493f8; --accent-ink: #0e1117; --err: #f85149; --err-bg: #3a1618; --warn: #d29922; --shadow: 0 1px 3px rgba(0,0,0,.4);
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 12px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  header h1 { font-size: 18px; margin: 0; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  nav { display: flex; gap: 4px; }
+  nav a { color: var(--muted); text-decoration: none; font-size: 14px; padding: 6px 10px; border-radius: 6px; }
+  nav a.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); font-weight: 600; }
+  nav a:hover { color: var(--ink); }
+  .spacer { flex: 1; }
+  main { max-width: 1440px; margin: 0 auto; padding: 18px 24px 48px; display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); padding: 14px 16px; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 14px; min-width: 0; }
+  .side { display: flex; flex-direction: column; gap: 14px; }
+  h2 { font-size: 14px; margin: 0 0 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; background: transparent; color: var(--ink); padding: 7px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+  .seg button.on { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .btn { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 7px; padding: 6px 11px; font: inherit; font-size: 13px; cursor: pointer; }
+  .btn:hover { border-color: var(--accent); }
+  .icon { border: 0; background: transparent; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; padding: 2px 6px; border-radius: 5px; }
+  .icon:hover { color: var(--ink); background: var(--bg); }
+  .row-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .row-item .dot { margin-top: 12px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex: none; }
+  .row-main { flex: 1; min-width: 0; }
+  .row-main input { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--ink);
+                    font: 15px/1.3 "Cambria Math", Cambria, Consolas, monospace; }
+  .row-main input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .row-item.bad input { border-color: var(--err); }
+  .row-err { color: var(--err); font-size: 12px; margin-top: 3px; }
+  .row-note { color: var(--warn); font-size: 12px; margin-top: 3px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 999px; padding: 4px 10px; font: 13px "Cambria Math", Cambria, monospace; cursor: pointer; }
+  .chip:hover { border-color: var(--accent); }
+  .hint { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+  .param { padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .param-top { display: flex; align-items: center; gap: 8px; }
+  .param-top b { font: italic 700 17px Cambria, Georgia, serif; min-width: 18px; }
+  .param-top input { width: 90px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; }
+  .param-range { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+  .param-range input[type=range] { flex: 1; accent-color: var(--accent); }
+  .param-range .mini { width: 54px; padding: 2px 4px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); color: var(--muted); font-size: 12px; }
+  .play.on { color: var(--accent); }
+  #plotWrap { position: relative; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; touch-action: none; }
+  #plotWrap canvas { display: block; cursor: grab; }
+  #plotWrap canvas:active { cursor: grabbing; }
+  #plotWrap canvas:focus-visible { outline: 2px solid var(--accent); }
+  #labels3d { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .l3 { position: absolute; transform: translate(8px, -50%); white-space: nowrap; font: 600 12px system-ui, sans-serif;
+        background: color-mix(in srgb, var(--panel) 80%, transparent); padding: 1px 5px; border-radius: 5px; }
+  .l3.tick { background: none; font-weight: 400; font-size: 11px; transform: translate(-50%, 4px); }
+  .l3.axis { background: none; font: italic 700 16px Cambria, Georgia, serif; transform: translate(-50%, -50%); }
+  #coords { font: 13px Consolas, monospace; color: var(--muted); }
+  .analysis { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; margin-top: 14px; }
+  .acard { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--bg); min-width: 0; }
+  .acard.bad { border-color: var(--err); }
+  .acard-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; overflow-wrap: anywhere; }
+  .acard-head code { font: 600 14px "Cambria Math", Cambria, monospace; }
+  .acard table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .acard th { text-align: left; color: var(--muted); font-weight: 500; padding: 3px 8px 3px 0; vertical-align: top; width: 40%; }
+  .acard td { padding: 3px 0; font: 13px/1.45 "Cambria Math", Cambria, Georgia, serif; overflow-wrap: anywhere; }
+  .acard tr + tr th, .acard tr + tr td { border-top: 1px dashed var(--line); }
+  label.check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/web/lab.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="/" aria-label="Quantix — home">
+    <svg class="logo" viewBox="-50 -50 100 100" aria-hidden="true">
+      <defs><radialGradient id="lgCore"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient></defs>
+      <g class="lg-orbits" fill="none" stroke-width="3">
+        <ellipse rx="44" ry="15" stroke="var(--accent)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent-2)" transform="rotate(60)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent)" transform="rotate(120)" opacity=".75"/>
+      </g>
+      <circle r="12" fill="url(#lgCore)" class="lg-core"/>
+    </svg>
+    <span>
+      <h1>Graph Plotter</h1>
+      <span class="kicker">Quantix</span>
+      <span class="sub">Coordinates, lines, curves and trigonometry on the Cartesian plane — and planes &amp; surfaces in 3D</span>
+    </span>
+  </a>
+  <nav aria-label="Pages"><a href="/" title="Image Inspection — home">Home</a><a href="/measure" title="Measure real objects in a photo">Measure</a><a href="/formulas" title="Formula Library">Formulas</a><a href="/elements" title="Periodic Table">Elements</a><a href="/physics" title="Physics Lab">Physics</a><a href="/handwriting" title="Equation Solver (handwriting)">Solver</a><a href="/converter" title="Unit Converter">Converter</a><a href="/graph" title="Graph Plotter" class="on" aria-current="page">Graphs</a></nav>
+  <span class="spacer"></span>
+  <button class="btn" id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
+</header>
+
+<main>
+  <aside class="side">
+    <section class="card" aria-label="Expressions">
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Space"><button type="button" data-mode="2d" class="on">2D plane</button><button type="button" data-mode="3d">3D space</button></div>
+        <div class="seg" role="group" aria-label="Angle unit for sin, cos, tan" title="Unit used inside sin(), cos(), tan() and returned by sin⁻¹ etc."><button type="button" data-angle="rad" class="on">Rad</button><button type="button" data-angle="deg">Deg</button></div>
+      </div>
+      <h2>Expressions</h2>
+      <div id="rows"></div>
+      <div class="toolbar" style="margin-top:10px">
+        <button class="btn" id="addRow" type="button">+ Add</button>
+        <button class="btn" id="clearAll" type="button">Clear all</button>
+      </div>
+      <p class="hint">One per line · Enter adds a line · any letter except x, y, z becomes a slider<br>
+        Points: <code>A(2,3)</code> · line through points: <code>A(1,2) B(5,5)</code> · polygon: <code>(0,0) (4,0) (4,3)</code><br>
+        Equations: <code>y = 2x + 1</code>, <code>2x + 3y = 6</code>, <code>x^2 + y^2 = 25</code>, <code>y = a sin(bx)</code><br>
+        3D: <code>x + y + z = 6</code>, <code>P(1,2,3)</code>, <code>z = x^2 - y^2</code></p>
+    </section>
+    <section class="card" aria-label="Examples">
+      <h2>Examples</h2>
+      <div class="chips" id="examples"></div>
+    </section>
+    <section class="card" id="paramsCard" aria-label="Parameters" hidden>
+      <h2>Parameters</h2>
+      <div id="params"></div>
+      <p class="hint">Drag a slider or press ▶ to animate — the graph and every value update live.</p>
+    </section>
+  </aside>
+
+  <section class="card" aria-label="Graph">
+    <div class="toolbar">
+      <button class="btn" id="zoomIn" type="button" aria-label="Zoom in">＋</button>
+      <button class="btn" id="zoomOut" type="button" aria-label="Zoom out">－</button>
+      <button class="btn" id="resetView" type="button">Reset view</button>
+      <label class="check"><input type="checkbox" id="trigToggle" checked> Show angles &amp; triangles</label>
+      <span class="spacer"></span>
+      <span id="coords" aria-live="off"></span>
+    </div>
+    <div id="plotWrap">
+      <canvas id="plot2d" tabindex="0" aria-label="Cartesian plane. Drag to pan, scroll to zoom, arrow keys move."></canvas>
+      <div id="labels3d" hidden></div>
+      <div id="msg3d" class="hint" hidden style="padding:16px">WebGL is not available, so 3D space cannot be shown in this browser.</div>
+    </div>
+    <p class="hint">2D: drag to pan · scroll to zoom · double-click to reset. 3D: drag to rotate · scroll to zoom.</p>
+    <div class="analysis" id="analysis" aria-live="polite"></div>
+  </section>
+</main>
+
+<script src="/web/vendor/three.min.js"></script>
+<script src="/web/mathexpr.js"></script>
+<script src="/web/graph.js"></script>
+<script>
+  (function () {
+    const root = document.documentElement;
+    try { const t = localStorage.getItem("iav-theme"); if (t) root.dataset.theme = t; } catch (_) {}
+    document.getElementById("themeBtn").onclick = () => {
+      const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+      root.dataset.theme = dark ? "light" : "dark";
+      try { localStorage.setItem("iav-theme", root.dataset.theme); } catch (_) {}
+    };
+    window.GraphPlotter.init();
+  })();
+</script>
+<script src="/web/sci_bg.js"></script>
+<script src="/web/site.js"></script>
+</body>
+</html>

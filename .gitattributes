@@ -1,0 +1,11 @@
+# Normalise text files; files that run on Linux servers must keep LF line endings even on Windows checkouts
+* text=auto
+*.sh text eol=lf
+Dockerfile text eol=lf
+Caddyfile text eol=lf
+*.yml text eol=lf
+*.pt binary
+*.jpg binary
+*.png binary
+*.mp4 binary
+*.ttf binary

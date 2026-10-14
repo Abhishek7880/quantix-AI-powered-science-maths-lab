@@ -1,0 +1,16 @@
+# Website only (no training dashboard, ONNX or tests). Versions = requirements.lock.txt, tested together.
+# torch / torchvision are installed first from the PyTorch CPU index (see the Dockerfile).
+ultralytics==8.4.176
+opencv-python==5.0.0.93
+numpy==2.5.2
+pillow==12.3.0
+matplotlib==3.11.2
+PyYAML==6.0.3
+psutil==7.2.2
+requests==2.34.2
+fastapi==0.143.0
+uvicorn[standard]==0.54.0
+python-multipart==0.0.32
+fpdf2==2.8.9
+uharfbuzz==0.56.3
+sympy==1.14.0

@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formula Library · Quantix</title>
+<style>
+  :root {
+    --bg: #f4f6f9; --panel: #ffffff; --ink: #1c2430; --muted: #5d6b7e; --line: #dde3ea;
+    --accent: #1f6feb; --accent-ink: #ffffff; --soft: #eef4ff; --ok: #1a7f37; --hl: #fff3b0;
+    --shadow: 0 1px 3px rgba(16,24,40,.08), 0 4px 12px rgba(16,24,40,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1117; --panel: #161b22; --ink: #e6edf3; --muted: #9aa7b4; --line: #2b333d;
+      --accent: #4493f8; --accent-ink: #0e1117; --soft: #13233d; --ok: #3fb950; --hl: #5a4a00;
+      --shadow: 0 1px 3px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1117; --panel: #161b22; --ink: #e6edf3; --muted: #9aa7b4; --line: #2b333d;
+    --accent: #4493f8; --accent-ink: #0e1117; --soft: #13233d; --ok: #3fb950; --hl: #5a4a00;
+    --shadow: 0 1px 3px rgba(0,0,0,.4);
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 12px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  header h1 { font-size: 18px; margin: 0; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav a { color: var(--muted); text-decoration: none; font-size: 14px; padding: 6px 10px; border-radius: 6px; }
+  nav a.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); font-weight: 600; }
+  nav a:hover { color: var(--ink); }
+  .spacer { flex: 1; }
+  main { max-width: 1440px; margin: 0 auto; padding: 18px 24px 56px; display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); padding: 14px 16px 40px; } aside { position: static !important; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 16px; min-width: 0; }
+  aside { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 12px; }
+  .search { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; }
+  .search:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .cats { display: flex; flex-direction: column; gap: 2px; }
+  .cat { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+  .cat:hover { background: var(--bg); }
+  .cat.on { background: var(--soft); color: var(--accent); font-weight: 600; }
+  .cat .ic { width: 34px; height: 30px; border-radius: 7px; background: var(--bg); display: inline-flex; align-items: center; justify-content: center;
+             font: 700 13px "Cambria Math", Cambria, Georgia, serif; flex: none; border: 1px solid var(--line); }
+  .cat .t { flex: 1; font-size: 14px; line-height: 1.25; }
+  .cat .n { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 14px; border-radius: 7px; border: 1px solid var(--line);
+         background: var(--panel); color: var(--ink); font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: none; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.small { padding: 4px 10px; font-size: 13px; font-weight: 500; }
+  .btn:disabled { opacity: .6; cursor: wait; }
+  .head { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .head h2 { margin: 0; font-size: 22px; }
+  .head p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+  .jump { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .jump a { font-size: 12.5px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink); text-decoration: none; background: var(--bg); }
+  .jump a:hover { border-color: var(--accent); color: var(--accent); }
+  .sections { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+  .sec h3 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--soft); color: var(--accent); }
+  .sec-top { display: flex; gap: 16px; align-items: flex-start; margin: 10px 0; flex-wrap: wrap; }
+  .sketch { width: 230px; max-width: 100%; border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 6px; flex: none; }
+  .where { font-size: 14px; min-width: 200px; flex: 1; }
+  .where dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 6px 0; }
+  .where dt { font: italic 700 15px Cambria, Georgia, serif; }
+  .where dd { margin: 0; color: var(--muted); }
+  .note { color: var(--muted); font-size: 13px; font-style: italic; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; margin-top: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th { background: var(--bg); text-align: left; font-weight: 600; padding: 8px 12px; font-size: 13px; color: var(--muted); }
+  td { padding: 7px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+  td.name { width: 28%; }
+  td.f { font: 15.5px/1.45 "Cambria Math", "STIX Two Math", Cambria, Georgia, serif; cursor: copy; overflow-wrap: anywhere; }
+  td.f:hover { background: var(--soft); }
+  td.nt { color: var(--muted); font-size: 12.5px; width: 24%; }
+  mark { background: var(--hl); color: inherit; border-radius: 3px; padding: 0 1px; }
+  .crumb { font-size: 12px; color: var(--muted); }
+  .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--panel); padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 9; }
+  .empty { color: var(--muted); padding: 30px 0; text-align: center; }
+  .stat { font-size: 13px; color: var(--muted); }
+  .lang { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+  .lang button { border: 0; background: var(--panel); color: var(--muted); font: inherit; font-size: 13px; font-weight: 600; padding: 5px 11px; cursor: pointer; }
+  .lang button + button { border-left: 1px solid var(--line); }
+  .lang button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  .lang button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  :root[lang="hi"] body { font-family: "Nirmala UI", "Noto Sans Devanagari", Mangal, system-ui, sans-serif; }
+  :root[lang="hi"] td.f { font-family: "Cambria Math", "STIX Two Math", Cambria, Georgia, "Nirmala UI", "Noto Sans Devanagari", serif; }
+  /* ---- calculator drawer */
+  .calc-btn { float: right; margin: -2px -6px 0 8px; border: 1px solid var(--line); background: var(--panel); color: var(--accent);
+              border-radius: 6px; font-size: 13px; line-height: 1; padding: 4px 6px; cursor: pointer; font-family: system-ui, sans-serif; }
+  .calc-btn:hover, .calc-btn:focus-visible { border-color: var(--accent); background: var(--soft); outline: none; }
+  .scrim { position: fixed; inset: 0; background: rgba(10,14,20,.35); z-index: 20; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(480px, 100vw); background: var(--panel); z-index: 21;
+            box-shadow: -8px 0 24px rgba(0,0,0,.18); display: flex; flex-direction: column; border-left: 1px solid var(--line); }
+  .drawer-head { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  .drawer-head h2 { margin: 0; font-size: 17px; flex: 1; }
+  .drawer-body { padding: 16px 18px 28px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+  .calc-name { font-size: 13px; color: var(--muted); }
+  .calc-eq { font: 20px/1.4 "Cambria Math", "STIX Two Math", Cambria, Georgia, serif; background: var(--bg); border: 1px solid var(--line);
+             border-radius: 8px; padding: 10px 12px; overflow-wrap: anywhere; }
+  .lbl { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 4px 12px; cursor: pointer;
+          font: italic 600 15px Cambria, Georgia, serif; }
+  .chip.eq { font: 13px/1.3 "Cambria Math", Cambria, Georgia, serif; font-style: normal; }
+  .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .vars { display: flex; flex-direction: column; gap: 8px; }
+  .var { display: grid; grid-template-columns: 54px 1fr; gap: 10px; align-items: center; }
+  .var .sym { font: italic 700 17px Cambria, Georgia, serif; text-align: right; }
+  .var .inp { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+  .var .inp:focus-within { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .var input { flex: 1; min-width: 0; border: 0; background: none; color: var(--ink); font: inherit; padding: 8px 10px; }
+  .var input:focus { outline: none; }
+  .var .suffix { padding: 0 10px; color: var(--muted); font-size: 13px; }
+  .var .hint { grid-column: 2; font-size: 12px; color: var(--muted); margin-top: -4px; }
+  .result { border: 1px solid color-mix(in srgb, var(--ok) 40%, var(--line)); background: color-mix(in srgb, var(--ok) 8%, var(--panel));
+            border-radius: 10px; padding: 12px 14px; }
+  .result .big { font: 600 22px/1.35 "Cambria Math", Cambria, Georgia, serif; overflow-wrap: anywhere; }
+  .result .alt { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .calc-err { border: 1px solid #d1242f55; background: #d1242f12; color: var(--ink); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+  .steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+  .steps li { font-size: 13px; color: var(--muted); }
+  .steps li span { display: block; color: var(--ink); font: 15.5px/1.4 "Cambria Math", Cambria, Georgia, serif; overflow-wrap: anywhere; }
+  .custom-row { display: flex; gap: 8px; }
+  .custom-row input { flex: 1; min-width: 0; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+  .seg button { border: 0; background: var(--panel); color: var(--muted); font: inherit; font-size: 13px; padding: 4px 10px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  @media print {
+    .calc-btn { display: none !important; }
+    header, aside, .no-print, .jump { display: none !important; }
+    main { display: block; padding: 0; }
+    .card { box-shadow: none; border: 0; padding: 0 0 10px; break-inside: avoid; }
+    td.f:hover { background: none; }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/web/lab.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="/" aria-label="Quantix — home">
+    <svg class="logo" viewBox="-50 -50 100 100" aria-hidden="true">
+      <defs><radialGradient id="lgCore"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient></defs>
+      <g class="lg-orbits" fill="none" stroke-width="3">
+        <ellipse rx="44" ry="15" stroke="var(--accent)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent-2)" transform="rotate(60)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent)" transform="rotate(120)" opacity=".75"/>
+      </g>
+      <circle r="12" fill="url(#lgCore)" class="lg-core"/>
+    </svg>
+    <span>
+      <h1 id="tTitle">Formula Library</h1>
+      <span class="kicker">Quantix</span>
+      <span class="sub" id="tSub">Arithmetic · Algebra · Trigonometry · Geometry · Calculus · Mensuration with sketches · Physics units & formulas</span>
+    </span>
+  </a>
+  <nav aria-label="Pages"><a href="/" title="Image Inspection — home">Home</a><a href="/measure" title="Measure real objects in a photo">Measure</a><a href="/formulas" title="Formula Library" class="on" aria-current="page">Formulas</a><a href="/elements" title="Periodic Table">Elements</a><a href="/physics" title="Physics Lab">Physics</a><a href="/handwriting" title="Equation Solver (handwriting)">Solver</a><a href="/converter" title="Unit Converter">Converter</a><a href="/graph" title="Graph Plotter">Graphs</a></nav>
+  <span class="spacer"></span>
+  <div class="lang" role="group" aria-label="Language / भाषा">
+    <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+    <button type="button" data-lang="hi" aria-pressed="false" lang="hi">हिन्दी</button>
+  </div>
+  <button class="btn small" id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
+</header>
+
+<main>
+  <aside>
+    <div class="card">
+      <input class="search" id="q" type="search" placeholder="Search formulas…  (press /)" aria-label="Search all formulas" autocomplete="off">
+      <p class="stat" id="stat" style="margin:8px 0 0"></p>
+    </div>
+    <div class="card" style="padding:8px">
+      <div class="cats" id="cats" role="tablist" aria-label="Categories"></div>
+    </div>
+    <div class="card">
+      <button class="btn" id="customCalcBtn" type="button" style="width:100%">🧮 Formula calculator</button>
+      <p class="stat" id="customCalcNote" style="margin:8px 0 0">Type any formula, or press 🧮 next to a formula, then solve for any variable with steps.</p>
+    </div>
+    <div class="card">
+      <a class="btn primary" id="dlAll" href="/api/v1/formulas/pdf?category=all" download style="width:100%">⬇ Download everything (PDF)</a>
+      <p class="stat" id="dlAllNote" style="margin:8px 0 0">All categories in one printable PDF, mensuration with sketches.</p>
+    </div>
+  </aside>
+
+  <section id="content" aria-live="polite"></section>
+</main>
+<div class="toast" id="toast" hidden></div>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden>
+  <div class="drawer-head">
+    <h2 id="drawerTitle">🧮 Calculator</h2>
+    <button class="btn small" id="drawerClose" type="button" aria-label="Close">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+(function () {
+  "use strict";
+  const API = "/api/v1";
+  const $ = (id) => document.getElementById(id);
+  const S = { cats: [], current: null, query: "", lang: "en", cache: {}, calcIndex: {} };
+  const T = {
+    en: {
+      title: "Formula Library", pageTitle: "Formula Library",
+      sub: "Arithmetic · Algebra · Trigonometry · Geometry · Calculus · Mensuration with sketches · Physics units & formulas",
+      search: "Search formulas…  (press /)", dlAll: "⬇ Download everything (PDF)",
+      dlAllNote: "All categories in one printable PDF, mensuration with sketches.",
+      stat: (f, c) => `${f} formulas in ${c} categories`, secStat: (s, f) => `${s} sections · ${f} formulas`,
+      name: "Name", formula: "Formula", note: "Note / unit", where: "Where", copy: "Click to copy",
+      copied: "Formula copied", noCopy: "Copy not allowed", pdf: "⬇ PDF", pdfSketch: "⬇ PDF with sketch",
+      dl: "⬇ Download PDF", dlSketch: "⬇ Download PDF (with sketches)", print: "🖨 Print", pdfTitle: "Download as PDF",
+      sketchAlt: (t) => `Sketch of ${t}`, searchHead: (q) => `Search: “${q}”`,
+      hits: (n, s) => `${n} formula(s) in ${s} section(s)`,
+      none: "No formulas match. Try fewer or different words (e.g. “area”, “sin”, “velocity”, “cone”).",
+      offline: "API not reachable — start it with start_ui.bat.", loading: "Loading…",
+      calc: "🧮 Calculator", calcThis: "Calculate with this formula", customBtn: "🧮 Formula calculator",
+      customNote: "Type any formula, or press 🧮 next to a formula, then solve for any variable with steps.",
+      typeFormula: "Type a formula", typeHint: "e.g. v = u + at,  A = P(1 + R/100)^n,  V = (1/3)πr²h", use: "Use",
+      equation: "Equation", solveFor: "Solve for", values: "Enter the known values", angles: "Angles in",
+      calculate: "Calculate", result: "Answer", other: "Other solution(s)", steps: "Step-by-step working",
+      fillAll: "Fill in every value to see the answer.", close: "Close", deg: "degrees", rad: "radians",
+      copyAns: "Copy answer", tip: "Tip: press Enter to calculate. Use e for powers of ten: 6.674e-11.",
+    },
+    hi: {
+      title: "सूत्र संग्रह", pageTitle: "सूत्र संग्रह",
+      sub: "अंकगणित · बीजगणित · त्रिकोणमिति · ज्यामिति · कलन · चित्र सहित क्षेत्रमिति · भौतिकी के मात्रक एवं सूत्र",
+      search: "सूत्र खोजें…  (/ दबाएँ)", dlAll: "⬇ सब कुछ डाउनलोड करें (PDF)",
+      dlAllNote: "सभी श्रेणियाँ एक PDF में, क्षेत्रमिति चित्रों सहित।",
+      stat: (f, c) => `${c} श्रेणियों में ${f} सूत्र`, secStat: (s, f) => `${s} खंड · ${f} सूत्र`,
+      name: "नाम", formula: "सूत्र", note: "टिप्पणी / मात्रक", where: "जहाँ", copy: "कॉपी करने के लिए क्लिक करें",
+      copied: "सूत्र कॉपी हो गया", noCopy: "कॉपी की अनुमति नहीं है", pdf: "⬇ PDF", pdfSketch: "⬇ चित्र सहित PDF",
+      dl: "⬇ PDF डाउनलोड करें", dlSketch: "⬇ PDF डाउनलोड करें (चित्रों सहित)", print: "🖨 प्रिंट", pdfTitle: "PDF के रूप में डाउनलोड करें",
+      sketchAlt: (t) => `${t} का चित्र`, searchHead: (q) => `खोज: “${q}”`,
+      hits: (n, s) => `${s} खंडों में ${n} सूत्र`,
+      none: "कोई सूत्र नहीं मिला। कम या अलग शब्द आज़माएँ (जैसे “क्षेत्रफल”, “sin”, “वेग”, “शंकु”)।",
+      offline: "API उपलब्ध नहीं है — start_ui.bat से चालू करें।", loading: "लोड हो रहा है…",
+      calc: "🧮 कैलकुलेटर", calcThis: "इस सूत्र से गणना करें", customBtn: "🧮 सूत्र कैलकुलेटर",
+      customNote: "कोई भी सूत्र लिखें या किसी सूत्र के पास 🧮 दबाएँ, फिर किसी भी चर का मान चरण-दर-चरण निकालें।",
+      typeFormula: "सूत्र लिखें", typeHint: "जैसे v = u + at,  A = P(1 + R/100)^n,  V = (1/3)πr²h", use: "उपयोग करें",
+      equation: "समीकरण", solveFor: "किसका मान निकालें", values: "ज्ञात मान भरें", angles: "कोण",
+      calculate: "गणना करें", result: "उत्तर", other: "अन्य हल", steps: "चरण-दर-चरण हल",
+      fillAll: "उत्तर देखने के लिए सभी मान भरें।", close: "बंद करें", deg: "डिग्री", rad: "रेडियन",
+      copyAns: "उत्तर कॉपी करें", tip: "सुझाव: गणना के लिए Enter दबाएँ। दस की घात के लिए e लिखें: 6.674e-11।",
+    },
+  };
+  const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === "function" ? v(...a) : v; };
+
+  function h(tag, props, ...kids) {
+    const e = document.createElement(tag);
+    Object.entries(props || {}).forEach(([k, v]) => {
+      if (k === "class") e.className = v;
+      else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+      else e.setAttribute(k, v);
+    });
+    kids.flat(Infinity).forEach((c) => c != null && c !== false && e.append(c.nodeType ? c : document.createTextNode(String(c))));
+    return e;
+  }
+  function toast(msg) { const el = $("toast"); el.textContent = msg; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (el.hidden = true), 1600); }
+  const norm = (s) => s.toLowerCase().normalize("NFKD");
+
+  // highlight query words inside text (DOM-safe)
+  function hl(text, words) {
+    if (!words.length) return text;
+    const re = new RegExp("(" + words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "gi");
+    const parts = String(text).split(re);
+    return parts.map((p, i) => (i % 2 ? h("mark", {}, p) : p));
+  }
+
+  async function copy(text) {
+    try { await navigator.clipboard.writeText(text); toast(t("copied")); }
+    catch (_) {   // http:// pages may block the clipboard API
+      const ta = h("textarea", {}); ta.value = text; document.body.append(ta); ta.select();
+      try { document.execCommand("copy"); toast(t("copied")); } catch (e) { toast(t("noCopy")); }
+      ta.remove();
+    }
+  }
+
+  function pdfUrl(cat, section) {
+    return `${API}/formulas/pdf?category=${encodeURIComponent(cat)}` + (section ? `&section=${encodeURIComponent(section)}` : "")
+      + (S.lang !== "en" ? `&lang=${S.lang}` : "");
+  }
+
+  function pdfLink(cat, section, label, cls) {
+    return h("a", { class: cls || "btn small", href: pdfUrl(cat, section), download: "", title: t("pdfTitle") }, label);
+  }
+
+  function table(items, words, cat, sec) {
+    const hasNote = items.some((it) => it[2]);
+    const calcable = (S.calcIndex[cat.id] || {})[sec.id] || [];
+    return h("div", { class: "table-wrap" }, h("table", {},
+      h("thead", {}, h("tr", {}, h("th", {}, t("name")), h("th", {}, t("formula")), hasNote ? h("th", {}, t("note")) : null)),
+      h("tbody", {}, items.map((it, k) => { const idx = sec._idx ? sec._idx[k] : k; return h("tr", {},
+        h("td", { class: "name" }, hl(it[0], words)),
+        h("td", { class: "f", title: t("copy"), tabindex: "0", onclick: () => copy(it[1]),
+          onkeydown: (e) => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); copy(it[1]); } } },
+          calcable.includes(idx) ? h("button", { class: "calc-btn", type: "button", title: t("calcThis"), "aria-label": t("calcThis") + ": " + it[0],
+            onclick: (e) => { e.stopPropagation(); openCalc({ category: cat.id, section: sec.id, index: idx, name: it[0] }); } }, "🧮") : null,
+          hl(it[1], words)),
+        hasNote ? h("td", { class: "nt" }, hl(it[2] || "", words)) : null); }))));
+  }
+
+  function sectionCard(cat, sec, words, crumb) {
+    const top = sec.sketch || sec.variables ? h("div", { class: "sec-top" },
+      sec.sketch ? h("img", { class: "sketch", src: `${API}/formulas/sketch/${sec.sketch}.svg`, alt: t("sketchAlt", sec.title), loading: "lazy" }) : null,
+      sec.variables ? h("div", { class: "where" }, h("b", {}, t("where")),
+        h("dl", {}, Object.entries(sec.variables).map(([k, v]) => [h("dt", {}, k), h("dd", {}, v)])),
+        sec.note ? h("div", { class: "note" }, sec.note) : null) : null) : null;
+    return h("article", { class: "card sec", id: `sec-${cat.id}-${sec.id}` },
+      crumb ? h("div", { class: "crumb" }, crumb) : null,
+      h("h3", {}, hl(sec.title, words), sec.dimension ? h("span", { class: "badge" }, sec.dimension) : null,
+        h("span", { class: "spacer" }), h("span", { class: "no-print" }, pdfLink(cat.id, sec.id, sec.sketch ? t("pdfSketch") : t("pdf")))),
+      top, table(sec.items, words, cat, sec));
+  }
+
+  // ---------------------------------------------------------------- formula calculator (drawer)
+  // C.ref: {category, section, index, name} for a library formula, or {custom: true, formula} for a typed one
+  const C = { ref: null, info: null, eq: 0, target: null, values: {}, angleUnit: "deg", seq: 0, timer: null, lastFocus: null };
+
+  async function post(path, body) {
+    const r = await fetch(`${API}${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    return r.json();
+  }
+  const fill = (el, ...kids) => el.replaceChildren(...kids.flat().filter((k) => k != null && k !== false));
+  const refBody = (ref) => (ref.custom ? { formula: ref.formula } : { category: ref.category, section: ref.section, index: ref.index });
+  const errBox = (b) => h("div", { class: "calc-err", role: "alert" },
+    b && b.error ? `${b.error.errorTitle}: ${b.error.errorContent}` : String(b || t("offline")));
+
+  // "6.674e-11", "6.674×10^-11", "3/4", "−5", "2,5" -> number
+  function parseNum(raw) {
+    let s = String(raw).trim().replace(/−/g, "-").replace(/,/g, ".").replace(/\s+/g, "");
+    s = s.replace(/[×x*]10\^?/i, "e");
+    const frac = s.match(/^(-?\d*\.?\d+)\/(\d*\.?\d+)$/);
+    if (frac) return Number(frac[1]) / Number(frac[2]);
+    return s === "" ? NaN : Number(s);
+  }
+
+  function openDrawer() {
+    if ($("drawer").hidden) C.lastFocus = document.activeElement;
+    $("drawer").hidden = false;
+    $("scrim").hidden = false;
+  }
+  function closeCalc() {
+    $("drawer").hidden = true;
+    $("scrim").hidden = true;
+    C.ref = null;
+    if (C.lastFocus && document.contains(C.lastFocus)) C.lastFocus.focus();
+  }
+
+  function customBox(value) {
+    const inp = h("input", { class: "search", id: "customFormula", type: "text", autocomplete: "off", spellcheck: "false",
+                             placeholder: t("typeHint"), "aria-label": t("typeFormula") });
+    inp.value = value || "";
+    return h("form", { onsubmit: (e) => { e.preventDefault(); if (inp.value.trim()) openCalc({ custom: true, formula: inp.value.trim() }); } },
+      h("div", { class: "lbl" }, t("typeFormula")),
+      h("div", { class: "custom-row" }, inp, h("button", { class: "btn primary", type: "submit" }, t("use"))));
+  }
+
+  async function openCalc(ref, keep) {
+    openDrawer();
+    const prev = keep ? { values: C.values, target: C.target, eq: C.eq } : null;
+    C.ref = ref;
+    C.info = null;
+    if (!keep) { C.values = {}; C.target = null; C.eq = 0; }
+    const body = $("drawerBody");
+    if (ref.custom && !ref.formula) {
+      body.replaceChildren(customBox(""), h("p", { class: "stat", style: "margin:0" }, t("tip")));
+      $("customFormula").focus();
+      return;
+    }
+    body.replaceChildren(h("p", { class: "stat" }, t("loading")));
+    const b = await post("/formulas/calc/describe", { ...refBody(ref), lang: S.lang }).catch(() => null);
+    if (C.ref !== ref) return;                                   // closed or replaced meanwhile
+    if (!b || !b.success) {
+      fill(body, ref.custom ? customBox(ref.formula) : null, errBox(b));
+      if (ref.custom) $("customFormula").focus();
+      return;
+    }
+    C.info = b.data;
+    if (prev) Object.assign(C, prev);
+    renderCalc(true);
+  }
+
+  const currentEq = () => C.info.equations[C.eq] || C.info.equations[0];
+
+  function renderCalc(focus) {
+    const eq = currentEq();
+    if (!C.target || !eq.variables.some((v) => v.symbol === C.target)) {
+      C.target = eq.lhs && eq.variables.some((v) => v.symbol === eq.lhs) ? eq.lhs : eq.variables[0].symbol;
+    }
+    eq.variables.forEach((v) => { if (C.values[v.symbol] == null && v.default != null) C.values[v.symbol] = String(v.default); });
+    const known = eq.variables.filter((v) => v.symbol !== C.target);
+    const hasAngle = eq.variables.some((v) => v.angle);
+
+    const rows = known.map((v) => {
+      const id = "cv-" + v.symbol;
+      const inp = h("input", { id, type: "text", inputmode: "decimal", autocomplete: "off", spellcheck: "false",
+                               "aria-describedby": v.label ? id + "-hint" : null });
+      if (!v.label) inp.removeAttribute("aria-describedby");
+      inp.value = C.values[v.symbol] != null ? C.values[v.symbol] : "";
+      inp.addEventListener("input", () => { C.values[v.symbol] = inp.value; scheduleCalc(); });
+      return h("div", { class: "var" },
+        h("label", { class: "sym", for: id }, v.display),
+        h("div", { class: "inp" }, inp, v.angle ? h("span", { class: "suffix" }, C.angleUnit === "deg" ? "°" : "rad") : null),
+        v.label ? h("div", { class: "hint", id: id + "-hint" }, v.label) : null);
+    });
+
+    fill($("drawerBody"),
+      C.ref.custom ? customBox(C.ref.formula) : (C.ref.name ? h("div", { class: "calc-name" }, C.ref.name) : null),
+      h("div", { class: "calc-eq" }, eq.source),
+      C.info.equations.length > 1 ? h("div", {}, h("div", { class: "lbl" }, t("equation")),
+        h("div", { class: "chips", role: "group", "aria-label": t("equation") }, C.info.equations.map((e, i) =>
+          h("button", { class: "chip eq", type: "button", "aria-pressed": String(i === C.eq),
+                        onclick: () => { C.eq = i; C.target = null; renderCalc(true); } }, e.source)))) : null,
+      h("div", {}, h("div", { class: "lbl" }, t("solveFor")),
+        h("div", { class: "chips", role: "group", "aria-label": t("solveFor") }, eq.variables.map((v) =>
+          h("button", { class: "chip", type: "button", "aria-pressed": String(v.symbol === C.target), title: v.label || v.display,
+                        onclick: () => { C.target = v.symbol; renderCalc(true); } }, v.display)))),
+      hasAngle ? h("div", { style: "display:flex;align-items:center;gap:10px" },
+        h("span", { class: "lbl", style: "margin:0" }, t("angles")),
+        h("div", { class: "seg", role: "group", "aria-label": t("angles") }, ["deg", "rad"].map((u) =>
+          h("button", { type: "button", "aria-pressed": String(C.angleUnit === u),
+                        onclick: () => { C.angleUnit = u; renderCalc(false); } }, t(u))))) : null,
+      h("div", {}, h("div", { class: "lbl" }, t("values")),
+        h("form", { class: "vars", onsubmit: (e) => { e.preventDefault(); calculate(true); } },
+          rows, h("button", { class: "btn primary", type: "submit", style: "margin-top:4px" }, t("calculate")))),
+      h("div", { id: "calcOut", "aria-live": "polite" }),
+      h("p", { class: "stat", style: "margin:0" }, t("tip")));
+    if (focus) {
+      const first = known.find((v) => !C.values[v.symbol]) || known[0];
+      const el = first && document.getElementById("cv-" + first.symbol);
+      if (el) el.focus();
+    }
+    calculate(false);
+  }
+
+  function scheduleCalc() {
+    clearTimeout(C.timer);
+    C.timer = setTimeout(() => calculate(false), 350);
+  }
+
+  async function calculate(explicit) {
+    const out = $("calcOut");
+    if (!out || !C.info) return;
+    const known = currentEq().variables.filter((v) => v.symbol !== C.target);
+    const values = {};
+    let incomplete = false, bad = null;
+    for (const v of known) {
+      const raw = C.values[v.symbol] != null ? C.values[v.symbol] : "";
+      if (String(raw).trim() === "") { incomplete = true; continue; }
+      const n = parseNum(raw);
+      if (!Number.isFinite(n)) bad = bad || v.display; else values[v.symbol] = n;
+    }
+    if (bad) { out.replaceChildren(errBox(`${bad}: “${C.values[known.find((v) => v.display === bad).symbol]}” ?`)); return; }
+    if (incomplete) { out.replaceChildren(explicit ? h("p", { class: "calc-err", role: "alert" }, t("fillAll")) : h("p", { class: "stat" }, t("fillAll"))); return; }
+    const my = ++C.seq;
+    const b = await post("/formulas/calc/solve", { ...refBody(C.ref), lang: S.lang, solve_for: C.target, values,
+                                                   equation: C.eq, angle_unit: C.angleUnit }).catch(() => null);
+    if (my !== C.seq || !$("calcOut")) return;                   // a newer request is in flight
+    if (!b || !b.success) { $("calcOut").replaceChildren(errBox(b)); return; }
+    const d = b.data;
+    const fmt = (s) => `${d.target_display} = ${s.display}${d.unit ? " " + d.unit : ""}`;
+    const main = fmt(d.solutions[0]);
+    fill($("calcOut"),
+      h("div", { class: "result" },
+        h("div", { class: "lbl" }, t("result")),
+        h("div", { style: "display:flex;gap:10px;align-items:flex-start" }, h("div", { class: "big", style: "flex:1" }, main),
+          h("button", { class: "btn small", type: "button", title: t("copyAns"), "aria-label": t("copyAns"),
+                        onclick: () => copy(main) }, "⧉")),
+        d.solutions.length > 1 ? h("div", { class: "alt" }, `${t("other")}: ` + d.solutions.slice(1).map(fmt).join(" ; ")) : null),
+      h("div", {}, h("div", { class: "lbl", style: "margin-top:12px" }, t("steps")),
+        h("ol", { class: "steps" }, d.steps.map((st) => h("li", {}, st.label, h("span", {}, st.text))))));
+  }
+
+  // trap Tab inside the open drawer; Esc closes it
+  $("drawer").addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { e.preventDefault(); closeCalc(); return; }
+    if (e.key !== "Tab") return;
+    const f = [...$("drawer").querySelectorAll("button, input, [href], [tabindex]:not([tabindex='-1'])")].filter((x) => !x.disabled && x.offsetParent);
+    if (!f.length) return;
+    if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
+  $("drawerClose").onclick = closeCalc;
+  $("scrim").onclick = closeCalc;
+  $("customCalcBtn").onclick = () => openCalc({ custom: true });
+
+  function renderCats() {
+    const total = S.cats.reduce((a, c) => a + c.sections.reduce((b, s) => b + s.items.length, 0), 0);
+    $("stat").textContent = t("stat", total, S.cats.length);
+    $("cats").replaceChildren(...S.cats.map((c) => h("button", {
+      class: "cat" + (c.id === S.current && !S.query ? " on" : ""), type: "button", role: "tab",
+      "aria-selected": String(c.id === S.current && !S.query), onclick: () => { $("q").value = ""; S.query = ""; show(c.id); } },
+      h("span", { class: "ic" }, c.icon || "•"), h("span", { class: "t" }, c.title),
+      h("span", { class: "n" }, String(c.sections.reduce((b, s) => b + s.items.length, 0))))));
+  }
+
+  function show(id, keepScroll) {
+    const c = S.cats.find((x) => x.id === id) || S.cats[0];
+    S.current = c.id;
+    try { localStorage.setItem("iav-formula-cat", c.id); } catch (_) {}
+    history.replaceState(null, "", `#${c.id}`);
+    renderCats();
+    const n = c.sections.reduce((b, s) => b + s.items.length, 0);
+    $("content").replaceChildren(
+      h("div", { class: "card" },
+        h("div", { class: "head" },
+          h("div", { style: "flex:1;min-width:240px" }, h("h2", {}, c.title), h("p", {}, c.description || ""),
+            h("p", { class: "stat" }, t("secStat", c.sections.length, n))),
+          h("div", { class: "row no-print", style: "display:flex;gap:8px;flex-wrap:wrap" },
+            pdfLink(c.id, null, c.id === "mensuration" ? t("dlSketch") : t("dl"), "btn primary"),
+            h("button", { class: "btn", type: "button", onclick: () => window.print() }, t("print")))),
+        h("div", { class: "jump" }, c.sections.map((s) => h("a", { href: `#sec-${c.id}-${s.id}`, onclick: (e) => {
+          e.preventDefault(); document.getElementById(`sec-${c.id}-${s.id}`).scrollIntoView({ behavior: "smooth", block: "start" }); } }, s.title)))),
+      h("div", { class: "sections" }, c.sections.map((s) => sectionCard(c, s, []))));
+    if (!keepScroll) window.scrollTo({ top: 0 });
+  }
+
+  function search(q) {
+    S.query = q.trim();
+    if (!S.query) { show(S.current); return; }
+    renderCats();
+    const words = norm(S.query).split(/\s+/).filter(Boolean);
+    const results = [];
+    let hits = 0;
+    S.cats.forEach((c) => c.sections.forEach((s) => {
+      const secMatch = words.every((w) => norm(s.title + " " + c.title).includes(w));
+      const keep = s.items.map((it, i) => [it, i]).filter(([it]) => secMatch || words.every((w) => norm(it.join(" ") + " " + s.title).includes(w)));
+      if (keep.length) {
+        hits += keep.length;
+        results.push(sectionCard(c, { ...s, items: keep.map((x) => x[0]), _idx: keep.map((x) => x[1]) }, words, `${c.title} › ${s.title}`));
+      }
+    }));
+    $("content").replaceChildren(
+      h("div", { class: "card" }, h("h2", { style: "margin:0;font-size:20px" }, t("searchHead", S.query)),
+        h("p", { class: "stat", style: "margin:4px 0 0" }, t("hits", hits, results.length))),
+      results.length ? h("div", { class: "sections" }, results)
+        : h("div", { class: "card empty" }, t("none")));
+  }
+
+  // ---------------------------------------------------------------- init
+  const root = document.documentElement;
+  try { const t = localStorage.getItem("iav-theme"); if (t) root.dataset.theme = t; } catch (_) {}
+  $("themeBtn").onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("iav-theme", root.dataset.theme); } catch (_) {}
+  };
+  let timer = null;
+  $("q").addEventListener("input", (e) => { clearTimeout(timer); timer = setTimeout(() => search(e.target.value), 150); });
+  document.addEventListener("keydown", (e) => {
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+    if (e.key === "/" && !typing && $("drawer").hidden) { e.preventDefault(); $("q").focus(); }
+    if (e.key === "Escape" && document.activeElement === $("q")) { $("q").value = ""; search(""); }
+  });
+
+  function applyStaticText() {
+    root.lang = S.lang;
+    document.title = t("pageTitle") + " · Quantix";
+    $("tTitle").textContent = t("title");
+    $("tSub").textContent = t("sub");
+    $("q").placeholder = t("search");
+    $("dlAll").textContent = t("dlAll");
+    $("dlAll").href = pdfUrl("all");
+    $("dlAllNote").textContent = t("dlAllNote");
+    $("customCalcBtn").textContent = t("customBtn");
+    $("customCalcNote").textContent = t("customNote");
+    $("drawerTitle").textContent = t("calc");
+    $("drawerClose").setAttribute("aria-label", t("close"));
+    if (!$("drawer").hidden && C.ref) openCalc(C.ref, true);
+    document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === S.lang)));
+  }
+
+  async function loadLang(lang) {
+    S.lang = T[lang] ? lang : "en";
+    try { localStorage.setItem("iav-formula-lang", S.lang); } catch (_) {}
+    applyStaticText();
+    if (!S.cache[S.lang]) {
+      if (!S.cats.length) $("content").replaceChildren(h("div", { class: "card" }, t("loading")));
+      let b;
+      try { b = await (await fetch(`${API}/formulas?full=true&lang=${S.lang}`)).json(); }
+      catch (_) { $("content").replaceChildren(h("div", { class: "card" }, t("offline"))); return; }
+      if (!b.success) { $("content").replaceChildren(h("div", { class: "card" }, `${b.error.errorTitle}: ${b.error.errorContent}`)); return; }
+      S.cache[S.lang] = b.data;
+    }
+    const first = !S.cats.length;
+    S.cats = S.cache[S.lang];
+    if (S.query) { search(S.query); return; }
+    let start = S.current || location.hash.slice(1);
+    try { start = start || localStorage.getItem("iav-formula-cat"); } catch (_) {}
+    show(S.cats.some((c) => c.id === start) ? start : S.cats[0].id, !first);
+    // deep link from the home-page formula cards: /formulas?calc=<category>/<section>/<index>
+    const deep = first && new URLSearchParams(location.search).get("calc");
+    if (deep) {
+      const [category, section, index] = deep.split("/");
+      const sec = ((S.cats.find((c) => c.id === category) || {}).sections || []).find((s) => s.id === section);
+      const item = sec && sec.items[Number(index)];
+      if (item) openCalc({ category, section, index: Number(index), name: item[0] });
+      history.replaceState(null, "", location.pathname + location.hash);
+    }
+  }
+
+  document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.lang !== S.lang) loadLang(b.dataset.lang);
+  }));
+  fetch(`${API}/formulas/calc/index`).then((r) => r.json()).then((b) => {
+    if (b.success) { S.calcIndex = b.data; if (S.cats.length && !S.query) show(S.current, true); else if (S.query) search(S.query); }
+  }).catch(() => {});
+  let lang = new URLSearchParams(location.search).get("lang");
+  try { lang = lang || localStorage.getItem("iav-formula-lang"); } catch (_) {}
+  loadLang(lang || "en");
+})();
+</script>
+<script src="/web/sci_bg.js"></script>
+<script src="/web/site.js"></script>
+</body>
+</html>

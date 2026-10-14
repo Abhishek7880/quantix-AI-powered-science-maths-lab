@@ -1,0 +1,15 @@
+# HTTPS for Quantix. SITE_HOST comes from .env, e.g. 140-238-1-2.sslip.io (a free name that points at the server's IP)
+# or your own domain later. Caddy fetches and renews the certificate by itself.
+{$SITE_HOST} {
+	encode zstd gzip
+	request_body {
+		max_size 30MB
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+	reverse_proxy app:7860
+}

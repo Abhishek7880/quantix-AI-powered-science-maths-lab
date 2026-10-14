@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Measure · Quantix</title>
+<style>
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  :root[lang="hi"] body { font-family: "Nirmala UI", "Noto Sans Devanagari", Mangal, system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 18px; }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav a { text-decoration: none; font-size: 14px; padding: 6px 10px; }
+  .spacer { flex: 1; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; border: 1px solid var(--line);
+         background: color-mix(in srgb, var(--panel-solid) 55%, transparent); color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600;
+         cursor: pointer; text-decoration: none; }
+  .btn.small { padding: 4px 10px; font-size: 13px; font-weight: 500; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .lang { display: inline-flex; border: 1px solid var(--line); overflow: hidden; }
+  .lang button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 600; padding: 5px 11px; cursor: pointer; }
+  .lang button + button { border-left: 1px solid var(--line); }
+  main { padding-top: 18px; padding-bottom: 40px; display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 980px) { main { grid-template-columns: minmax(0, 1fr); } }
+  aside { position: sticky; display: flex; flex-direction: column; gap: 12px; }
+  @media (max-width: 980px) { aside { position: static; } }
+  .card { padding: 14px 16px; min-width: 0; }
+  .step { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font: 600 15px var(--f-head); }
+  .step .n { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font: 700 12px var(--f-mono);
+             background: linear-gradient(120deg, var(--btn-a), var(--btn-b)); color: #fff; flex: none; }
+  .step .ok { margin-left: auto; color: var(--ok); font-size: 13px; font-family: inherit; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .field { padding: 7px 10px; border: 1px solid var(--line); border-radius: 9px; background: color-mix(in srgb, var(--panel-solid) 70%, transparent);
+           color: var(--ink); font: inherit; min-width: 0; }
+  .field:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+  select.field { width: 100%; }
+  .hint { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
+  .status { font: 600 13px var(--f-mono); padding: 8px 10px; border-radius: 9px; margin-top: 10px; border: 1px dashed var(--line); }
+  .status.set { border-style: solid; border-color: color-mix(in srgb, var(--ok) 50%, transparent); background: color-mix(in srgb, var(--ok) 10%, transparent); }
+  .tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .tool { justify-content: flex-start; }
+  .tool[aria-pressed="true"] { background: linear-gradient(120deg, var(--btn-a), var(--btn-b)); color: #fff; border-color: transparent; }
+  .tool kbd { margin-left: auto; font: 11px var(--f-mono); opacity: .7; }
+  .drop { border: 1.5px dashed color-mix(in srgb, var(--accent) 55%, var(--line)); border-radius: 12px; padding: 16px 12px; text-align: center; cursor: pointer;
+          background: var(--drop); }
+  .drop:hover, .drop:focus-visible, .drop.over { border-color: var(--accent); outline: none; }
+  .drop b { display: block; }
+  .drop span { font-size: 12.5px; color: var(--muted); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* stage */
+  .stage-card { padding: 10px; }
+  .stage-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+  .stage-bar .info { font: 12.5px var(--f-mono); color: var(--muted); margin-left: auto; }
+  .stage { position: relative; height: calc(100vh - 190px); min-height: 420px; border-radius: 12px; overflow: hidden; border: 1px solid var(--line);
+           background: repeating-conic-gradient(color-mix(in srgb, var(--panel-solid) 85%, transparent) 0 25%, color-mix(in srgb, var(--panel-solid) 70%, transparent) 0 50%) 50% / 24px 24px;
+           touch-action: none; }
+  .stage canvas { display: block; width: 100%; height: 100%; }
+  .stage.crosshair canvas { cursor: crosshair; } .stage.grab canvas { cursor: grab; } .stage.grabbing canvas { cursor: grabbing; }
+  .empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--muted); text-align: center; padding: 20px; pointer-events: none; }
+  .empty .big { font-size: 46px; filter: drop-shadow(0 0 16px var(--glow)); }
+  .loupe { position: absolute; width: 150px; height: 150px; border-radius: 50%; border: 2px solid var(--accent); pointer-events: none;
+           box-shadow: 0 8px 30px rgba(0,0,0,.45); overflow: hidden; background: #000; }
+  .loupe canvas { width: 100%; height: 100%; }
+  .prompt { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); padding: 8px 14px; border-radius: 999px; font-size: 13.5px;
+            background: color-mix(in srgb, var(--panel-solid) 88%, transparent); border: 1px solid var(--line); box-shadow: var(--shadow); max-width: 92%; text-align: center; }
+
+  /* results */
+  .results { display: flex; flex-direction: column; gap: 8px; }
+  .res { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: color-mix(in srgb, var(--panel-solid) 45%, transparent); cursor: pointer; }
+  .res.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .res-head { display: flex; align-items: center; gap: 8px; }
+  .res-head b { font-size: 14px; }
+  .res-head .x { margin-left: auto; border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 16px; }
+  .res-head .x:hover { color: var(--err); }
+  .res .v { font: 600 15px var(--f-mono); }
+  .res .sub { font-size: 12.5px; color: var(--muted); }
+  .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; flex: none; }
+  .shape-card { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: color-mix(in srgb, var(--panel-solid) 45%, transparent); }
+  .shape-card h4 { margin: 0 0 4px; font: 600 15px var(--f-head); display: flex; gap: 8px; align-items: center; }
+  .tag { font: 600 11px var(--f-mono); padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--accent); }
+  .dims { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; margin: 4px 0 6px; }
+  .dims i { font: italic 700 14px Cambria, Georgia, serif; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  td { padding: 4px 6px; border-top: 1px solid var(--line); vertical-align: top; }
+  td.f { font: 13px "Cambria Math", Cambria, Georgia, serif; color: var(--muted); }
+  td.val { font: 600 13px var(--f-mono); white-space: nowrap; text-align: right; }
+  .note { font-size: 12px; color: var(--warn); margin-top: 6px; }
+  .err { color: var(--err); font-size: 13.5px; }
+  .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 30; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/web/lab.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="/" aria-label="Quantix — home">
+    <svg class="logo" viewBox="-50 -50 100 100" aria-hidden="true">
+      <defs><radialGradient id="lgCore"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient></defs>
+      <g class="lg-orbits" fill="none" stroke-width="3">
+        <ellipse rx="44" ry="15" stroke="var(--accent)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent-2)" transform="rotate(60)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent)" transform="rotate(120)" opacity=".75"/>
+      </g>
+      <circle r="12" fill="url(#lgCore)" class="lg-core"/>
+    </svg>
+    <span>
+      <h1 id="tTitle">Measure</h1>
+      <span class="kicker">Quantix</span>
+    </span>
+  </a>
+  <nav aria-label="Pages"><a href="/" title="Image Inspection — home">Home</a><a href="/measure" title="Measure real objects in a photo" class="on" aria-current="page">Measure</a><a href="/formulas" title="Formula Library">Formulas</a><a href="/elements" title="Periodic Table">Elements</a><a href="/physics" title="Physics Lab">Physics</a><a href="/handwriting" title="Equation Solver (handwriting)">Solver</a><a href="/converter" title="Unit Converter">Converter</a><a href="/graph" title="Graph Plotter">Graphs</a></nav>
+  <span class="spacer"></span>
+  <div class="lang" role="group" aria-label="Language / भाषा">
+    <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+    <button type="button" data-lang="hi" aria-pressed="false" lang="hi">हिन्दी</button>
+  </div>
+  <button class="btn small" id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
+</header>
+
+<main>
+  <aside aria-label="Measuring steps">
+    <section class="card">
+      <h2 class="step"><span class="n">1</span><span id="s1">Photo</span><span class="ok" id="ok1" hidden>✓</span></h2>
+      <div class="drop" id="drop" tabindex="0" role="button" aria-describedby="dropHelp">
+        <b id="dropTitle">Drop a photo here</b>
+        <span id="dropHelp">or click to browse · Ctrl+V to paste</span>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn small" id="camBtn" type="button">📷 <span id="camTxt">Take a photo</span></button>
+        <button class="btn small" id="sampleBtn" type="button">🧪 <span id="sampleTxt">Try a sample</span></button>
+      </div>
+      <input class="sr" id="file" type="file" accept="image/*">
+      <input class="sr" id="cam" type="file" accept="image/*" capture="environment">
+      <p class="hint" id="tip1">Put a coin, a bank / ID card, an A4 sheet or a ruler next to the object, in the same plane. Shoot from straight above.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="step"><span class="n">2</span><span id="s2">Set the scale</span><span class="ok" id="ok2" hidden>✓</span></h2>
+      <label class="hint" for="ref" id="refLbl" style="display:block;margin:0 0 4px">Reference object in the photo</label>
+      <select class="field" id="ref"></select>
+      <div class="row" id="customRow" style="margin-top:8px" hidden>
+        <input class="field" id="customLen" type="number" min="0" step="any" style="width:120px" aria-label="Known length">
+        <select class="field" id="customUnit" style="width:auto" aria-label="Unit"><option value="1">mm</option><option value="10" selected>cm</option><option value="25.4">in</option></select>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn small" id="autoRef" type="button">✨ <span id="autoTxt">Auto-find</span></button>
+        <button class="btn small" id="drawRef" type="button">📏 <span id="drawTxt">Draw across it</span></button>
+      </div>
+      <div class="status" id="scaleStatus" aria-live="polite">Scale not set</div>
+    </section>
+
+    <section class="card">
+      <h2 class="step"><span class="n">3</span><span id="s3">Measure</span></h2>
+      <div class="tools" role="group" aria-label="Tools" id="tools"></div>
+      <div class="row" style="margin-top:8px">
+        <label class="hint" for="unit" style="margin:0" id="unitLbl">Units</label>
+        <select class="field" id="unit" style="width:auto"><option value="mm">mm</option><option value="cm" selected>cm</option><option value="m">m</option><option value="in">in</option></select>
+      </div>
+      <div style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px">
+        <button class="btn primary" id="detectBtn" type="button" style="width:100%">🔷 <span id="detTxt">Auto-measure shapes</span></button>
+        <div class="row" style="margin-top:6px">
+          <label class="hint" for="depth" style="margin:0" id="depthLbl">Depth of 3D box / prism (optional)</label>
+          <input class="field" id="depth" type="number" min="0" step="any" style="width:90px">
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2 class="step" style="margin:0"><span id="s4">Results</span></h2>
+        <div class="row">
+          <button class="btn small" id="csvBtn" type="button" disabled>CSV</button>
+          <button class="btn small" id="pngBtn" type="button" disabled>⬇ <span id="pngTxt">Image</span></button>
+        </div>
+      </div>
+      <div class="results" id="results" style="margin-top:10px" aria-live="polite"></div>
+    </section>
+  </aside>
+
+  <section class="card stage-card" aria-label="Photo">
+    <div class="stage-bar">
+      <button class="btn small" id="zoomIn" type="button" aria-label="Zoom in">+</button>
+      <button class="btn small" id="zoomOut" type="button" aria-label="Zoom out">−</button>
+      <button class="btn small" id="fitBtn" type="button"><span id="fitTxt">Fit</span></button>
+      <button class="btn small" id="undoBtn" type="button">↶ <span id="undoTxt">Undo</span></button>
+      <span class="info" id="info"></span>
+    </div>
+    <div class="stage crosshair" id="stage">
+      <canvas id="cv" tabindex="0" role="application" aria-roledescription="measuring canvas" aria-describedby="cvHelp"></canvas>
+      <p class="sr" id="cvHelp">Arrow keys move the cross-hair (Shift for bigger steps), Enter places a point, Shift+Enter closes an area, Ctrl+arrows pan, + and − zoom, 0 fits, Esc cancels.</p>
+      <div class="empty" id="empty"><div class="big">📏</div><div id="emptyTxt">Add a photo to start measuring</div></div>
+      <div class="prompt" id="prompt" hidden></div>
+      <div class="loupe" id="loupe" hidden><canvas id="lcv" width="150" height="150"></canvas></div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function () {
+  "use strict";
+  const API = "/api/v1";
+  const $ = (id) => document.getElementById(id);
+  const MAX_SIDE = 2400;
+  const COL = { scale: "#f59e0b", line: "#38bdf8", circle: "#34d399", area: "#a78bfa", shape: "#f472b6", cand: "#facc15" };
+  const UNIT = { mm: 1, cm: 10, m: 1000, in: 25.4 };
+  const S = {
+    lang: "en", img: null, blob: null, W: 0, H: 0, view: { s: 1, x: 0, y: 0 }, tool: "line", draft: [], items: [], sel: null,
+    scale: null, presets: {}, cands: null, shapes: [], unit: "cm", mouse: null, panning: null, nextId: 1, history: [],
+  };
+
+  const T = {
+    en: { title: "Measure", s1: "Photo", s2: "Set the scale", s3: "Measure", s4: "Results", dropTitle: "Drop a photo here",
+          dropHelp: "or click to browse · Ctrl+V to paste", cam: "Take a photo", sample: "Try a sample",
+          tip1: "Put a coin, a bank / ID card, an A4 sheet or a ruler next to the object, in the same plane. Shoot from straight above.",
+          refLbl: "Reference object in the photo", auto: "Auto-find", draw: "Draw across it", noScale: "Scale not set — measurements are in pixels",
+          scaleSet: (mmpx, ref) => `1 px = ${mmpx} mm  ·  from ${ref}`, unitLbl: "Units", det: "Auto-measure shapes",
+          depthLbl: "Depth of 3D box / prism (optional)", png: "Image", fit: "Fit", undo: "Undo", empty: "Add a photo to start measuring",
+          cvHelp: "Arrow keys move the cross-hair (Shift for bigger steps), Enter places a point, Shift+Enter closes an area, Ctrl+arrows pan, + and − zoom, 0 fits, Esc cancels.",
+          tools: { line: "Distance", circle: "Circle", area: "Area", pan: "Pan" },
+          p: { scale: (ref) => `Click both ends across the ${ref}`, line: "Click the start and end of the distance",
+               circle: "Click the centre, then a point on the edge", area: "Click the corners · click the first point or press Enter to finish",
+               pan: "Drag to move · scroll to zoom", cands: "Click the highlighted reference (or press its number)",
+               needLen: "Enter the known length first" },
+          length: "Length", diameter: "Diameter", radius: "Radius", area: "Area", perimeter: "Perimeter", circumference: "Circumference",
+          lineN: (n) => `Distance ${n}`, circleN: (n) => `Circle ${n}`, areaN: (n) => `Area ${n}`,
+          noCands: "No coin / card found automatically — use “Draw across it”.", wrongKind: "That reference is a different shape — pick another or draw it.",
+          needPhoto: "Add a photo first.", needScale: "Set the scale first (step 2).", detecting: "Detecting shapes…",
+          found: (n) => `${n} shape(s) measured`, none0: "No shapes detected. Try a clearer photo, or measure by hand with the tools.",
+          dims: "Measured", offline: "API not reachable — start it with start_ui.bat.", copied: "Copied",
+          assume: { isosceles_assumed: "Triangle treated as isosceles (sides from its base and height).",
+                    slant_side_assumed: "Slant side estimated from the outline.", trapezium_sides_assumed: "Sides estimated from the outline.",
+                    front_view: "Measured from its front face.", depth_assumed: "Depth is not visible in a photo — assumed. Enter the real depth for an exact volume.",
+                    depth_given: "Used the depth you entered.", side_view: "Measured from the side: width → diameter, height → height.",
+                    unknown_shape: "No formulas for this shape." },
+          px: "px", custom: "custom length", warnPersp: "Keep the camera square to the object — tilted photos change sizes." },
+    hi: { title: "मापन", s1: "फ़ोटो", s2: "पैमाना तय करें", s3: "मापें", s4: "परिणाम", dropTitle: "फ़ोटो यहाँ छोड़ें",
+          dropHelp: "या चुनने के लिए क्लिक करें · Ctrl+V से चिपकाएँ", cam: "फ़ोटो खींचें", sample: "नमूना आज़माएँ",
+          tip1: "वस्तु के पास उसी तल में सिक्का, बैंक / पहचान कार्ड, A4 कागज़ या स्केल रखें। ठीक ऊपर से फ़ोटो लें।",
+          refLbl: "फ़ोटो में संदर्भ वस्तु", auto: "स्वतः खोजें", draw: "उसके आर-पार खींचें", noScale: "पैमाना तय नहीं — माप पिक्सेल में हैं",
+          scaleSet: (mmpx, ref) => `1 px = ${mmpx} mm  ·  ${ref} से`, unitLbl: "मात्रक", det: "आकृतियाँ स्वतः मापें",
+          depthLbl: "3D डिब्बे / प्रिज़्म की गहराई (वैकल्पिक)", png: "चित्र", fit: "फ़िट", undo: "पूर्ववत्", empty: "मापना शुरू करने के लिए फ़ोटो जोड़ें",
+          cvHelp: "तीर कुंजियाँ क्रॉस-हेयर खिसकाती हैं (बड़े कदम के लिए Shift), Enter बिंदु लगाता है, Shift+Enter क्षेत्र बंद करता है, Ctrl+तीर खिसकाते हैं, + और − ज़ूम, 0 फ़िट, Esc रद्द।",
+          tools: { line: "दूरी", circle: "वृत्त", area: "क्षेत्रफल", pan: "खिसकाएँ" },
+          p: { scale: (ref) => `${ref} के दोनों सिरों पर क्लिक करें`, line: "दूरी का आरंभ और अंत क्लिक करें",
+               circle: "पहले केंद्र, फिर किनारे का बिंदु क्लिक करें", area: "कोने क्लिक करें · पहले बिंदु पर क्लिक या Enter से पूरा करें",
+               pan: "खिसकाने के लिए खींचें · ज़ूम के लिए स्क्रॉल", cands: "चमकते संदर्भ पर क्लिक करें (या उसकी संख्या दबाएँ)",
+               needLen: "पहले ज्ञात लंबाई लिखें" },
+          length: "लंबाई", diameter: "व्यास", radius: "त्रिज्या", area: "क्षेत्रफल", perimeter: "परिमाप", circumference: "परिधि",
+          lineN: (n) => `दूरी ${n}`, circleN: (n) => `वृत्त ${n}`, areaN: (n) => `क्षेत्रफल ${n}`,
+          noCands: "सिक्का / कार्ड स्वतः नहीं मिला — “उसके आर-पार खींचें” का उपयोग करें।", wrongKind: "यह संदर्भ अलग आकार का है — दूसरा चुनें या खींचें।",
+          needPhoto: "पहले फ़ोटो जोड़ें।", needScale: "पहले पैमाना तय करें (चरण 2)।", detecting: "आकृतियाँ खोजी जा रही हैं…",
+          found: (n) => `${n} आकृति(याँ) मापी गईं`, none0: "कोई आकृति नहीं मिली। साफ़ फ़ोटो लें या उपकरणों से हाथ से मापें।",
+          dims: "मापा गया", offline: "API उपलब्ध नहीं है — start_ui.bat से चालू करें।", copied: "कॉपी हो गया",
+          assume: { isosceles_assumed: "त्रिभुज को समद्विबाहु माना गया (भुजाएँ आधार व ऊँचाई से)।",
+                    slant_side_assumed: "तिर्यक भुजा रूपरेखा से अनुमानित।", trapezium_sides_assumed: "भुजाएँ रूपरेखा से अनुमानित।",
+                    front_view: "सामने के फलक से मापा गया।", depth_assumed: "फ़ोटो में गहराई नहीं दिखती — अनुमानित। सटीक आयतन के लिए असली गहराई लिखें।",
+                    depth_given: "आपकी लिखी गहराई ली गई।", side_view: "बगल से मापा गया: चौड़ाई → व्यास, ऊँचाई → ऊँचाई।",
+                    unknown_shape: "इस आकृति के सूत्र उपलब्ध नहीं।" },
+          px: "px", custom: "अपनी लंबाई", warnPersp: "कैमरा वस्तु के ठीक सामने रखें — तिरछी फ़ोटो से माप बदल जाते हैं।" },
+  };
+  const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === "function" ? v(...a) : v; };
+
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    Object.entries(props || {}).forEach(([k, v]) => {
+      if (v == null || v === false) return;
+      if (k === "class") el.className = v;
+      else if (k === "style" && typeof v === "object") Object.entries(v).forEach(([sk, sv]) => (sk.startsWith("--") ? el.style.setProperty(sk, sv) : (el.style[sk] = sv)));
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v);
+    });
+    kids.flat(Infinity).forEach((c) => c != null && c !== false && el.append(c.nodeType ? c : document.createTextNode(String(c))));
+    return el;
+  }
+  const fill = (el, ...kids) => el.replaceChildren(...kids.flat().filter((k) => k != null && k !== false));
+  function toast(m) { const e = $("toast"); e.textContent = m; e.style.color = "var(--panel-solid)"; e.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (e.hidden = true), 2200); }
+  const refName = () => { const p = S.presets[$("ref").value]; return p ? (S.lang === "hi" ? p.label_hi : p.label) : ""; };
+
+  // ---------------------------------------------------------------- units
+  const mmPerPx = () => (S.scale ? S.scale.mmpx : null);
+  function fmtLen(px, power = 1) {
+    if (!mmPerPx()) return `${(px).toFixed(power === 1 ? 1 : 0)} ${t("px")}${power > 1 ? (power === 2 ? "²" : "³") : ""}`;
+    const v = px * Math.pow(mmPerPx(), power) / Math.pow(UNIT[S.unit], power);
+    return `${fmtNum(v)} ${S.unit}${power === 2 ? "²" : power === 3 ? "³" : ""}`;
+  }
+  function fmtMm(mm, power = 1) {
+    const v = mm / Math.pow(UNIT[S.unit], power);
+    return `${fmtNum(v)} ${S.unit}${power === 2 ? "²" : power === 3 ? "³" : ""}`;
+  }
+  function fmtNum(v) {
+    const a = Math.abs(v);
+    if (a !== 0 && (a >= 1e6 || a < 1e-3)) return v.toExponential(3);
+    return Number(v.toPrecision(a < 1 ? 3 : 5)).toLocaleString(S.lang === "hi" ? "en-IN" : "en-US", { maximumFractionDigits: 4 });
+  }
+
+  // ---------------------------------------------------------------- geometry of measurements
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  function polyArea(p) { let s = 0; for (let i = 0; i < p.length; i++) { const a = p[i], b = p[(i + 1) % p.length]; s += a[0] * b[1] - b[0] * a[1]; } return Math.abs(s) / 2; }
+  function polyPerim(p) { let s = 0; for (let i = 0; i < p.length; i++) s += dist(p[i], p[(i + 1) % p.length]); return s; }
+  function itemFacts(it) {
+    if (it.type === "line") return [[t("length"), fmtLen(dist(it.pts[0], it.pts[1]))]];
+    if (it.type === "circle") {
+      const r = dist(it.pts[0], it.pts[1]);
+      return [[t("diameter"), fmtLen(2 * r)], [t("radius"), fmtLen(r)], [t("area"), fmtLen(Math.PI * r * r, 2)], [t("circumference"), fmtLen(2 * Math.PI * r)]];
+    }
+    return [[t("area"), fmtLen(polyArea(it.pts), 2)], [t("perimeter"), fmtLen(polyPerim(it.pts))]];
+  }
+
+  // ---------------------------------------------------------------- canvas
+  const cv = $("cv"), ctx = cv.getContext("2d");
+  let dpr = 1;
+  function resize() {
+    const r = $("stage").getBoundingClientRect();
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+    draw();
+  }
+  new ResizeObserver(resize).observe($("stage"));
+  const toScreen = (p) => [p[0] * S.view.s + S.view.x, p[1] * S.view.s + S.view.y];
+  const toImage = (x, y) => [(x - S.view.x) / S.view.s, (y - S.view.y) / S.view.s];
+  function fit() {
+    if (!S.img) return;
+    const r = $("stage").getBoundingClientRect();
+    const s = Math.min(r.width / S.W, r.height / S.H) * 0.96;
+    S.view = { s, x: (r.width - S.W * s) / 2, y: (r.height - S.H * s) / 2 };
+    draw();
+  }
+  function zoomAt(f, cx, cy) {
+    const s = Math.max(0.05, Math.min(40, S.view.s * f)), k = s / S.view.s;
+    S.view = { s, x: cx - (cx - S.view.x) * k, y: cy - (cy - S.view.y) * k };
+    draw();
+  }
+
+  function label(c, x, y, text, colour) {
+    c.font = "600 12px system-ui, Segoe UI, sans-serif";
+    const w = c.measureText(text).width + 10;
+    c.fillStyle = "rgba(5,10,22,.82)"; c.strokeStyle = colour; c.lineWidth = 1;
+    c.beginPath(); c.roundRect(x - w / 2, y - 10, w, 20, 6); c.fill(); c.stroke();
+    c.fillStyle = "#fff"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(text, x, y + 0.5);
+  }
+  function drawOverlay(c, map, k) {           // map: image -> drawing coords; k: line-width factor
+    const dot = (p, col) => { const [x, y] = map(p); c.fillStyle = col; c.beginPath(); c.arc(x, y, 4 * k, 0, 6.283); c.fill(); c.strokeStyle = "#000"; c.lineWidth = 1 * k; c.stroke(); };
+    // detected shapes
+    S.shapes.forEach((sh, i) => {
+      const [x1, y1] = map([sh.box[0], sh.box[1]]), [x2, y2] = map([sh.box[2], sh.box[3]]);
+      c.strokeStyle = COL.shape; c.lineWidth = 2 * k; c.setLineDash([6 * k, 4 * k]); c.strokeRect(x1, y1, x2 - x1, y2 - y1); c.setLineDash([]);
+      label(c, (x1 + x2) / 2, y1 - 14 * k, `${i + 1}. ${sh.name} · ${fmtMm(sh.width_mm)} × ${fmtMm(sh.height_mm)}`, COL.shape);
+    });
+    // reference candidates
+    if (S.cands) {
+      S.cands.list.forEach((cd, i) => {
+        c.strokeStyle = COL.cand; c.lineWidth = 3 * k; c.setLineDash([8 * k, 5 * k]);
+        if (cd.kind === "circle") { const [x, y] = map([cd.cx, cd.cy]); c.beginPath(); c.arc(x, y, cd.r * (map([1, 0])[0] - map([0, 0])[0]), 0, 6.283); c.stroke(); label(c, x, y, String(i + 1), COL.cand); }
+        else { c.beginPath(); cd.pts.forEach((p, j) => { const [x, y] = map(p); j ? c.lineTo(x, y) : c.moveTo(x, y); }); c.closePath(); c.stroke();
+               const m = cd.pts.reduce((a, p) => [a[0] + p[0] / 4, a[1] + p[1] / 4], [0, 0]); const [x, y] = map(m); label(c, x, y, String(i + 1), COL.cand); }
+        c.setLineDash([]);
+      });
+    }
+    // scale line
+    if (S.scale && S.scale.pts) {
+      const [a, b] = S.scale.pts.map(map);
+      c.strokeStyle = COL.scale; c.lineWidth = 3 * k; c.beginPath(); c.moveTo(...a); c.lineTo(...b); c.stroke();
+      dot(S.scale.pts[0], COL.scale); dot(S.scale.pts[1], COL.scale);
+      label(c, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2 - 16 * k, `${S.scale.mm} mm`, COL.scale);
+    }
+    // measurements
+    S.items.forEach((it) => {
+      const col = COL[it.type], selected = it.id === S.sel;
+      c.strokeStyle = col; c.lineWidth = (selected ? 4 : 2.5) * k;
+      if (it.type === "line") {
+        const [a, b] = it.pts.map(map);
+        c.beginPath(); c.moveTo(...a); c.lineTo(...b); c.stroke();
+        it.pts.forEach((p) => dot(p, col));
+        label(c, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2 - 14 * k, itemFacts(it)[0][1], col);
+      } else if (it.type === "circle") {
+        const [o] = it.pts.map(map), r = dist(...it.pts.map(map));
+        c.beginPath(); c.arc(o[0], o[1], r, 0, 6.283); c.stroke();
+        c.setLineDash([4 * k, 4 * k]); c.beginPath(); c.moveTo(o[0] - r, o[1]); c.lineTo(o[0] + r, o[1]); c.stroke(); c.setLineDash([]);
+        dot(it.pts[0], col);
+        label(c, o[0], o[1] - 14 * k, `⌀ ${itemFacts(it)[0][1]}`, col);
+      } else {
+        const ps = it.pts.map(map);
+        c.fillStyle = col + "33"; c.beginPath(); ps.forEach((p, j) => (j ? c.lineTo(...p) : c.moveTo(...p))); c.closePath(); c.fill(); c.stroke();
+        it.pts.forEach((p) => dot(p, col));
+        const m = ps.reduce((a, p) => [a[0] + p[0] / ps.length, a[1] + p[1] / ps.length], [0, 0]);
+        label(c, m[0], m[1], itemFacts(it)[0][1], col);
+      }
+    });
+    // draft
+    if (S.draft.length) {
+      const col = S.tool === "scale" ? COL.scale : COL[S.tool] || COL.line;
+      const ps = S.draft.map(map), live = S.mouse ? map(S.mouse) : null;
+      c.strokeStyle = col; c.lineWidth = 2 * k; c.setLineDash([5 * k, 4 * k]);
+      c.beginPath();
+      if (S.tool === "circle" && live) { c.arc(ps[0][0], ps[0][1], dist(ps[0], live), 0, 6.283); }
+      else { ps.forEach((p, j) => (j ? c.lineTo(...p) : c.moveTo(...p))); if (live) c.lineTo(...live); }
+      c.stroke(); c.setLineDash([]);
+      S.draft.forEach((p) => dot(p, col));
+      if (live && S.tool !== "area" && S.mouse) {
+        const d = S.tool === "circle" ? `⌀ ${fmtLen(2 * dist(S.draft[0], S.mouse))}` : (S.tool === "scale" ? `${dist(S.draft[0], S.mouse).toFixed(0)} px` : fmtLen(dist(S.draft[0], S.mouse)));
+        label(c, live[0], live[1] - 22 * k, d, col);
+      }
+    }
+  }
+  function draw() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    if (!S.img) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(S.img, S.view.x, S.view.y, S.W * S.view.s, S.H * S.view.s);
+    drawOverlay(ctx, toScreen, 1);
+    if (S.kbd && S.mouse && S.tool !== "pan") {              // keyboard cross-hair (the mouse has its own cursor)
+      const [x, y] = toScreen(S.mouse);
+      ctx.lineWidth = 3; ctx.strokeStyle = "rgba(0,0,0,.6)";
+      ctx.beginPath(); ctx.moveTo(x - 16, y); ctx.lineTo(x + 16, y); ctx.moveTo(x, y - 16); ctx.lineTo(x, y + 16); ctx.stroke();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = "#38bdf8"; ctx.stroke();
+    }
+    $("info").textContent = `${S.W}×${S.H} px · ${Math.round(S.view.s * 100)}%`;
+  }
+  function loupe(sx, sy) {
+    const L = $("loupe");
+    if (!S.img || !S.mouse || S.tool === "pan" || S.panning) { L.hidden = true; return; }
+    const r = $("stage").getBoundingClientRect();
+    L.hidden = false;
+    L.style.left = `${Math.min(r.width - 160, sx + 24)}px`;
+    L.style.top = `${Math.max(6, sy - 170)}px`;
+    const lc = $("lcv").getContext("2d"), z = 4;                 // 4× the current on-screen zoom
+    const [ix, iy] = S.mouse;
+    lc.setTransform(1, 0, 0, 1, 0, 0); lc.fillStyle = "#000"; lc.fillRect(0, 0, 150, 150);
+    const k = z * S.view.s;                                       // image px -> loupe px
+    lc.imageSmoothingEnabled = false;
+    lc.drawImage(S.img, ix - 75 / k, iy - 75 / k, 150 / k, 150 / k, 0, 0, 150, 150);
+    lc.strokeStyle = "#38bdf8"; lc.lineWidth = 1; lc.beginPath(); lc.moveTo(75, 60); lc.lineTo(75, 90); lc.moveTo(60, 75); lc.lineTo(90, 75); lc.stroke();
+  }
+
+  // ---------------------------------------------------------------- pointer interaction
+  const stage = $("stage");
+  function local(e) { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+  cv.addEventListener("wheel", (e) => { if (!S.img) return; e.preventDefault(); const [x, y] = local(e); zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, x, y); }, { passive: false });
+  let spaceDown = false;
+  cv.addEventListener("pointerdown", (e) => {
+    if (!S.img) return;
+    const [x, y] = local(e);
+    if (S.tool === "pan" || spaceDown || e.button === 1) {
+      S.panning = { x, y, vx: S.view.x, vy: S.view.y }; stage.classList.add("grabbing"); cv.setPointerCapture(e.pointerId); return;
+    }
+    if (e.button !== 0) return;
+    const p = toImage(x, y);
+    if (S.cands) { pickCandidateAt(p); return; }
+    addPoint(p);
+  });
+  cv.addEventListener("pointermove", (e) => {
+    if (!S.img) return;
+    const [x, y] = local(e);
+    if (S.panning) { S.view.x = S.panning.vx + x - S.panning.x; S.view.y = S.panning.vy + y - S.panning.y; draw(); return; }
+    S.mouse = toImage(x, y);
+    draw(); loupe(x, y);
+  });
+  cv.addEventListener("pointerup", () => { if (S.panning) { S.panning = null; stage.classList.remove("grabbing"); } });
+  cv.addEventListener("pointerleave", () => { S.mouse = null; $("loupe").hidden = true; draw(); });
+  cv.addEventListener("dblclick", (e) => { if (S.tool === "area" && S.draft.length >= 3) { e.preventDefault(); finishArea(); } });
+  // keyboard: arrows move a cross-hair over the photo, Enter / Space places a point exactly like a click
+  cv.addEventListener("focus", () => { S.kbd = cv.matches(":focus-visible"); if (!S.kbd) return; if (S.img && !S.mouse) S.mouse = [S.W / 2, S.H / 2]; draw(); });
+  cv.addEventListener("blur", () => { S.kbd = false; $("loupe").hidden = true; draw(); });
+  cv.addEventListener("pointerdown", () => { S.kbd = false; });
+  cv.addEventListener("keydown", (e) => {
+    if (!S.img) return;
+    const dir = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+    if (dir) {
+      e.preventDefault();
+      if (e.ctrlKey || e.metaKey || S.tool === "pan") { S.view.x -= dir[0] * 60; S.view.y -= dir[1] * 60; draw(); return; }
+      S.kbd = true;
+      const step = (e.shiftKey ? 20 : 2) / S.view.s;                   // in image px: 2 / 20 screen px
+      const m = S.mouse || [S.W / 2, S.H / 2];
+      S.mouse = [Math.max(0, Math.min(S.W, m[0] + dir[0] * step)), Math.max(0, Math.min(S.H, m[1] + dir[1] * step))];
+      const r = cv.getBoundingClientRect(), [sx, sy] = toScreen(S.mouse);   // keep the cross-hair on screen
+      if (sx < 30) S.view.x += 30 - sx; else if (sx > r.width - 30) S.view.x -= sx - (r.width - 30);
+      if (sy < 30) S.view.y += 30 - sy; else if (sy > r.height - 30) S.view.y -= sy - (r.height - 30);
+      draw(); loupe(...toScreen(S.mouse));
+      return;
+    }
+    if (e.key === "Enter" && e.shiftKey && S.tool === "area") { e.preventDefault(); e.stopPropagation(); finishArea(); return; }
+    if ((e.key === "Enter" || e.key === " ") && S.mouse && S.tool !== "pan") {
+      e.preventDefault(); e.stopPropagation();
+      S.kbd = true;
+      if (S.cands) pickCandidateAt(S.mouse.slice()); else addPoint(S.mouse.slice());
+      draw();
+    }
+  });
+
+  function addPoint(p) {
+    if (S.tool === "scale") {
+      S.draft.push(p);
+      if (S.draft.length === 2) { setScaleFromPx(dist(S.draft[0], S.draft[1]), S.draft.slice()); S.draft = []; setTool("line"); }
+    } else if (S.tool === "line" || S.tool === "circle") {
+      S.draft.push(p);
+      if (S.draft.length === 2) { pushItem({ type: S.tool, pts: S.draft.slice() }); S.draft = []; }
+    } else if (S.tool === "area") {
+      if (S.draft.length >= 3 && dist(toScreen(p), toScreen(S.draft[0])) < 12) { finishArea(); return; }
+      S.draft.push(p);
+    }
+    draw();
+  }
+  function finishArea() { if (S.draft.length >= 3) pushItem({ type: "area", pts: S.draft.slice() }); S.draft = []; draw(); }
+  function pushItem(it) {
+    const n = S.items.filter((x) => x.type === it.type).length + 1;
+    it.id = S.nextId++; it.n = n;
+    S.items.push(it); S.sel = it.id; S.history.push({ kind: "item", id: it.id });
+    renderResults();
+  }
+
+  // ---------------------------------------------------------------- scale
+  function knownMm() {
+    const key = $("ref").value, p = S.presets[key];
+    if (!p) return null;
+    if (key === "custom") { const v = parseFloat($("customLen").value); return v > 0 ? v * parseFloat($("customUnit").value) : null; }
+    return p.mm;
+  }
+  function setScaleFromPx(px, pts, extra) {
+    const mm = knownMm();
+    if (!mm) { toast(t("p").needLen); $("customLen").focus(); return; }
+    if (px < 3) return;
+    S.history.push({ kind: "scale", prev: S.scale });
+    S.scale = { mmpx: mm / px, mm: Math.round(mm * 100) / 100, pts, refKey: $("ref").value, circle: extra || null };
+    S.cands = null;
+    renderScale(); renderResults(); draw();
+  }
+  function renderScale() {
+    const st = $("scaleStatus");
+    if (S.scale) {
+      const p = S.presets[S.scale.refKey], name = S.scale.refKey === "custom" ? `${S.scale.mm} mm` : (p ? (S.lang === "hi" ? p.label_hi : p.label) : "");
+      st.textContent = t("scaleSet", Number(S.scale.mmpx.toPrecision(4)), name); st.classList.add("set");
+    }
+    else { st.textContent = t("noScale"); st.classList.remove("set"); }
+    $("ok2").hidden = !S.scale;
+    $("detectBtn").disabled = !S.img;
+  }
+  $("ref").addEventListener("change", () => { $("customRow").hidden = $("ref").value !== "custom"; $("autoRef").disabled = $("ref").value === "custom"; save(); });
+  $("drawRef").onclick = () => { if (!S.img) return toast(t("needPhoto")); if (!knownMm()) { toast(t("p").needLen); $("customLen").focus(); return; } S.cands = null; setTool("scale"); };
+  $("autoRef").onclick = async () => {
+    if (!S.img) return toast(t("needPhoto"));
+    const p = S.presets[$("ref").value];
+    const fd = new FormData(); fd.append("file", S.blob, "photo.jpg");
+    let b;
+    try { b = await (await fetch(`${API}/measure/references`, { method: "POST", body: fd })).json(); } catch (_) { return toast(t("offline")); }
+    if (!b.success) return toast(b.error.errorContent);
+    const list = p.kind === "circle" ? b.data.circles.map((c) => ({ kind: "circle", ...c }))
+               : b.data.rects.map((r) => ({ kind: "rect", ...r })).sort((a, z) => (z.guess === $("ref").value) - (a.guess === $("ref").value));
+    if (!list.length) { toast(t("noCands")); return; }
+    if (list.length === 1) { useCandidate(list[0]); return; }
+    S.cands = { list }; setTool("line"); showPrompt(t("p").cands); draw();
+  };
+  function useCandidate(cd) {
+    if (cd.kind === "circle") setScaleFromPx(2 * cd.r, [[cd.cx - cd.r, cd.cy], [cd.cx + cd.r, cd.cy]], { cx: cd.cx, cy: cd.cy, r: cd.r });
+    else {
+      const ps = cd.pts, s0 = dist(ps[0], ps[1]), s1 = dist(ps[1], ps[2]);
+      const pair = s0 >= s1 ? [[ps[0], ps[1]], [ps[3], ps[2]]] : [[ps[1], ps[2]], [ps[0], ps[3]]];
+      const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      setScaleFromPx(cd.long_px, [mid(pair[0][0], pair[1][0]), mid(pair[0][1], pair[1][1])]);
+    }
+    showPrompt(null);
+  }
+  function pickCandidateAt(p) {
+    const hit = S.cands.list.find((cd) => cd.kind === "circle" ? dist(p, [cd.cx, cd.cy]) <= cd.r * 1.15
+      : (() => { const xs = cd.pts.map((q) => q[0]), ys = cd.pts.map((q) => q[1]); return p[0] >= Math.min(...xs) && p[0] <= Math.max(...xs) && p[1] >= Math.min(...ys) && p[1] <= Math.max(...ys); })());
+    if (hit) useCandidate(hit); else { S.cands = null; showPrompt(null); draw(); }
+  }
+
+  // ---------------------------------------------------------------- tools
+  const TOOLS = [["line", "📏", "L"], ["circle", "◯", "C"], ["area", "⬠", "A"], ["pan", "✋", "P"]];
+  function renderTools() {
+    fill($("tools"), TOOLS.map(([k, ic, key]) => h("button", { class: "btn small tool", type: "button", "aria-pressed": String(S.tool === k),
+      onclick: () => setTool(k) }, `${ic} ${t("tools")[k]}`, h("kbd", {}, key))));
+  }
+  function setTool(k) {
+    if (S.tool === "area" && k !== "area") finishArea();
+    S.tool = k; S.draft = [];
+    stage.classList.toggle("crosshair", k !== "pan"); stage.classList.toggle("grab", k === "pan");
+    renderTools();
+    showPrompt(S.img ? (k === "scale" ? t("p").scale(refName()) : t("p")[k]) : null);
+    draw();
+  }
+  function showPrompt(text) { const p = $("prompt"); p.hidden = !text; if (text) p.textContent = text; }
+
+  // ---------------------------------------------------------------- results list
+  function renderResults() {
+    const box = $("results"), rows = [];
+    S.items.forEach((it) => {
+      const name = t(it.type + "N", it.n), facts = itemFacts(it);
+      rows.push(h("div", { class: "res" + (it.id === S.sel ? " sel" : ""), tabindex: "0", onclick: () => { S.sel = it.id; renderResults(); draw(); },
+        onkeydown: (e) => { if (e.key === "Delete" || e.key === "Backspace") { removeItem(it.id); } } },
+        h("div", { class: "res-head" }, h("span", { class: "sw", style: { background: COL[it.type] } }), h("b", {}, name),
+          h("button", { class: "x", type: "button", "aria-label": "✕", onclick: (e) => { e.stopPropagation(); removeItem(it.id); } }, "✕")),
+        h("div", { class: "v" }, facts[0][1]),
+        facts.length > 1 ? h("div", { class: "sub" }, facts.slice(1).map(([k, v]) => `${k} ${v}`).join(" · ")) : null));
+    });
+    S.shapes.forEach((sh, i) => {
+      rows.push(h("div", { class: "shape-card" },
+        h("h4", {}, h("span", { class: "sw", style: { background: COL.shape } }), `${i + 1}. ${sh.name}`, sh.dimension ? h("span", { class: "tag" }, sh.dimension) : null),
+        h("div", { class: "dims" }, h("span", { class: "sub" }, `${t("dims")}:`), Object.entries(sh.dims_mm).map(([k, v]) => h("span", {}, h("i", {}, k), ` = ${fmtMm(v)}`))),
+        sh.results.length ? h("table", {}, h("tbody", {}, sh.results.map((r) => h("tr", {}, h("td", {}, r.label), h("td", { class: "f" }, r.formula),
+          h("td", { class: "val" }, fmtMm(r.value_mm, r.power)))))) : null,
+        sh.assumptions.map((a) => h("div", { class: "note" }, "⚠ " + (t("assume")[a] || a)))));
+    });
+    fill(box, rows.length ? rows : h("p", { class: "hint", style: { margin: 0 } }, S.img ? t("p")[S.tool] || "" : t("empty")));
+    $("csvBtn").disabled = $("pngBtn").disabled = !(S.items.length || S.shapes.length);
+  }
+  function removeItem(id) { S.items = S.items.filter((x) => x.id !== id); if (S.sel === id) S.sel = null; renderResults(); draw(); }
+  function undo() {
+    if (S.draft.length) { S.draft.pop(); draw(); return; }
+    const last = S.history.pop();
+    if (!last) return;
+    if (last.kind === "item") removeItem(last.id);
+    else if (last.kind === "scale") { S.scale = last.prev; renderScale(); renderResults(); draw(); }
+  }
+
+  // ---------------------------------------------------------------- auto-measure shapes
+  $("detectBtn").onclick = async () => {
+    if (!S.img) return toast(t("needPhoto"));
+    if (!S.scale) return toast(t("needScale"));
+    const fd = new FormData();
+    fd.append("file", S.blob, "photo.jpg"); fd.append("mm_per_px", String(S.scale.mmpx));
+    const d = parseFloat($("depth").value);
+    if (d > 0) fd.append("depth_mm", String(d * UNIT[S.unit]));
+    $("detectBtn").disabled = true; toast(t("detecting"));
+    let b;
+    try { b = await (await fetch(`${API}/measure/shapes`, { method: "POST", body: fd })).json(); }
+    catch (_) { toast(t("offline")); return; }
+    finally { $("detectBtn").disabled = false; }
+    if (!b.success) { toast(`${b.error.errorTitle}: ${b.error.errorContent}`); return; }
+    // the reference coin itself is not an object to measure
+    const ref = S.scale.circle;
+    S.shapes = b.data.shapes.filter((sh) => !ref || Math.hypot((sh.box[0] + sh.box[2]) / 2 - ref.cx, (sh.box[1] + sh.box[3]) / 2 - ref.cy) > ref.r * 0.5);
+    toast(S.shapes.length ? t("found", S.shapes.length) : t("none0"));
+    renderResults(); draw();
+  };
+
+  // ---------------------------------------------------------------- photo input
+  async function loadFile(file) {
+    if (!file || !/^image\//.test(file.type)) return;
+    let bmp;
+    try { bmp = await createImageBitmap(file, { imageOrientation: "from-image" }); } catch (_) { bmp = await createImageBitmap(file); }
+    const k = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    S.img = c; S.W = c.width; S.H = c.height;
+    S.blob = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.92));       // exactly the pixels we show
+    S.items = []; S.shapes = []; S.scale = null; S.cands = null; S.draft = []; S.history = []; S.sel = null;
+    $("empty").hidden = true; $("ok1").hidden = false;
+    fit(); renderScale(); renderResults(); setTool("line");
+    showPrompt(t("warnPersp"));
+    setTimeout(() => { if ($("prompt").textContent === t("warnPersp")) showPrompt(t("p").line); }, 3500);
+  }
+  $("drop").onclick = () => $("file").click();
+  $("drop").onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } };
+  $("camBtn").onclick = () => $("cam").click();
+  $("file").onchange = (e) => loadFile(e.target.files[0]);
+  $("cam").onchange = (e) => loadFile(e.target.files[0]);
+  ["dragover", "dragenter"].forEach((ev) => $("drop").addEventListener(ev, (e) => { e.preventDefault(); $("drop").classList.add("over"); }));
+  ["dragleave", "drop"].forEach((ev) => $("drop").addEventListener(ev, () => $("drop").classList.remove("over")));
+  $("drop").addEventListener("drop", (e) => { e.preventDefault(); loadFile(e.dataTransfer.files[0]); });
+  stage.addEventListener("dragover", (e) => e.preventDefault());
+  stage.addEventListener("drop", (e) => { e.preventDefault(); loadFile(e.dataTransfer.files[0]); });
+  document.addEventListener("paste", (e) => { const f = [...(e.clipboardData || {}).files || []][0]; if (f) loadFile(f); });
+  $("sampleBtn").onclick = async () => {
+    const r = await fetch("/web/samples/measure_sample.jpg");
+    if (!r.ok) return toast(t("offline"));
+    await loadFile(new File([await r.blob()], "measure_sample.jpg", { type: "image/jpeg" }));
+    $("ref").value = "coin_10"; $("ref").dispatchEvent(new Event("change"));
+  };
+
+  // ---------------------------------------------------------------- export
+  $("pngBtn").onclick = () => {
+    const c = document.createElement("canvas"); c.width = S.W; c.height = S.H;
+    const x = c.getContext("2d"); x.drawImage(S.img, 0, 0);
+    drawOverlay(x, (p) => p, Math.max(1, S.W / 1200));
+    c.toBlob((b) => { const a = h("a", { href: URL.createObjectURL(b), download: "measurements.png" }); document.body.append(a); a.click(); a.remove(); }, "image/png");
+  };
+  $("csvBtn").onclick = () => {
+    const lines = [["item", "quantity", "value"]];
+    S.items.forEach((it) => itemFacts(it).forEach(([k, v]) => lines.push([t(it.type + "N", it.n), k, v])));
+    S.shapes.forEach((sh, i) => { Object.entries(sh.dims_mm).forEach(([k, v]) => lines.push([`${i + 1}. ${sh.name}`, k, fmtMm(v)]));
+      sh.results.forEach((r) => lines.push([`${i + 1}. ${sh.name}`, r.label, fmtMm(r.value_mm, r.power)])); });
+    const csv = lines.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\r\n");
+    const a = h("a", { href: URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" })), download: "measurements.csv" });
+    document.body.append(a); a.click(); a.remove();
+  };
+
+  // ---------------------------------------------------------------- keyboard, zoom buttons
+  $("zoomIn").onclick = () => { const r = stage.getBoundingClientRect(); zoomAt(1.25, r.width / 2, r.height / 2); };
+  $("zoomOut").onclick = () => { const r = stage.getBoundingClientRect(); zoomAt(0.8, r.width / 2, r.height / 2); };
+  $("fitBtn").onclick = fit;
+  $("undoBtn").onclick = undo;
+  document.addEventListener("keydown", (e) => {
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+    if (e.key === " ") { spaceDown = true; stage.classList.add("grab"); if (document.activeElement === document.body) e.preventDefault(); }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); undo(); return; }
+    if (e.key === "Escape") { S.draft = []; S.cands = null; showPrompt(null); draw(); }
+    if (e.key === "Enter" && S.tool === "area") finishArea();
+    if ((e.key === "Delete" || e.key === "Backspace") && S.sel && !document.activeElement.classList.contains("res")) removeItem(S.sel);
+    if (S.cands && /^[1-9]$/.test(e.key)) { const cd = S.cands.list[Number(e.key) - 1]; if (cd) useCandidate(cd); }
+    const k = { l: "line", c: "circle", a: "area", p: "pan" }[e.key.toLowerCase()];
+    if (k && !e.ctrlKey && !e.metaKey && S.img) setTool(k);
+    if (e.key === "+" || e.key === "=") $("zoomIn").click();
+    if (e.key === "-") $("zoomOut").click();
+    if (e.key === "0") fit();
+  });
+  document.addEventListener("keyup", (e) => { if (e.key === " ") { spaceDown = false; stage.classList.toggle("grab", S.tool === "pan"); } });
+  $("unit").addEventListener("change", () => { S.unit = $("unit").value; save(); renderResults(); draw(); });
+
+  // ---------------------------------------------------------------- language, theme, settings
+  function applyLang(l) {
+    S.lang = T[l] ? l : "en";
+    try { localStorage.setItem("iav-formula-lang", S.lang); } catch (_) {}
+    document.documentElement.lang = S.lang; document.title = t("title") + " · Quantix";
+    const set = (id, k) => { $(id).textContent = t(k); };
+    [["tTitle", "title"], ["s1", "s1"], ["s2", "s2"], ["s3", "s3"], ["s4", "s4"], ["dropTitle", "dropTitle"], ["dropHelp", "dropHelp"],
+     ["camTxt", "cam"], ["sampleTxt", "sample"], ["tip1", "tip1"], ["refLbl", "refLbl"], ["autoTxt", "auto"], ["drawTxt", "draw"],
+     ["unitLbl", "unitLbl"], ["detTxt", "det"], ["depthLbl", "depthLbl"], ["pngTxt", "png"], ["fitTxt", "fit"], ["undoTxt", "undo"],
+     ["emptyTxt", "empty"], ["cvHelp", "cvHelp"]].forEach(([id, k]) => set(id, k));
+    document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === S.lang)));
+    renderPresets(); renderTools(); renderScale(); renderResults(); draw();
+    if (S.img) showPrompt(S.tool === "scale" ? t("p").scale(refName()) : t("p")[S.tool]);
+  }
+  function renderPresets() {
+    const cur = $("ref").value;
+    fill($("ref"), Object.entries(S.presets).map(([k, p]) => h("option", { value: k },
+      `${S.lang === "hi" ? p.label_hi : p.label}${p.mm ? ` — ${p.mm} mm` : ""}`)));
+    if (cur && S.presets[cur]) $("ref").value = cur;
+  }
+  function save() { try { localStorage.setItem("iav-measure", JSON.stringify({ ref: $("ref").value, unit: S.unit, custom: $("customLen").value })); } catch (_) {} }
+  document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
+  const root = document.documentElement;
+  try { const th = localStorage.getItem("iav-theme"); if (th) root.dataset.theme = th; } catch (_) {}
+  $("themeBtn").onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("iav-theme", root.dataset.theme); } catch (_) {}
+  };
+
+  (async function init() {
+    try { const b = await (await fetch(`${API}/measure/presets`)).json(); if (b.success) S.presets = b.data; } catch (_) {}
+    let st = {};
+    try { st = JSON.parse(localStorage.getItem("iav-measure") || "{}"); } catch (_) {}
+    S.unit = UNIT[st.unit] ? st.unit : "cm"; $("unit").value = S.unit;
+    if (st.custom) $("customLen").value = st.custom;
+    let lang = new URLSearchParams(location.search).get("lang");
+    try { lang = lang || localStorage.getItem("iav-formula-lang"); } catch (_) {}
+    applyLang(lang || "en");
+    $("ref").value = S.presets[st.ref] ? st.ref : "coin_10";
+    $("ref").dispatchEvent(new Event("change"));
+    renderResults(); renderScale();
+  })();
+})();
+</script>
+<script src="/web/sci_bg.js"></script>
+<script src="/web/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+{
+  "id": "algebra",
+  "title": "Algebra",
+  "icon": "x²",
+  "order": 2,
+  "description": "Identities, exponents, logarithms, equations, progressions, binomial theorem, complex numbers, permutations & combinations, matrices and inequalities.",
+  "sections": [
+    {"title": "Algebraic identities", "items": [
+      ["Square of a sum", "(a + b)² = a² + 2ab + b²", ""],
+      ["Square of a difference", "(a − b)² = a² − 2ab + b²", ""],
+      ["Difference of squares", "a² − b² = (a + b)(a − b)", ""],
+      ["Cube of a sum", "(a + b)³ = a³ + b³ + 3ab(a + b)", ""],
+      ["Cube of a difference", "(a − b)³ = a³ − b³ − 3ab(a − b)", ""],
+      ["Sum of cubes", "a³ + b³ = (a + b)(a² − ab + b²)", ""],
+      ["Difference of cubes", "a³ − b³ = (a − b)(a² + ab + b²)", ""],
+      ["Square of a trinomial", "(a + b + c)² = a² + b² + c² + 2(ab + bc + ca)", ""],
+      ["Three cubes", "a³ + b³ + c³ − 3abc = (a + b + c)(a² + b² + c² − ab − bc − ca)", ""],
+      ["Three cubes — special case", "If a + b + c = 0, then a³ + b³ + c³ = 3abc", ""],
+      ["Sum of squares", "a² + b² = (a + b)² − 2ab = (a − b)² + 2ab", ""],
+      ["(a + b)² − (a − b)²", "= 4ab", ""],
+      ["(a + b)² + (a − b)²", "= 2(a² + b²)", ""],
+      ["Fourth powers", "a⁴ − b⁴ = (a − b)(a + b)(a² + b²)", ""],
+      ["Product of binomials", "(x + a)(x + b) = x² + (a + b)x + ab", ""],
+      ["Sophie Germain", "a⁴ + 4b⁴ = (a² + 2b² + 2ab)(a² + 2b² − 2ab)", ""],
+      ["aⁿ − bⁿ", "(a − b)(aⁿ⁻¹ + aⁿ⁻²b + … + bⁿ⁻¹)", ""]
+    ]},
+    {"title": "Laws of exponents", "items": [
+      ["Product", "aᵐ · aⁿ = aᵐ⁺ⁿ", ""],
+      ["Quotient", "aᵐ / aⁿ = aᵐ⁻ⁿ", ""],
+      ["Power of a power", "(aᵐ)ⁿ = aᵐⁿ", ""],
+      ["Power of a product", "(ab)ⁿ = aⁿbⁿ", ""],
+      ["Power of a quotient", "(a/b)ⁿ = aⁿ / bⁿ", ""],
+      ["Zero exponent", "a⁰ = 1", "a ≠ 0"],
+      ["Negative exponent", "a⁻ⁿ = 1 / aⁿ", ""],
+      ["Fractional exponent", "a^(m/n) = ⁿ√(aᵐ)", ""],
+      ["Root product", "ⁿ√a · ⁿ√b = ⁿ√(ab)", ""]
+    ]},
+    {"title": "Logarithms", "items": [
+      ["Definition", "logₐ x = y  ⇔  aʸ = x", "a > 0, a ≠ 1, x > 0"],
+      ["Product rule", "logₐ(mn) = logₐ m + logₐ n", ""],
+      ["Quotient rule", "logₐ(m/n) = logₐ m − logₐ n", ""],
+      ["Power rule", "logₐ(mⁿ) = n · logₐ m", ""],
+      ["Change of base", "logₐ x = log_b x / log_b a", ""],
+      ["Reciprocal", "logₐ b = 1 / log_b a", ""],
+      ["Base power", "log_(aⁿ) x = (1/n) logₐ x", ""],
+      ["Inverse", "a^(logₐ x) = x", ""],
+      ["Special values", "logₐ 1 = 0;  logₐ a = 1", ""],
+      ["Chain", "logₐ b · log_b c = logₐ c", ""],
+      ["Natural log", "ln x = logₑ x;  e ≈ 2.71828", ""],
+      ["Common log values", "log 2 ≈ 0.3010, log 3 ≈ 0.4771, log 5 ≈ 0.6990", "base 10"]
+    ]},
+    {"title": "Quadratic & polynomial equations", "items": [
+      ["Quadratic formula", "x = (−b ± √(b² − 4ac)) / 2a", "ax² + bx + c = 0"],
+      ["Discriminant", "D = b² − 4ac", "D > 0 two real, D = 0 equal, D < 0 complex roots"],
+      ["Sum of roots", "α + β = −b / a", ""],
+      ["Product of roots", "αβ = c / a", ""],
+      ["Equation from roots", "x² − (α + β)x + αβ = 0", ""],
+      ["Difference of roots", "|α − β| = √D / |a|", ""],
+      ["α² + β²", "(α + β)² − 2αβ", ""],
+      ["α³ + β³", "(α + β)³ − 3αβ(α + β)", ""],
+      ["Vertex of parabola", "x = −b / 2a,  y = −D / 4a", ""],
+      ["Cubic — sum of roots", "α + β + γ = −b/a", "ax³ + bx² + cx + d = 0"],
+      ["Cubic — pair products", "αβ + βγ + γα = c/a", ""],
+      ["Cubic — product", "αβγ = −d/a", ""],
+      ["Remainder theorem", "Remainder of p(x) ÷ (x − a) = p(a)", ""],
+      ["Factor theorem", "(x − a) is a factor ⇔ p(a) = 0", ""]
+    ]},
+    {"title": "Arithmetic progression (AP)", "items": [
+      ["n-th term", "aₙ = a + (n − 1)d", "a first term, d common difference"],
+      ["Sum of n terms", "Sₙ = n/2 [2a + (n − 1)d] = n/2 (a + l)", "l last term"],
+      ["n-th term from sum", "aₙ = Sₙ − Sₙ₋₁", ""],
+      ["Arithmetic mean", "A = (a + b) / 2", ""],
+      ["Three terms in AP", "a − d, a, a + d", ""],
+      ["n-th term from the end", "l − (n − 1)d", ""]
+    ]},
+    {"title": "Geometric & harmonic progressions", "items": [
+      ["GP n-th term", "aₙ = a·rⁿ⁻¹", "r common ratio"],
+      ["GP sum", "Sₙ = a(rⁿ − 1)/(r − 1),  r ≠ 1", ""],
+      ["Infinite GP", "S∞ = a / (1 − r),  |r| < 1", ""],
+      ["Geometric mean", "G = √(ab)", ""],
+      ["Harmonic progression", "1/a, 1/(a+d), 1/(a+2d), …", "reciprocals form an AP"],
+      ["Harmonic mean", "H = 2ab / (a + b)", ""],
+      ["AM–GM–HM relation", "A ≥ G ≥ H and G² = AH", "positive a, b"],
+      ["AGP sum (infinite)", "a/(1 − r) + dr/(1 − r)²", "|r| < 1"]
+    ]},
+    {"title": "Binomial theorem", "items": [
+      ["Expansion", "(a + b)ⁿ = Σ ⁿCᵣ aⁿ⁻ʳ bʳ,  r = 0…n", ""],
+      ["General term", "Tᵣ₊₁ = ⁿCᵣ aⁿ⁻ʳ bʳ", ""],
+      ["Middle term (n even)", "T(n/2 + 1)", ""],
+      ["Middle terms (n odd)", "T((n+1)/2) and T((n+3)/2)", ""],
+      ["Sum of coefficients", "ⁿC₀ + ⁿC₁ + … + ⁿCₙ = 2ⁿ", ""],
+      ["Odd = even coefficients", "ⁿC₀ + ⁿC₂ + … = ⁿC₁ + ⁿC₃ + … = 2ⁿ⁻¹", ""],
+      ["Binomial series", "(1 + x)ⁿ = 1 + nx + n(n−1)x²/2! + …", "|x| < 1 for any real n"]
+    ]},
+    {"title": "Permutations & combinations", "items": [
+      ["Factorial", "n! = n(n − 1)(n − 2)…1;  0! = 1", ""],
+      ["Permutations", "ⁿPᵣ = n! / (n − r)!", ""],
+      ["Combinations", "ⁿCᵣ = n! / [r!(n − r)!]", ""],
+      ["Symmetry", "ⁿCᵣ = ⁿCₙ₋ᵣ", ""],
+      ["Pascal's rule", "ⁿCᵣ + ⁿCᵣ₋₁ = ⁿ⁺¹Cᵣ", ""],
+      ["Relation", "ⁿPᵣ = r! · ⁿCᵣ", ""],
+      ["Circular permutations", "(n − 1)!;  necklace (n − 1)!/2", ""],
+      ["Identical objects", "n! / (p! q! r!)", ""],
+      ["Distributing n identical items into r groups", "ⁿ⁺ʳ⁻¹Cᵣ₋₁", ""],
+      ["Derangements", "Dₙ = n! [1 − 1/1! + 1/2! − … + (−1)ⁿ/n!]", ""],
+      ["Number of diagonals of n-gon", "n(n − 3) / 2", ""]
+    ]},
+    {"title": "Complex numbers", "items": [
+      ["Imaginary unit", "i² = −1;  i³ = −i;  i⁴ = 1", ""],
+      ["Form", "z = a + ib", ""],
+      ["Modulus", "|z| = √(a² + b²)", ""],
+      ["Argument", "arg z = tan⁻¹(b/a)", "adjust for quadrant"],
+      ["Conjugate", "z̄ = a − ib;  z·z̄ = |z|²", ""],
+      ["Polar form", "z = r(cos θ + i sin θ) = re^(iθ)", ""],
+      ["De Moivre", "(cos θ + i sin θ)ⁿ = cos nθ + i sin nθ", ""],
+      ["Euler", "e^(iθ) = cos θ + i sin θ", ""],
+      ["Cube roots of unity", "1, ω, ω²;  1 + ω + ω² = 0;  ω³ = 1", ""],
+      ["Triangle inequality", "|z₁ + z₂| ≤ |z₁| + |z₂|", ""]
+    ]},
+    {"title": "Matrices & determinants", "items": [
+      ["2×2 determinant", "|a b; c d| = ad − bc", ""],
+      ["3×3 determinant", "a(ei − fh) − b(di − fg) + c(dh − eg)", "rows (a b c), (d e f), (g h i)"],
+      ["Inverse of 2×2", "A⁻¹ = (1/(ad − bc)) [d −b; −c a]", ""],
+      ["Inverse", "A⁻¹ = adj(A) / |A|", "|A| ≠ 0"],
+      ["Transpose of product", "(AB)ᵀ = BᵀAᵀ", ""],
+      ["Inverse of product", "(AB)⁻¹ = B⁻¹A⁻¹", ""],
+      ["Determinant of product", "|AB| = |A||B|", ""],
+      ["Scalar multiple", "|kA| = kⁿ|A|", "n × n matrix"],
+      ["Adjoint", "|adj A| = |A|ⁿ⁻¹", ""],
+      ["Cramer's rule", "x = Dₓ/D, y = D_y/D, z = D_z/D", ""],
+      ["Area of triangle", "½ |x₁(y₂ − y₃) + x₂(y₃ − y₁) + x₃(y₁ − y₂)|", ""]
+    ]},
+    {"title": "Inequalities & absolute value", "items": [
+      ["AM ≥ GM", "(a + b)/2 ≥ √(ab)", "a, b ≥ 0"],
+      ["Cauchy–Schwarz", "(Σaᵢbᵢ)² ≤ (Σaᵢ²)(Σbᵢ²)", ""],
+      ["Absolute value", "|x| < a ⇔ −a < x < a", ""],
+      ["Absolute value", "|x| > a ⇔ x < −a or x > a", ""],
+      ["Triangle inequality", "|a + b| ≤ |a| + |b|", ""],
+      ["x + 1/x", "x + 1/x ≥ 2 for x > 0", ""]
+    ]},
+    {"title": "Functions & sets", "items": [
+      ["Union count", "n(A ∪ B) = n(A) + n(B) − n(A ∩ B)", ""],
+      ["Three sets", "n(A∪B∪C) = ΣnA − Σn(A∩B) + n(A∩B∩C)", ""],
+      ["De Morgan", "(A ∪ B)′ = A′ ∩ B′;  (A ∩ B)′ = A′ ∪ B′", ""],
+      ["Number of subsets", "2ⁿ", "proper subsets 2ⁿ − 1"],
+      ["Number of relations A → B", "2^(mn)", "|A| = m, |B| = n"],
+      ["Number of functions A → B", "nᵐ", ""],
+      ["Composite function", "(f ∘ g)(x) = f(g(x))", ""]
+    ]}
+  ]
+}

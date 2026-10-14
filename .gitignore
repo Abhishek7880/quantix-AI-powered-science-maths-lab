@@ -1,0 +1,41 @@
+# Environment
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Data, weights and results (large / generated / possibly confidential)
+dataset/images/**
+dataset/labels/**
+!dataset/images/**/.gitkeep
+!dataset/labels/**/.gitkeep
+examples/synthetic_dataset/images/
+examples/synthetic_dataset/labels/
+examples/synthetic_dataset/*.cache
+examples/shapes_dataset/images/
+examples/shapes_dataset/labels/
+*.cache
+models/**
+!models/.gitkeep
+outputs/**
+!outputs/**/.gitkeep
+*.pt
+*.onnx
+datasets/
+
+
+# Email account for contact alerts (password!)
+secrets/
+
+# ...except the two small models the website needs (shape detector 5 MB, handwriting 2.6 MB), so a fresh clone works
+!models/*/
+!models/registry.json
+!models/shapes_mensuration/best.pt
+!models/shapes_mensuration/experiment.json
+!models/handwriting/symbols.pt
+!models/handwriting/symbols.json
+
+# local / generated
+*.log
+.claude/

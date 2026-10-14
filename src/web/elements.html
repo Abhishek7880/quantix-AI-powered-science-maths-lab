@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Periodic Table · Quantix</title>
+<style>
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  :root[lang="hi"] body { font-family: "Nirmala UI", "Noto Sans Devanagari", Mangal, system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 18px; }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav a { text-decoration: none; font-size: 14px; padding: 6px 10px; }
+  .spacer { flex: 1; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 13px; border: 1px solid var(--line);
+         background: color-mix(in srgb, var(--panel-solid) 55%, transparent); color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  .btn.small { padding: 4px 10px; font-size: 13px; font-weight: 500; }
+  .lang { display: inline-flex; border: 1px solid var(--line); overflow: hidden; }
+  .lang button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 600; padding: 5px 11px; cursor: pointer; }
+  .lang button + button { border-left: 1px solid var(--line); }
+  main { padding-top: 20px; padding-bottom: 56px; display: flex; flex-direction: column; gap: 16px; }
+  .card { padding: 14px 16px; min-width: 0; }
+  .field { padding: 8px 12px; border: 1px solid var(--line); border-radius: 9px; background: color-mix(in srgb, var(--panel-solid) 70%, transparent);
+           color: var(--ink); font: inherit; }
+  .field:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+  .lbl { font: 600 11px var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+  /* ---- toolbar */
+  .tools { display: flex; gap: 14px 18px; align-items: center; flex-wrap: wrap; }
+  .tools .search { width: 260px; max-width: 100%; }
+  .modes { display: flex; flex-wrap: wrap; gap: 6px; }
+  .mode { border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 13px; cursor: pointer;
+          background: color-mix(in srgb, var(--panel-solid) 55%, transparent); color: var(--ink); }
+  .mode[aria-pressed="true"] { background: linear-gradient(120deg, var(--btn-a), var(--btn-b)); color: #fff; border-color: transparent; }
+  .slider { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .slider input[type=range] { width: 260px; }
+  .slider output { font: 600 14px var(--f-mono); min-width: 150px; }
+  .presets { display: flex; gap: 6px; flex-wrap: wrap; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; margin-top: 12px; }
+  .lg { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; padding: 3px 10px 3px 4px; border-radius: 999px;
+        border: 1px solid var(--line); background: color-mix(in srgb, var(--panel-solid) 50%, transparent); cursor: pointer; color: var(--ink); font-family: inherit; }
+  .lg i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+  .lg[aria-pressed="true"] { outline: 2px solid var(--accent); }
+  .scale { display: flex; align-items: center; gap: 8px; font: 12px var(--f-mono); color: var(--muted); }
+  .scale .bar { width: 260px; height: 12px; border-radius: 6px; }
+
+  /* ---- the table */
+  .pt-wrap { overflow-x: auto; padding-bottom: 4px; }
+  .pt { --rh: clamp(60px, calc((100vh - 300px) / 9.6), 96px);
+        display: grid; grid-template-columns: repeat(18, minmax(52px, 1fr)); gap: 4px; min-width: 1000px;
+        grid-template-rows: repeat(7, var(--rh)) 10px repeat(2, var(--rh)); }
+  .el { position: relative; border-radius: 9px; border: 1px solid color-mix(in srgb, var(--c) 70%, transparent); padding: 4px 6px; text-align: left;
+        background: linear-gradient(160deg, color-mix(in srgb, var(--c) 34%, transparent), color-mix(in srgb, var(--c) 14%, transparent));
+        color: var(--ink); cursor: pointer; font: inherit; overflow: hidden; display: grid; grid-template-rows: auto 1fr auto auto; align-items: center;
+        transition: transform .15s, box-shadow .15s, opacity .2s, filter .2s; min-width: 0;
+        container-type: size; padding: 3px 5px; }    /* text sizes follow the cell height (cqh), so 4 lines always fit */
+  .el:hover, .el:focus-visible { transform: scale(1.12); z-index: 3; outline: none;
+        box-shadow: 0 0 0 2px var(--c), 0 10px 30px -6px var(--c); background: color-mix(in srgb, var(--c) 45%, var(--panel-solid)); }
+  .el .zn { font: 600 clamp(8px, 14cqh, 12.5px)/1.05 var(--f-mono); opacity: .85; }
+  .el .sy { font: 700 clamp(13px, min(31cqh, 30cqw), 28px)/1 var(--f-head); text-align: center; }
+  .el .nm { font-size: clamp(8px, min(16.5cqh, 13cqw), 13px); line-height: 1.12; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .el .vl { font: clamp(7.5px, min(15cqh, 12.5cqw), 12px)/1.12 var(--f-mono); text-align: center; opacity: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .el.dim { opacity: .16; filter: grayscale(.8); }
+  .el.hit { box-shadow: 0 0 0 2px var(--accent); }
+  .el .st { position: absolute; top: 3px; right: 5px; font-size: 10px; }
+  .el.state-anim .sy { animation: wob 2.4s ease-in-out infinite; }
+  @keyframes wob { 50% { transform: translateY(-2px); } }
+  .ph { border-radius: 9px; border: 1px dashed var(--line); display: flex; align-items: center; justify-content: center; font: 11px var(--f-mono);
+        color: var(--muted); text-align: center; padding: 2px; }
+
+  /* preview card inside the empty top area of the table */
+  .preview { grid-column: 3 / 13; grid-row: 1 / 4; margin: 2px 10px 10px; display: flex; gap: 18px; align-items: center; padding: 10px 16px;
+             border-radius: 14px; border: 1px solid var(--line); background: color-mix(in srgb, var(--panel-solid) 55%, transparent); min-width: 0; }
+  .pv-tile { flex: none; width: clamp(96px, 9vw, 150px); aspect-ratio: 1; border-radius: 14px; display: flex; flex-direction: column; justify-content: space-between;
+             padding: 8px 10px; border: 1px solid var(--c); background: linear-gradient(160deg, color-mix(in srgb, var(--c) 45%, transparent), color-mix(in srgb, var(--c) 12%, transparent));
+             box-shadow: 0 0 40px -10px var(--c); }
+  .pv-tile .zn { font: 600 13px var(--f-mono); }
+  .pv-tile .sy { font: 700 clamp(34px, 3.4vw, 58px)/1 var(--f-head); text-align: center; }
+  .pv-tile .ms { font: 12px var(--f-mono); text-align: center; }
+  .pv-info { min-width: 0; flex: 1; }
+  .pv-info h2 { margin: 0; font: 700 clamp(18px, 1.6vw, 26px)/1.2 var(--f-head); }
+  .pv-info .cat { font-size: 13px; color: var(--muted); }
+  .pv-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px 16px; margin-top: 8px; font-size: 13px; }
+  .pv-facts b { display: block; font: 600 10.5px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .pv-hint { font-size: 12px; color: var(--muted); margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+  /* ---- molar mass */
+  .mm-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .mm-row .field { flex: 1; min-width: 220px; font: 600 18px "Cambria Math", Cambria, Georgia, serif; }
+  .mm-out { margin-top: 12px; }
+  .mm-big { font: 700 26px var(--f-head); }
+  .mm-big small { font-size: 15px; color: var(--muted); font-weight: 500; }
+  .comp { display: flex; height: 14px; border-radius: 7px; overflow: hidden; margin: 10px 0; border: 1px solid var(--line); }
+  .comp span { display: block; height: 100%; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th { text-align: left; font-weight: 600; font-size: 12.5px; padding: 8px 10px; background: linear-gradient(120deg, var(--btn-a), var(--btn-b)); color: #fff; }
+  th:first-child { border-radius: 8px 0 0 0; } th:last-child { border-radius: 0 8px 0 0; }
+  td { padding: 7px 10px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--panel-solid) 35%, transparent); }
+  tbody tr { cursor: pointer; } tbody tr:hover td { background: var(--soft); }
+  .mini { display: inline-flex; width: 30px; height: 30px; border-radius: 7px; align-items: center; justify-content: center; font: 700 13px var(--f-head);
+          background: color-mix(in srgb, var(--c) 40%, transparent); border: 1px solid var(--c); margin-right: 8px; vertical-align: middle; }
+  .pbar { display: inline-block; width: 90px; height: 7px; border-radius: 4px; background: var(--line); vertical-align: middle; margin-left: 8px; overflow: hidden; }
+  .pbar span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+  .err { color: var(--err); font-size: 14px; margin-top: 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; cursor: pointer; font: 14px "Cambria Math", Cambria, serif;
+          background: color-mix(in srgb, var(--panel-solid) 50%, transparent); color: var(--ink); }
+  .chip:hover { border-color: var(--accent); }
+
+  /* ---- detail drawer */
+  .scrim { position: fixed; inset: 0; background: rgba(5,10,22,.45); z-index: 20; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(560px, 100vw); z-index: 21; display: flex; flex-direction: column;
+            border-left: 1px solid var(--line); box-shadow: -10px 0 40px rgba(0,0,0,.3); }
+  .d-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .d-head h2 { flex: 1; margin: 0; font: 700 18px var(--f-head); }
+  .d-body { overflow-y: auto; padding: 16px 18px 28px; display: flex; flex-direction: column; gap: 16px; }
+  .d-top { display: flex; gap: 16px; align-items: center; }
+  .bohr { width: 210px; height: 210px; flex: none; }
+  .bohr .orbit { fill: none; stroke: color-mix(in srgb, var(--c) 55%, transparent); stroke-width: 1.2; stroke-dasharray: 3 4; }
+  .bohr .shell { transform-box: view-box; transform-origin: 0 0; animation: spin linear infinite; }
+  .bohr .elec { fill: var(--accent); filter: drop-shadow(0 0 3px var(--accent)); }
+  .bohr .nuc { fill: var(--c); filter: drop-shadow(0 0 10px var(--c)); }
+  .bohr text { fill: #fff; font: 700 11px var(--f-mono); text-anchor: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .props { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 18px; }
+  .props div { border-bottom: 1px dashed var(--line); padding: 4px 0 6px; min-width: 0; }
+  .props b { display: block; font: 600 10.5px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .props span { font-size: 14.5px; overflow-wrap: anywhere; }
+  .props .full { grid-column: 1 / -1; }
+  .ox { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+  .ox i { font-style: normal; font: 12px var(--f-mono); padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); }
+  .ox i.main { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+  .flag { display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 999px; margin: 2px 6px 0 0; border: 1px solid var(--line); }
+  .flag.warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 50%, transparent); }
+  .uses { font-size: 15px; padding: 10px 12px; border-radius: 10px; background: var(--soft); border: 1px solid var(--line); }
+  .src { font-size: 11.5px; color: var(--muted); }
+  @media (max-width: 700px) { .d-top { flex-direction: column; } .props { grid-template-columns: minmax(0, 1fr); } .preview { display: none; } }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/web/lab.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="/" aria-label="Quantix — home">
+    <svg class="logo" viewBox="-50 -50 100 100" aria-hidden="true">
+      <defs><radialGradient id="lgCore"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient></defs>
+      <g class="lg-orbits" fill="none" stroke-width="3">
+        <ellipse rx="44" ry="15" stroke="var(--accent)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent-2)" transform="rotate(60)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent)" transform="rotate(120)" opacity=".75"/>
+      </g>
+      <circle r="12" fill="url(#lgCore)" class="lg-core"/>
+    </svg>
+    <span>
+      <h1 id="tTitle">Periodic Table</h1>
+      <span class="kicker">Quantix</span>
+    </span>
+  </a>
+  <nav aria-label="Pages"><a href="/" title="Image Inspection — home">Home</a><a href="/measure" title="Measure real objects in a photo">Measure</a><a href="/formulas" title="Formula Library">Formulas</a><a href="/elements" title="Periodic Table" class="on" aria-current="page">Elements</a><a href="/physics" title="Physics Lab">Physics</a><a href="/handwriting" title="Equation Solver (handwriting)">Solver</a><a href="/converter" title="Unit Converter">Converter</a><a href="/graph" title="Graph Plotter">Graphs</a></nav>
+  <span class="spacer"></span>
+  <div class="lang" role="group" aria-label="Language / भाषा">
+    <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+    <button type="button" data-lang="hi" aria-pressed="false" lang="hi">हिन्दी</button>
+  </div>
+  <button class="btn small" id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
+</header>
+
+<main>
+  <section class="card" aria-label="Table controls">
+    <div class="tools">
+      <input class="field search" id="q" type="search" autocomplete="off" placeholder="Search element… (press /)" aria-label="Search elements">
+      <div class="modes" id="modes" role="group" aria-label="Colour by"></div>
+    </div>
+    <div class="tools" id="extra" style="margin-top:12px"></div>
+    <div class="legend" id="legend" aria-live="polite"></div>
+  </section>
+
+  <section class="card" aria-label="Periodic table">
+    <div class="pt-wrap"><div class="pt" id="pt" role="grid" aria-label="Periodic table of the elements"></div></div>
+  </section>
+
+  <section class="card" aria-labelledby="mmTitle">
+    <h2 id="mmTitle" style="margin:0 0 4px;font-size:18px">⚗️ Molar mass calculator</h2>
+    <p class="src" id="mmHint" style="margin:0 0 10px">Type a formula — brackets and hydrates work: Ca(OH)2, K4[Fe(CN)6], CuSO4·5H2O</p>
+    <form class="mm-row" id="mmForm" autocomplete="off">
+      <input class="field" id="mm" type="text" spellcheck="false" aria-labelledby="mmTitle" placeholder="H2SO4">
+      <button class="btn primary" type="submit" id="mmGo">Calculate</button>
+    </form>
+    <div class="chips" id="mmChips"></div>
+    <div class="mm-out" id="mmOut" aria-live="polite"></div>
+  </section>
+  <p class="src" id="srcNote">Data: mendeleev element database (MIT) and the references it cites · elements 104–118: mostly predicted values.</p>
+</main>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle" hidden>
+  <div class="d-head">
+    <button class="btn small" id="dPrev" type="button" aria-label="Previous element">‹</button>
+    <h2 id="dTitle"></h2>
+    <button class="btn small" id="dNext" type="button" aria-label="Next element">›</button>
+    <button class="btn small" id="dClose" type="button" aria-label="Close">✕</button>
+  </div>
+  <div class="d-body" id="dBody"></div>
+</aside>
+
+<script>
+(function () {
+  "use strict";
+  const API = "/api/v1";
+  const $ = (id) => document.getElementById(id);
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const S = { els: [], cats: {}, lang: "en", mode: "category", temp: 298, year: 2026, q: "", catLock: null, open: null, lastFocus: null };
+
+  const CAT_COLOR = { alkali: "#ff6b6b", alkaline: "#ffa94d", transition: "#f7c948", post: "#69db7c", metalloid: "#38d9a9",
+                      nonmetal: "#4dabf7", halogen: "#22b8cf", noble: "#b197fc", lanthanide: "#f783ac", actinide: "#e599f7" };
+  const BLOCK_COLOR = { s: "#ff6b6b", p: "#4dabf7", d: "#f7c948", f: "#b197fc" };
+  const STATE_COLOR = { solid: "#94a3b8", liquid: "#38bdf8", gas: "#f472b6", unknown: "#475569" };
+  const HEAT = ["#3b0f70", "#6a1c81", "#9c2e7f", "#cf4071", "#f1605d", "#fd9567", "#fec98d", "#fcfdbf"];   // magma
+  const MODES = ["category", "block", "state", "en", "radius", "mp", "density", "year"];
+
+  const T = {
+    en: { title: "Periodic Table", search: "Search element… (press /)", category: "Category", block: "Block", state: "State",
+          en: "Electronegativity", radius: "Atomic radius", mp: "Melting point", density: "Density", year: "Discovery",
+          temp: "Temperature", known: "Known by year", solid: "Solid", liquid: "Liquid", gas: "Gas", unknown: "Unknown",
+          noData: "no data", room: "Room 25 °C", body: "Body 37 °C", boil: "Water boils 100 °C", lava: "Lava 1200 °C", sun: "Sun surface 5500 °C",
+          ice: "Absolute zero", hoverHint: "Hover or use the arrow keys · Enter opens full details · / to search",
+          mass: "Atomic mass", config: "Electron configuration", shells: "Electrons per shell", group: "Group", period: "Period",
+          blk: "Block", enL: "Electronegativity (Pauling)", radiusL: "Atomic radius", ie: "1st ionisation energy", ea: "Electron affinity",
+          mpL: "Melting point", bpL: "Boiling point", subl: "Sublimes at", state25: "State at 25 °C", densityL: "Density", ox: "Oxidation states",
+          disc: "Discovered", ancient: "Known since ancient times", by: "by", crust: "Abundance in Earth's crust", uses: "Everyday uses",
+          radio: "☢ Radioactive", pred: "Properties mostly predicted (synthetic)", z: "Atomic number", catL: "Category",
+          mmTitle: "⚗️ Molar mass calculator", mmHint: "Type a formula — brackets and hydrates work: Ca(OH)2, K4[Fe(CN)6], CuSO4·5H2O",
+          calc: "Calculate", elem: "Element", count: "Atoms", am: "Atomic mass", sub: "Mass", pct: "% by mass",
+          atoms: (n) => `${n} atoms per formula unit`, offline: "API not reachable — start it with start_ui.bat.",
+          src: "Data: mendeleev element database (MIT) and the references it cites · elements 104–118: mostly predicted values.",
+          useMm: "Add to molar-mass box", none: "—", close: "Close", prev: "Previous element", next: "Next element" },
+    hi: { title: "आवर्त सारणी", search: "तत्व खोजें… (/ दबाएँ)", category: "श्रेणी", block: "ब्लॉक", state: "अवस्था",
+          en: "विद्युत ऋणात्मकता", radius: "परमाणु त्रिज्या", mp: "गलनांक", density: "घनत्व", year: "खोज",
+          temp: "ताप", known: "इस वर्ष तक ज्ञात", solid: "ठोस", liquid: "द्रव", gas: "गैस", unknown: "अज्ञात",
+          noData: "आँकड़ा नहीं", room: "कमरा 25 °C", body: "शरीर 37 °C", boil: "पानी उबले 100 °C", lava: "लावा 1200 °C", sun: "सूर्य सतह 5500 °C",
+          ice: "परम शून्य", hoverHint: "माउस रखें या तीर कुंजियाँ दबाएँ · Enter से पूरा विवरण · / से खोजें",
+          mass: "परमाणु द्रव्यमान", config: "इलेक्ट्रॉनिक विन्यास", shells: "प्रत्येक कोश में इलेक्ट्रॉन", group: "वर्ग", period: "आवर्त",
+          blk: "ब्लॉक", enL: "विद्युत ऋणात्मकता (पॉलिंग)", radiusL: "परमाणु त्रिज्या", ie: "प्रथम आयनन ऊर्जा", ea: "इलेक्ट्रॉन बंधुता",
+          mpL: "गलनांक", bpL: "क्वथनांक", subl: "ऊर्ध्वपातन ताप", state25: "25 °C पर अवस्था", densityL: "घनत्व", ox: "ऑक्सीकरण अवस्थाएँ",
+          disc: "खोज", ancient: "प्राचीन काल से ज्ञात", by: "द्वारा", crust: "पृथ्वी की भूपर्पटी में प्रचुरता", uses: "दैनिक उपयोग",
+          radio: "☢ रेडियोधर्मी", pred: "गुण अधिकतर अनुमानित (कृत्रिम तत्व)", z: "परमाणु क्रमांक", catL: "श्रेणी",
+          mmTitle: "⚗️ मोलर द्रव्यमान कैलकुलेटर", mmHint: "सूत्र लिखें — कोष्ठक और जलयोजित यौगिक भी: Ca(OH)2, K4[Fe(CN)6], CuSO4·5H2O",
+          calc: "गणना करें", elem: "तत्व", count: "परमाणु", am: "परमाणु द्रव्यमान", sub: "द्रव्यमान", pct: "द्रव्यमान %",
+          atoms: (n) => `प्रति सूत्र इकाई ${n} परमाणु`, offline: "API उपलब्ध नहीं है — start_ui.bat से चालू करें।",
+          src: "आँकड़े: mendeleev तत्व डेटाबेस (MIT) व उसके संदर्भ स्रोत · तत्व 104–118: अधिकतर अनुमानित मान।",
+          useMm: "मोलर द्रव्यमान बॉक्स में जोड़ें", none: "—", close: "बंद करें", prev: "पिछला तत्व", next: "अगला तत्व" },
+  };
+  const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === "function" ? v(...a) : v; };
+  const nameOf = (e) => (S.lang === "hi" ? e.name_hi : e.name);
+  const catName = (c) => (S.cats[c] ? S.cats[c][S.lang === "hi" ? 1 : 0] : c);
+
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    Object.entries(props || {}).forEach(([k, v]) => {
+      if (v == null || v === false) return;
+      if (k === "class") el.className = v;
+      else if (k === "style" && typeof v === "object") Object.entries(v).forEach(([sk, sv]) => (sk.startsWith("--") ? el.style.setProperty(sk, sv) : (el.style[sk] = sv)));
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v);
+    });
+    kids.flat(Infinity).forEach((c) => c != null && c !== false && el.append(c.nodeType ? c : document.createTextNode(String(c))));
+    return el;
+  }
+  const fill = (el, ...kids) => el.replaceChildren(...kids.flat().filter((k) => k != null && k !== false));
+  const svg = (tag, attrs) => { const el = document.createElementNS("http://www.w3.org/2000/svg", tag); Object.entries(attrs || {}).forEach(([k, v]) => el.setAttribute(k, v)); return el; };
+  const num = (x, d = 2) => (x == null ? null : Number(x).toLocaleString(S.lang === "hi" ? "en-IN" : "en-US", { maximumFractionDigits: d }));
+  const supCfg = (c) => c.replace(/([spdf])(\d*)/g, (_, l, n) => l + (n || "1").replace(/\d/g, (d) => "⁰¹²³⁴⁵⁶⁷⁸⁹"[d]));
+  const kc = (k) => (k == null ? null : `${num(k, 2)} K (${num(k - 273.15, 2)} °C)`);
+
+  // ---------------------------------------------------------------- state of matter at a temperature
+  function stateAt(e, T) {
+    if (e.sublimes) return e.bp == null ? "unknown" : (T < e.bp ? "solid" : "gas");
+    if (e.mp == null && e.bp == null) return "unknown";
+    if (e.mp == null) return T < e.bp ? "liquid" : "gas";               // helium
+    if (T < e.mp) return "solid";
+    if (e.bp == null) return "liquid";
+    return T < e.bp ? "liquid" : "gas";
+  }
+
+  // ---------------------------------------------------------------- colouring
+  const HEAT_KEY = { en: "en", radius: "radius", mp: "mp", density: "density" };
+  function heatRange(key) {
+    const vals = S.els.map((e) => e[key]).filter((v) => v != null);
+    return [Math.min(...vals), Math.max(...vals)];
+  }
+  function heat(v, lo, hi, log) {
+    if (v == null) return "#475569";
+    let k = log ? (Math.log10(v) - Math.log10(lo)) / (Math.log10(hi) - Math.log10(lo)) : (v - lo) / (hi - lo);
+    k = Math.max(0, Math.min(0.9999, k)) * (HEAT.length - 1);
+    const i = Math.floor(k), f = k - i;
+    const a = HEAT[i].match(/\w\w/g).map((x) => parseInt(x, 16)), b = HEAT[i + 1].match(/\w\w/g).map((x) => parseInt(x, 16));
+    return "#" + a.map((x, j) => Math.round(x + (b[j] - x) * f).toString(16).padStart(2, "0")).join("");
+  }
+  function colourOf(e) {
+    switch (S.mode) {
+      case "block": return BLOCK_COLOR[e.block];
+      case "state": return STATE_COLOR[stateAt(e, S.temp)];
+      case "year": return e.ancient ? "#f7c948" : (e.year == null ? STATE_COLOR.unknown : heat(e.year, 1660, 2010, false));
+      case "category": return CAT_COLOR[e.cat];
+      default: { const k = HEAT_KEY[S.mode], [lo, hi] = heatRange(k); return heat(e[k], lo, hi, S.mode === "density"); }
+    }
+  }
+  function valueText(e) {
+    switch (S.mode) {
+      case "en": return e.en == null ? "—" : String(e.en);
+      case "radius": return e.radius == null ? "—" : `${e.radius} pm`;
+      case "mp": return e.sublimes ? "subl." : (e.mp == null ? "—" : `${Math.round(e.mp)} K`);
+      case "density": return e.density == null ? "—" : `${num(e.density, 3)}`;
+      case "year": return e.ancient ? (S.lang === "hi" ? "प्राचीन" : "ancient") : (e.year || "—");
+      case "state": return t(stateAt(e, S.temp));
+      default: return e.mass == null ? "" : num(e.mass, 3);
+    }
+  }
+  function dimmed(e) {
+    if (S.catLock && e.cat !== S.catLock) return true;
+    if (S.mode === "year" && !e.ancient && (e.year == null || e.year > S.year)) return true;
+    if (S.q) {
+      const q = S.q.toLowerCase();
+      return !(String(e.z) === q || e.sym.toLowerCase() === q || e.sym.toLowerCase().startsWith(q) || e.name.toLowerCase().includes(q) || e.name_hi.includes(S.q));
+    }
+    return false;
+  }
+
+  // ---------------------------------------------------------------- render table
+  let cells = new Map();
+  function buildTable() {
+    const pt = $("pt");
+    cells = new Map();
+    const kids = [];
+    S.els.forEach((e) => {
+      const b = h("button", { class: "el", type: "button", role: "gridcell", "data-z": e.z,
+        style: { gridRow: e.row, gridColumn: e.col },
+        onclick: () => openEl(e.z), onmouseenter: () => preview(e), onfocus: () => preview(e), onkeydown: (ev) => keyNav(ev, e) },
+        h("span", { class: "zn" }, e.z), h("span", { class: "sy" }, e.sym), h("span", { class: "nm" }), h("span", { class: "vl" }));
+      cells.set(e.z, b);
+      kids.push(b);
+    });
+    kids.push(h("div", { class: "ph", style: { gridRow: 6, gridColumn: 3 } }, "57–71"),
+              h("div", { class: "ph", style: { gridRow: 7, gridColumn: 3 } }, "89–103"),
+              h("div", { class: "preview", id: "preview", "aria-live": "polite" }));
+    fill(pt, kids);
+    preview(S.els[0]);
+  }
+
+  function paint() {
+    S.els.forEach((e) => {
+      const b = cells.get(e.z);
+      const c = colourOf(e);
+      b.style.setProperty("--c", c);
+      b.querySelector(".nm").textContent = nameOf(e);
+      b.querySelector(".vl").textContent = valueText(e);
+      b.classList.toggle("dim", dimmed(e));
+      b.setAttribute("aria-label", `${e.z} ${nameOf(e)} (${e.sym}), ${catName(e.cat)}`);
+      let st = b.querySelector(".st");
+      if (S.mode === "state") {
+        const s = stateAt(e, S.temp);
+        if (!st) { st = h("span", { class: "st" }); b.append(st); }
+        st.textContent = { solid: "▪", liquid: "💧", gas: "☁", unknown: "?" }[s];
+        b.classList.toggle("state-anim", !reduce && s === "gas");
+      } else { if (st) st.remove(); b.classList.remove("state-anim"); }
+    });
+    renderLegend();
+  }
+
+  function preview(e) {
+    const pv = $("preview");
+    if (!pv) return;
+    const st = stateAt(e, 298.15);
+    fill(pv,
+      h("div", { class: "pv-tile", style: { "--c": CAT_COLOR[e.cat] } },
+        h("span", { class: "zn" }, e.z), h("span", { class: "sy" }, e.sym), h("span", { class: "ms" }, e.mass == null ? "" : num(e.mass, 4))),
+      h("div", { class: "pv-info" },
+        h("h2", {}, nameOf(e), S.lang === "hi" ? h("span", { class: "cat" }, `  ${e.name}`) : null),
+        h("div", { class: "cat" }, `${catName(e.cat)} · ${t("group")} ${e.group || "—"} · ${t("period")} ${e.period} · ${e.block}-${t("blk").toLowerCase()}`),
+        h("div", { class: "pv-facts" },
+          h("div", {}, h("b", {}, t("config")), supCfg(e.config)),
+          h("div", {}, h("b", {}, t("state25")), t(st)),
+          h("div", {}, h("b", {}, t("enL").split(" (")[0]), e.en == null ? "—" : e.en),
+          h("div", {}, h("b", {}, t("densityL")), e.density == null ? "—" : `${num(e.density, 4)} g/cm³`)),
+        h("div", { class: "pv-hint" }, (S.lang === "hi" ? e.uses_hi : e.uses) + "  ·  " + t("hoverHint"))));
+  }
+
+  // ---------------------------------------------------------------- toolbar / legend
+  function renderModes() {
+    fill($("modes"), MODES.map((m) => h("button", { class: "mode", type: "button", "aria-pressed": String(S.mode === m),
+      onclick: () => { S.mode = m; S.catLock = null; save(); renderModes(); renderExtra(); paint(); } }, t(m))));
+  }
+  function renderExtra() {
+    const box = $("extra");
+    if (S.mode === "state") {
+      const out = h("output", { for: "temp" });
+      const r = h("input", { type: "range", id: "temp", min: "0", max: "6000", step: "1", "aria-label": t("temp") });
+      r.value = String(S.temp);
+      const upd = () => { out.textContent = `${Math.round(S.temp)} K = ${Math.round(S.temp - 273.15)} °C`; };
+      r.addEventListener("input", () => { S.temp = Number(r.value); upd(); paint(); });
+      upd();
+      const preset = (label, k) => h("button", { class: "btn small", type: "button", onclick: () => { S.temp = k; r.value = String(k); upd(); paint(); } }, label);
+      fill(box, h("div", { class: "slider" }, h("span", { class: "lbl" }, t("temp")), r, out),
+        h("div", { class: "presets" }, preset(t("ice"), 0), preset(t("room"), 298), preset(t("body"), 310), preset(t("boil"), 373),
+          preset(t("lava"), 1473), preset(t("sun"), 5773)));
+    } else if (S.mode === "year") {
+      const out = h("output", {});
+      const r = h("input", { type: "range", min: "1660", max: "2026", step: "1", "aria-label": t("known") });
+      r.value = String(S.year);
+      const upd = () => { const n = S.els.filter((e) => e.ancient || (e.year && e.year <= S.year)).length; out.textContent = `${S.year} → ${n} / 118`; };
+      r.addEventListener("input", () => { S.year = Number(r.value); upd(); paint(); });
+      upd();
+      fill(box, h("div", { class: "slider" }, h("span", { class: "lbl" }, t("known")), r, out));
+    } else fill(box);
+    box.hidden = !box.childElementCount;
+  }
+  function renderLegend() {
+    const lg = $("legend");
+    const chip = (label, colour, onclick, pressed) => h("button", { class: "lg", type: "button", "aria-pressed": pressed == null ? null : String(pressed), onclick },
+      h("i", { style: { background: colour } }), label);
+    if (S.mode === "category") {
+      fill(lg, Object.keys(CAT_COLOR).map((c) => chip(catName(c), CAT_COLOR[c], () => { S.catLock = S.catLock === c ? null : c; paint(); }, S.catLock === c)));
+    } else if (S.mode === "block") {
+      fill(lg, Object.entries(BLOCK_COLOR).map(([b, c]) => chip(`${b}-${t("blk").toLowerCase()}`, c)));
+    } else if (S.mode === "state") {
+      const n = { solid: 0, liquid: 0, gas: 0, unknown: 0 };
+      S.els.forEach((e) => n[stateAt(e, S.temp)]++);
+      fill(lg, Object.entries(STATE_COLOR).map(([s, c]) => chip(`${t(s)} · ${n[s]}`, c)));
+    } else if (S.mode === "year") {
+      fill(lg, chip(S.lang === "hi" ? "प्राचीन" : "Ancient", "#f7c948"),
+        h("span", { class: "scale" }, "1660", h("span", { class: "bar", style: { background: `linear-gradient(90deg, ${HEAT.join(",")})` } }), "2010"));
+    } else {
+      const k = HEAT_KEY[S.mode], [lo, hi] = heatRange(k);
+      const unit = { en: "", radius: " pm", mp: " K", density: " g/cm³" }[S.mode];
+      fill(lg, h("span", { class: "scale" }, `${num(lo, 3)}${unit}`, h("span", { class: "bar", style: { background: `linear-gradient(90deg, ${HEAT.join(",")})` } }),
+        `${num(hi, 3)}${unit}`, S.mode === "density" ? " (log)" : ""), chip(t("noData"), "#475569"));
+    }
+  }
+
+  // ---------------------------------------------------------------- keyboard on the grid
+  function keyNav(ev, e) {
+    const dir = { ArrowRight: [0, 1], ArrowLeft: [0, -1], ArrowDown: [1, 0], ArrowUp: [-1, 0] }[ev.key];
+    if (ev.key === "Home") { ev.preventDefault(); cells.get(1).focus(); return; }
+    if (ev.key === "End") { ev.preventDefault(); cells.get(118).focus(); return; }
+    if (!dir) return;
+    ev.preventDefault();
+    const row = (x) => (x.row > 7 ? x.row + 1 : x.row);
+    let best = null, bestD = 1e9;
+    S.els.forEach((o) => {
+      const dr = row(o) - row(e), dc = o.col - e.col;
+      if (dir[0] && Math.sign(dr) !== dir[0]) return;
+      if (dir[1] && (dr !== 0 || Math.sign(dc) !== dir[1])) return;
+      const d = dir[0] ? Math.abs(dr) * 100 + Math.abs(dc) : Math.abs(dc);
+      if (d > 0 && d < bestD) { bestD = d; best = o; }
+    });
+    if (best) cells.get(best.z).focus();
+  }
+
+  // ---------------------------------------------------------------- detail drawer
+  function bohr(e) {
+    const s = svg("svg", { class: "bohr", viewBox: "-105 -105 210 210", role: "img", "aria-label": `${t("shells")}: ${e.shells.join(", ")}` });
+    s.style.setProperty("--c", CAT_COLOR[e.cat]);
+    const n = e.shells.length, step = Math.min(13, 86 / n);
+    e.shells.forEach((count, i) => {
+      const r = 18 + step * (i + 1);
+      s.append(svg("circle", { class: "orbit", r }));
+      const g = svg("g", { class: "shell" });
+      g.style.animationDuration = `${6 + i * 4}s`;
+      if (i % 2) g.style.animationDirection = "reverse";
+      for (let k = 0; k < count; k++) {
+        const a = (2 * Math.PI * k) / count;
+        g.append(svg("circle", { class: "elec", r: n > 5 ? 2.2 : 3, cx: (r * Math.cos(a)).toFixed(2), cy: (r * Math.sin(a)).toFixed(2) }));
+      }
+      s.append(g);
+    });
+    s.append(svg("circle", { class: "nuc", r: 15 }));
+    const tx = svg("text", { y: 4 }); tx.textContent = e.sym; s.append(tx);
+    return s;
+  }
+  function openEl(z) {
+    const e = S.els.find((x) => x.z === z);
+    if (!e) return;
+    if ($("drawer").hidden) S.lastFocus = document.activeElement;
+    S.open = z;
+    $("drawer").hidden = false; $("scrim").hidden = false;
+    $("drawer").style.setProperty("--c", CAT_COLOR[e.cat]);
+    $("dTitle").textContent = `${e.z} · ${nameOf(e)}`;
+    const p = (k, v, full) => h("div", { class: full ? "full" : null }, h("b", {}, k), h("span", {}, v == null || v === "" ? t("none") : v));
+    const ox = e.oxi_all.length ? h("span", { class: "ox" }, e.oxi_all.map((o) => h("i", { class: e.oxi_main.includes(o) ? "main" : null }, o > 0 ? `+${o}` : String(o)))) : null;
+    const disc = e.ancient ? t("ancient") : (e.year ? `${e.year}${e.discoverers ? ` — ${t("by")} ${e.discoverers}` : ""}` : null);
+    fill($("dBody"),
+      h("div", { class: "d-top" }, bohr(e),
+        h("div", {},
+          h("div", { class: "pv-tile", style: { "--c": CAT_COLOR[e.cat], width: "120px" } },
+            h("span", { class: "zn" }, e.z), h("span", { class: "sy" }, e.sym), h("span", { class: "ms" }, e.mass == null ? "" : num(e.mass, 5))),
+          h("div", { style: { marginTop: "10px" } }, h("b", { style: { fontSize: "20px", fontFamily: "var(--f-head)" } }, nameOf(e)),
+            S.lang === "hi" ? h("div", { class: "src" }, e.name) : null,
+            h("div", { class: "src", style: { fontSize: "13px" } }, catName(e.cat)),
+            e.radioactive ? h("span", { class: "flag warn" }, t("radio")) : null,
+            e.predicted ? h("span", { class: "flag" }, t("pred")) : null))),
+      h("div", { class: "uses" }, h("b", { class: "lbl", style: { display: "block", marginBottom: "4px" } }, t("uses")), S.lang === "hi" ? e.uses_hi : e.uses),
+      h("div", { class: "props" },
+        p(t("z"), e.z), p(t("mass"), e.mass == null ? null : `${num(e.mass, 5)} u`),
+        p(t("group"), e.group), p(t("period"), e.period),
+        p(t("blk"), `${e.block}-block`), p(t("state25"), t(stateAt(e, 298.15))),
+        p(t("config"), supCfg(e.config), true), p(t("shells"), e.shells.join(", "), true),
+        p(t("enL"), e.en), p(t("radiusL"), e.radius == null ? null : `${e.radius} pm`),
+        p(t("ie"), e.ie1 == null ? null : `${num(e.ie1, 3)} eV`), p(t("ea"), e.ea == null ? null : `${num(e.ea, 3)} eV`),
+        e.sublimes ? p(t("subl"), kc(e.bp)) : p(t("mpL"), kc(e.mp)), e.sublimes ? p(t("bpL"), null) : p(t("bpL"), kc(e.bp)),
+        p(t("densityL"), e.density == null ? null : `${num(e.density, 5)} g/cm³`),
+        p(t("crust"), e.crust_ppm == null ? null : `${num(e.crust_ppm, 4)} mg/kg`),
+        p(t("ox"), ox, true), p(t("disc"), disc, true)),
+      h("div", {}, h("button", { class: "btn", type: "button", onclick: () => { const i = $("mm"); i.value = (i.value || "") + e.sym; closeEl(); i.focus(); molar(); } }, "⚗️ " + t("useMm"))),
+      h("p", { class: "src" }, t("src")));
+    // focus after this key event is finished, so the same Enter cannot "click" the close button
+    requestAnimationFrame(() => { if (S.open === z) $("dClose").focus(); });
+  }
+  function closeEl() {
+    $("drawer").hidden = true; $("scrim").hidden = true;
+    const z = S.open; S.open = null;
+    const back = (z && cells.get(z)) || S.lastFocus;
+    if (back && document.contains(back)) back.focus();
+  }
+  $("dClose").onclick = closeEl;
+  $("scrim").onclick = closeEl;
+  $("dPrev").onclick = () => openEl(S.open > 1 ? S.open - 1 : 118);
+  $("dNext").onclick = () => openEl(S.open < 118 ? S.open + 1 : 1);
+  $("drawer").addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { e.preventDefault(); closeEl(); return; }
+    if (e.key === "ArrowLeft" && e.target.tagName !== "INPUT") { e.preventDefault(); $("dPrev").click(); }
+    if (e.key === "ArrowRight" && e.target.tagName !== "INPUT") { e.preventDefault(); $("dNext").click(); }
+    if (e.key !== "Tab") return;
+    const f = [...$("drawer").querySelectorAll("button")].filter((x) => x.offsetParent);
+    if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
+
+  // ---------------------------------------------------------------- molar mass
+  let mmTimer = null, mmSeq = 0;
+  async function molar() {
+    const f = $("mm").value.trim(), out = $("mmOut");
+    if (!f) { fill(out); return; }
+    const my = ++mmSeq;
+    let b;
+    try { b = await (await fetch(`${API}/chemistry/molar-mass?formula=${encodeURIComponent(f)}`)).json(); }
+    catch (_) { fill(out, h("p", { class: "err" }, t("offline"))); return; }
+    if (my !== mmSeq) return;
+    if (!b.success) { fill(out, h("p", { class: "err", role: "alert" }, `${b.error.errorTitle}: ${b.error.errorContent}`)); return; }
+    const d = b.data, byZ = new Map(S.els.map((e) => [e.sym, e]));
+    fill(out,
+      h("div", { class: "mm-big" }, `M(${d.formula}) = ${num(d.molar_mass, 4)} `, h("small", {}, `g/mol · ${t("atoms", d.atoms)}`)),
+      h("div", { class: "comp", "aria-hidden": "true" }, d.breakdown.map((r) => h("span", { title: `${r.sym} ${r.percent}%`,
+        style: { width: `${r.percent}%`, background: CAT_COLOR[byZ.get(r.sym).cat] } }))),
+      h("div", { style: { overflowX: "auto" } }, h("table", {},
+        h("thead", {}, h("tr", {}, [t("elem"), t("count"), t("am"), t("sub"), t("pct")].map((x) => h("th", {}, x)))),
+        h("tbody", {}, d.breakdown.map((r) => h("tr", { tabindex: "0", onclick: () => openEl(r.z), onkeydown: (ev) => { if (ev.key === "Enter") openEl(r.z); } },
+          h("td", {}, h("span", { class: "mini", style: { "--c": CAT_COLOR[byZ.get(r.sym).cat] } }, r.sym), S.lang === "hi" ? r.name_hi : r.name),
+          h("td", {}, r.count), h("td", {}, `${num(r.atomic_mass, 4)}`), h("td", {}, `${num(r.subtotal, 4)} g`),
+          h("td", {}, `${num(r.percent, 2)} %`, h("span", { class: "pbar" }, h("span", { style: { width: `${r.percent}%` } })))))))));
+  }
+  $("mm").addEventListener("input", () => { clearTimeout(mmTimer); mmTimer = setTimeout(molar, 300); });
+  $("mmForm").addEventListener("submit", (e) => { e.preventDefault(); molar(); });
+  fill($("mmChips"), ["H2O", "NaCl", "CO2", "H2SO4", "CaCO3", "C6H12O6", "Ca(OH)2", "CuSO4·5H2O", "K4[Fe(CN)6]"].map((f) =>
+    h("button", { class: "chip", type: "button", onclick: () => { $("mm").value = f; molar(); } }, f)));
+
+  // ---------------------------------------------------------------- search, language, theme
+  $("q").addEventListener("input", (e) => { S.q = e.target.value.trim(); paint(); });
+  $("q").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); const hit = S.els.find((x) => !dimmed(x)); if (hit) openEl(hit.z); }
+    if (e.key === "Escape") { e.target.value = ""; S.q = ""; paint(); }
+  });
+  document.addEventListener("keydown", (e) => {
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+    if (e.key === "/" && !typing && $("drawer").hidden) { e.preventDefault(); $("q").focus(); }
+  });
+  function applyLang(l) {
+    S.lang = T[l] ? l : "en";
+    try { localStorage.setItem("iav-formula-lang", S.lang); } catch (_) {}
+    document.documentElement.lang = S.lang;
+    document.title = t("title") + " · Quantix";
+    $("tTitle").textContent = t("title");
+    $("q").placeholder = t("search");
+    $("mmTitle").textContent = t("mmTitle"); $("mmHint").textContent = t("mmHint"); $("mmGo").textContent = t("calc");
+    $("srcNote").textContent = t("src");
+    $("dClose").setAttribute("aria-label", t("close")); $("dPrev").setAttribute("aria-label", t("prev")); $("dNext").setAttribute("aria-label", t("next"));
+    document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === S.lang)));
+    if (S.els.length) { renderModes(); renderExtra(); paint(); preview(S.els[0]); if (S.open) openEl(S.open); if ($("mm").value) molar(); }
+  }
+  document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
+  const root = document.documentElement;
+  try { const th = localStorage.getItem("iav-theme"); if (th) root.dataset.theme = th; } catch (_) {}
+  $("themeBtn").onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("iav-theme", root.dataset.theme); } catch (_) {}
+  };
+  function save() { try { localStorage.setItem("iav-pt", JSON.stringify({ mode: S.mode })); } catch (_) {} }
+
+  // ---------------------------------------------------------------- start
+  (async function init() {
+    try { const st = JSON.parse(localStorage.getItem("iav-pt") || "{}"); if (MODES.includes(st.mode)) S.mode = st.mode; } catch (_) {}
+    let lang = new URLSearchParams(location.search).get("lang");
+    try { lang = lang || localStorage.getItem("iav-formula-lang"); } catch (_) {}
+    applyLang(lang || "en");
+    let b;
+    try { b = await (await fetch(`${API}/elements`)).json(); } catch (_) { fill($("pt"), h("p", {}, t("offline"))); return; }
+    if (!b.success) { fill($("pt"), h("p", {}, b.message)); return; }
+    S.els = b.data.elements; S.cats = b.data.categories;
+    buildTable(); renderModes(); renderExtra(); paint();
+    const want = location.hash.slice(1);
+    if (want) { const e = S.els.find((x) => x.sym.toLowerCase() === want.toLowerCase() || String(x.z) === want); if (e) openEl(e.z); }
+  })();
+})();
+</script>
+<script src="/web/sci_bg.js"></script>
+<script src="/web/site.js"></script>
+</body>
+</html>

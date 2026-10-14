@@ -1,0 +1,85 @@
+{
+  "sector": {
+    "name": "Sector of a Circle", "dimension": "2D",
+    "variables": {"r": "radius", "θ": "central angle (degrees)"},
+    "formulas": [
+      {"label": "Area", "formula": "A = (θ/360°) × πr²"},
+      {"label": "Arc length", "formula": "l = (θ/360°) × 2πr"},
+      {"label": "Perimeter", "formula": "P = l + 2r"},
+      {"label": "Area (radians)", "formula": "A = ½ r²θ = ½ l r"}
+    ],
+    "note": "A 'slice' of a circle bounded by two radii and an arc."
+  },
+  "annulus": {
+    "name": "Ring (Annulus)", "dimension": "2D",
+    "variables": {"R": "outer radius", "r": "inner radius"},
+    "formulas": [
+      {"label": "Area", "formula": "A = π(R² − r²) = π(R + r)(R − r)"},
+      {"label": "Outer + inner circumference", "formula": "2π(R + r)"},
+      {"label": "Width", "formula": "w = R − r"}
+    ],
+    "note": "Region between two concentric circles (washer, circular path)."
+  },
+  "kite": {
+    "name": "Kite", "dimension": "2D",
+    "variables": {"d₁, d₂": "diagonals", "a, b": "pairs of equal sides"},
+    "formulas": [
+      {"label": "Area", "formula": "A = ½ × d₁ × d₂"},
+      {"label": "Perimeter", "formula": "P = 2(a + b)"}
+    ],
+    "note": "Diagonals are perpendicular; one diagonal bisects the other."
+  },
+  "frustum": {
+    "name": "Frustum of a Cone", "dimension": "3D",
+    "variables": {"R": "bottom radius", "r": "top radius", "h": "height", "l": "slant height"},
+    "formulas": [
+      {"label": "Volume", "formula": "V = (1/3)πh(R² + r² + Rr)"},
+      {"label": "Slant height", "formula": "l = √(h² + (R − r)²)"},
+      {"label": "Curved surface area", "formula": "CSA = πl(R + r)"},
+      {"label": "Total surface area", "formula": "TSA = πl(R + r) + πR² + πr²"}
+    ],
+    "note": "A cone with its top cut off parallel to the base (bucket, glass)."
+  },
+  "hollow_cylinder": {
+    "name": "Hollow Cylinder (Pipe)", "dimension": "3D",
+    "variables": {"R": "outer radius", "r": "inner radius", "h": "height"},
+    "formulas": [
+      {"label": "Volume of material", "formula": "V = πh(R² − r²)"},
+      {"label": "Curved surface area", "formula": "CSA = 2πh(R + r)"},
+      {"label": "Total surface area", "formula": "TSA = 2πh(R + r) + 2π(R² − r²)"}
+    ],
+    "note": "Inner CSA = 2πrh, outer CSA = 2πRh."
+  },
+  "spherical_shell": {
+    "name": "Hollow Sphere (Spherical Shell)", "dimension": "3D",
+    "variables": {"R": "outer radius", "r": "inner radius"},
+    "formulas": [
+      {"label": "Volume of material", "formula": "V = (4/3)π(R³ − r³)"},
+      {"label": "Outer surface area", "formula": "S = 4πR²"}
+    ],
+    "note": "Thickness = R − r."
+  },
+  "equilateral_triangle": {
+    "name": "Equilateral Triangle", "dimension": "2D",
+    "variables": {"a": "side"},
+    "formulas": [
+      {"label": "Area", "formula": "A = (√3/4) a²"},
+      {"label": "Height", "formula": "h = (√3/2) a"},
+      {"label": "Perimeter", "formula": "P = 3a"},
+      {"label": "Circumradius / inradius", "formula": "R = a/√3,  r = a/(2√3)"}
+    ],
+    "note": "All sides equal, all angles 60°."
+  },
+  "right_triangle": {
+    "name": "Right Triangle", "dimension": "2D",
+    "variables": {"a, b": "legs", "c": "hypotenuse"},
+    "formulas": [
+      {"label": "Area", "formula": "A = ½ab"},
+      {"label": "Pythagoras", "formula": "c² = a² + b²"},
+      {"label": "Perimeter", "formula": "P = a + b + c"},
+      {"label": "Circumradius", "formula": "R = c/2"},
+      {"label": "Inradius", "formula": "r = (a + b − c)/2"}
+    ],
+    "note": "One angle is 90°."
+  }
+}

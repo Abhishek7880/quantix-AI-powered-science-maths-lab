@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact us · Quantix</title>
+<style>
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  :root[lang="hi"] body { font-family: "Nirmala UI", "Noto Sans Devanagari", Mangal, system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 18px; }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav a { text-decoration: none; font-size: 14px; padding: 6px 10px; }
+  .spacer { flex: 1; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 16px; border: 1px solid var(--line);
+         background: color-mix(in srgb, var(--panel-solid) 55%, transparent); color: var(--ink); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; }
+  .btn.small { padding: 4px 10px; font-size: 13px; font-weight: 500; }
+  .btn:disabled { opacity: .5; cursor: wait; }
+  .lang { display: inline-flex; border: 1px solid var(--line); overflow: hidden; }
+  .lang button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 600; padding: 5px 11px; cursor: pointer; }
+  .lang button + button { border-left: 1px solid var(--line); }
+  main { padding-top: 26px; padding-bottom: 48px; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 20px; align-items: start; max-width: 1320px; margin: 0 auto; }
+  @media (max-width: 960px) { main { grid-template-columns: minmax(0, 1fr); } }
+  .card { padding: 20px 22px; min-width: 0; }
+  .eyebrow { display: inline-flex; gap: 8px; align-items: center; font: 600 12px var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent);
+             border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); background: color-mix(in srgb, var(--accent) 8%, transparent); padding: 5px 12px; border-radius: 999px; }
+  .intro h2 { font: 700 clamp(28px, 3.2vw, 42px)/1.1 var(--f-head); margin: 14px 0 10px; letter-spacing: -.02em; }
+  .intro p { color: var(--muted); font-size: 16px; margin: 0 0 18px; }
+  .ways { display: grid; gap: 10px; }
+  .follow { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .way { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: color-mix(in srgb, var(--panel-solid) 45%, transparent); }
+  .way .ic { width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; flex: none;
+             background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 22%, transparent), color-mix(in srgb, var(--accent-2) 22%, transparent)); }
+  .way b { display: block; font-family: var(--f-head); }
+  .way span { font-size: 13.5px; color: var(--muted); }
+  form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 600px) { form { grid-template-columns: 1fr; } }
+  .full { grid-column: 1 / -1; }
+  .f label { display: block; font-size: 13.5px; font-weight: 600; margin-bottom: 5px; }
+  .f label i { font-style: normal; color: var(--muted); font-weight: 400; }
+  .f input, .f textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); color: var(--ink); font: inherit;
+                          background: color-mix(in srgb, var(--panel-solid) 70%, transparent); }
+  .f textarea { min-height: 150px; resize: vertical; }
+  .f input:focus, .f textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+  .f.bad input, .f.bad textarea { border-color: var(--err); }
+  .f .msg { font-size: 12.5px; color: var(--err); margin-top: 4px; min-height: 0; }
+  .f .count { float: right; font: 12px var(--f-mono); color: var(--muted); font-weight: 400; }
+  .topics { display: flex; flex-wrap: wrap; gap: 6px; }
+  .topic { border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; font: inherit; font-size: 13.5px; cursor: pointer;
+           background: color-mix(in srgb, var(--panel-solid) 50%, transparent); color: var(--ink); }
+  .topic[aria-checked="true"] { background: linear-gradient(120deg, var(--btn-a), var(--btn-b)); color: #fff; border-color: transparent; }
+  .trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .privacy { font-size: 12.5px; color: var(--muted); margin: 0; }
+  .done { text-align: center; padding: 26px 10px; }
+  .done .big { font-size: 54px; line-height: 1; filter: drop-shadow(0 0 18px var(--glow)); }
+  .done h3 { font: 700 24px var(--f-head); margin: 10px 0 6px; }
+  .ticket { display: inline-block; font: 700 20px var(--f-mono); padding: 8px 16px; border-radius: 10px; margin: 8px 0 14px;
+            border: 1px dashed color-mix(in srgb, var(--accent) 60%, transparent); color: var(--accent); background: var(--soft); }
+  .err { color: var(--err); font-size: 14px; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/web/lab.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="/" aria-label="Quantix — home">
+    <svg class="logo" viewBox="-50 -50 100 100" aria-hidden="true">
+      <defs><radialGradient id="lgCore"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient></defs>
+      <g class="lg-orbits" fill="none" stroke-width="3">
+        <ellipse rx="44" ry="15" stroke="var(--accent)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent-2)" transform="rotate(60)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent)" transform="rotate(120)" opacity=".75"/>
+      </g>
+      <circle r="12" fill="url(#lgCore)" class="lg-core"/>
+    </svg>
+    <span>
+      <h1 id="tTitle">Contact us</h1>
+      <span class="kicker">Quantix</span>
+    </span>
+  </a>
+  <nav aria-label="Pages"></nav>
+  <span class="spacer"></span>
+  <div class="lang" role="group" aria-label="Language / भाषा">
+    <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+    <button type="button" data-lang="hi" aria-pressed="false" lang="hi">हिन्दी</button>
+  </div>
+  <button class="btn small" id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
+</header>
+
+<main>
+  <section class="card intro" aria-labelledby="introTitle">
+    <span class="eyebrow">✉ <span id="tEyebrow">We read every message</span></span>
+    <h2 id="introTitle">Questions, ideas or a bug? Talk to us.</h2>
+    <p id="tLead">Tell us what you need — a missing formula, a wrong value, a feature for your class, or anything that broke. You get a ticket number so you can refer to it later.</p>
+    <div class="ways">
+      <div class="way"><span class="ic">💡</span><div><b id="w1t">Suggest a feature</b><span id="w1d">New tools, topics or languages you would like.</span></div></div>
+      <div class="way"><span class="ic">🐞</span><div><b id="w2t">Report a bug</b><span id="w2d">Say which page, what you did and what you saw — a screenshot description helps.</span></div></div>
+      <div class="way"><span class="ic">∑</span><div><b id="w3t">Wrong formula or data</b><span id="w3d">Name the formula, element or unit and the correct value.</span></div></div>
+      <div class="way"><span class="ic">⏱</span><div><b id="w4t">Reply time</b><span id="w4d">Usually within 2 working days, by email.</span></div></div>
+    </div>
+    <div class="follow" data-social hidden></div>
+  </section>
+
+  <section class="card" aria-labelledby="formTitle">
+    <div id="formBox">
+      <h2 id="formTitle" style="font:700 20px var(--f-head);margin:0 0 14px">Send a message</h2>
+      <form id="form" novalidate>
+        <div class="f" id="f-name"><label for="name"><span id="lName">Your name</span></label><input id="name" name="name" autocomplete="name" maxlength="80" required><div class="msg" id="m-name"></div></div>
+        <div class="f" id="f-email"><label for="email"><span id="lEmail">Email</span></label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required><div class="msg" id="m-email"></div></div>
+        <div class="f" id="f-phone"><label for="phone"><span id="lPhone">Phone</span> <i id="lOptional">(optional)</i></label><input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="20"><div class="msg" id="m-phone"></div></div>
+        <div class="f" id="f-subject"><label for="subject"><span id="lSubject">Subject</span> <i id="lOptional2">(optional)</i></label><input id="subject" name="subject" maxlength="120"></div>
+        <div class="f full"><label id="lTopic">What is it about?</label><div class="topics" id="topics" role="radiogroup" aria-labelledby="lTopic"></div></div>
+        <div class="f full" id="f-message"><label for="message"><span id="lMessage">Message</span><span class="count" id="count">0 / 3000</span></label>
+          <textarea id="message" name="message" maxlength="3000" required></textarea><div class="msg" id="m-message"></div></div>
+        <div class="trap" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
+        <p class="privacy full" id="tPrivacy">Your details are stored only on this server and used only to reply to you.</p>
+        <div class="full"><button class="btn primary" type="submit" id="send" style="width:100%">✉ <span id="tSend">Send message</span></button></div>
+        <p class="err full" id="formErr" role="alert" hidden></p>
+      </form>
+    </div>
+    <div class="done" id="doneBox" hidden tabindex="-1">
+      <div class="big">✅</div>
+      <h3 id="tThanks">Thank you — message received!</h3>
+      <p id="tTicketLbl" style="margin:0;color:var(--muted)">Your ticket number</p>
+      <div class="ticket" id="ticket"></div>
+      <p id="tNext" style="color:var(--muted);margin:0 0 16px">We will reply to your email. Keep the ticket number for reference.</p>
+      <button class="btn" id="again" type="button">✉ <span id="tAgain">Send another message</span></button>
+    </div>
+  </section>
+</main>
+
+<script src="/web/site.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const TOPICS = ["general", "bug", "feature", "data", "other"];
+  const S = { lang: "en", topic: "general", busy: false };
+  const T = {
+    en: { title: "Contact us", eyebrow: "We read every message", introTitle: "Questions, ideas or a bug? Talk to us.",
+          lead: "Tell us what you need — a missing formula, a wrong value, a feature for your class, or anything that broke. You get a ticket number so you can refer to it later.",
+          w1t: "Suggest a feature", w1d: "New tools, topics or languages you would like.", w2t: "Report a bug",
+          w2d: "Say which page, what you did and what you saw — a screenshot description helps.", w3t: "Wrong formula or data",
+          w3d: "Name the formula, element or unit and the correct value.", w4t: "Reply time", w4d: "Usually within 2 working days, by email.",
+          formTitle: "Send a message", name: "Your name", email: "Email", phone: "Phone", optional: "(optional)", subject: "Subject",
+          topic: "What is it about?", message: "Message", privacy: "Your details are stored only on this server and used only to reply to you.",
+          send: "Send message", sending: "Sending…", thanks: "Thank you — message received!", ticketLbl: "Your ticket number",
+          next: "We will reply to your email. Keep the ticket number for reference.", again: "Send another message",
+          topics: { general: "General question", bug: "Report a bug", feature: "Suggest a feature", data: "Wrong formula / data", other: "Other" },
+          errs: { name_short: "Please enter your name.", email_invalid: "Please enter a valid email, like name@example.com.",
+                  phone_invalid: "Phone: digits only, e.g. +91 98765 43210.", message_short: "Please write at least 10 characters.",
+                  too_many_links: "Please include at most 3 links.", topic_invalid: "Choose a topic." },
+          offline: "Could not reach the server — is it running (start_ui.bat)?", wait: "Too many messages — please try again in a few minutes." },
+    hi: { title: "संपर्क करें", eyebrow: "हम हर संदेश पढ़ते हैं", introTitle: "प्रश्न, सुझाव या कोई गड़बड़ी? हमें बताएँ।",
+          lead: "बताइए आपको क्या चाहिए — कोई छूटा सूत्र, गलत मान, आपकी कक्षा के लिए नई सुविधा, या कुछ भी जो काम नहीं कर रहा। आपको एक टिकट नंबर मिलेगा।",
+          w1t: "सुविधा सुझाएँ", w1d: "नए उपकरण, विषय या भाषाएँ जो आप चाहते हैं।", w2t: "गड़बड़ी बताएँ",
+          w2d: "कौन-सा पेज, आपने क्या किया और क्या दिखा — विस्तार से लिखें।", w3t: "गलत सूत्र या आँकड़ा",
+          w3d: "सूत्र, तत्व या मात्रक का नाम और सही मान लिखें।", w4t: "उत्तर का समय", w4d: "आमतौर पर 2 कार्य-दिवसों में, ईमेल द्वारा।",
+          formTitle: "संदेश भेजें", name: "आपका नाम", email: "ईमेल", phone: "फ़ोन", optional: "(वैकल्पिक)", subject: "विषय",
+          topic: "संदेश किस बारे में है?", message: "संदेश", privacy: "आपकी जानकारी केवल इसी सर्वर पर रखी जाती है और केवल उत्तर देने के लिए उपयोग होती है।",
+          send: "संदेश भेजें", sending: "भेजा जा रहा है…", thanks: "धन्यवाद — संदेश मिल गया!", ticketLbl: "आपका टिकट नंबर",
+          next: "हम आपके ईमेल पर उत्तर देंगे। संदर्भ के लिए टिकट नंबर रखें।", again: "एक और संदेश भेजें",
+          topics: { general: "सामान्य प्रश्न", bug: "गड़बड़ी बताएँ", feature: "सुविधा सुझाएँ", data: "गलत सूत्र / आँकड़ा", other: "अन्य" },
+          errs: { name_short: "कृपया अपना नाम लिखें।", email_invalid: "कृपया सही ईमेल लिखें, जैसे name@example.com।",
+                  phone_invalid: "फ़ोन: केवल अंक, जैसे +91 98765 43210।", message_short: "कृपया कम से कम 10 अक्षर लिखें।",
+                  too_many_links: "कृपया अधिकतम 3 लिंक दें।", topic_invalid: "विषय चुनें।" },
+          offline: "सर्वर से संपर्क नहीं हुआ — क्या यह चालू है (start_ui.bat)?", wait: "बहुत अधिक संदेश — कृपया कुछ मिनट बाद प्रयास करें।" },
+  };
+  const t = (k) => T[S.lang][k];
+
+  function renderTopics() {
+    const box = $("topics");
+    box.replaceChildren(...TOPICS.map((k) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "topic"; b.setAttribute("role", "radio"); b.dataset.k = k;
+      b.setAttribute("aria-checked", String(S.topic === k)); b.tabIndex = S.topic === k ? 0 : -1;
+      b.textContent = t("topics")[k];
+      b.onclick = () => { S.topic = k; renderTopics(); box.querySelector(`[data-k="${k}"]`).focus(); };
+      b.onkeydown = (e) => {
+        const d = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+        if (!d) return;
+        e.preventDefault(); S.topic = TOPICS[(TOPICS.indexOf(k) + d + TOPICS.length) % TOPICS.length]; renderTopics();
+        box.querySelector(`[data-k="${S.topic}"]`).focus();
+      };
+      return b;
+    }));
+  }
+  function showErrors(fields) {
+    ["name", "email", "phone", "message"].forEach((f) => {
+      const code = fields[f];
+      $(`f-${f}`).classList.toggle("bad", !!code);
+      $(`m-${f}`).textContent = code ? (t("errs")[code] || code) : "";
+      $(f).setAttribute("aria-invalid", String(!!code));
+      if (code) $(f).setAttribute("aria-describedby", `m-${f}`); else $(f).removeAttribute("aria-describedby");
+    });
+    const first = ["name", "email", "phone", "message"].find((f) => fields[f]);
+    if (first) $(first).focus();
+  }
+  function localCheck() {
+    const f = {};
+    if ($("name").value.trim().length < 2) f.name = "name_short";
+    if (!/^[^@\s<>]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test($("email").value.trim())) f.email = "email_invalid";
+    if ($("phone").value.trim() && !/^\+?[0-9][0-9 \-]{6,18}$/.test($("phone").value.trim())) f.phone = "phone_invalid";
+    if ($("message").value.trim().length < 10) f.message = "message_short";
+    return f;
+  }
+  $("message").addEventListener("input", () => { $("count").textContent = `${$("message").value.length} / 3000`; });
+  $("form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (S.busy) return;
+    $("formErr").hidden = true;
+    const bad = localCheck();
+    showErrors(bad);
+    if (Object.keys(bad).length) return;
+    S.busy = true; $("send").disabled = true; $("tSend").textContent = t("sending");
+    const body = { name: $("name").value, email: $("email").value, phone: $("phone").value || null, topic: S.topic,
+                   subject: $("subject").value || null, message: $("message").value, lang: S.lang,
+                   page: document.referrer ? new URL(document.referrer).pathname : null, website: $("website").value };
+    let b = null;
+    try { b = await (await fetch("/api/v1/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })).json(); }
+    catch (_) { /* shown below */ }
+    S.busy = false; $("send").disabled = false; $("tSend").textContent = t("send");
+    if (!b) { $("formErr").textContent = t("offline"); $("formErr").hidden = false; return; }
+    if (!b.success) {
+      if (b.data && b.data.fields) { showErrors(b.data.fields); return; }
+      $("formErr").textContent = b.error.errorCode === "TOO_MANY_MESSAGES" ? t("wait") : `${b.error.errorTitle}: ${b.error.errorContent}`;
+      $("formErr").hidden = false; return;
+    }
+    $("ticket").textContent = b.data.ticket;
+    $("formBox").hidden = true; $("doneBox").hidden = false; $("doneBox").focus();
+  });
+  $("again").onclick = () => { $("form").reset(); $("count").textContent = "0 / 3000"; showErrors({}); $("doneBox").hidden = true; $("formBox").hidden = false; $("name").focus(); };
+
+  function applyLang(l) {
+    S.lang = T[l] ? l : "en";
+    try { localStorage.setItem("iav-formula-lang", S.lang); } catch (_) {}
+    document.documentElement.lang = S.lang; document.title = t("title") + " · Quantix";
+    [["tTitle", "title"], ["tEyebrow", "eyebrow"], ["introTitle", "introTitle"], ["tLead", "lead"], ["w1t", "w1t"], ["w1d", "w1d"], ["w2t", "w2t"], ["w2d", "w2d"],
+     ["w3t", "w3t"], ["w3d", "w3d"], ["w4t", "w4t"], ["w4d", "w4d"], ["formTitle", "formTitle"], ["lName", "name"], ["lEmail", "email"], ["lPhone", "phone"],
+     ["lOptional", "optional"], ["lOptional2", "optional"], ["lSubject", "subject"], ["lTopic", "topic"], ["lMessage", "message"], ["tPrivacy", "privacy"],
+     ["tSend", "send"], ["tThanks", "thanks"], ["tTicketLbl", "ticketLbl"], ["tNext", "next"], ["tAgain", "again"]].forEach(([id, k]) => { $(id).textContent = t(k); });
+    document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === S.lang)));
+    renderTopics();
+    const shown = {}; ["name", "email", "phone", "message"].forEach((f) => { if ($(`f-${f}`).classList.contains("bad")) shown[f] = localCheck()[f]; });
+    if (Object.keys(shown).length) showErrors(shown);
+  }
+  document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
+  const q = new URLSearchParams(location.search);
+  if (TOPICS.includes(q.get("topic"))) S.topic = q.get("topic");
+  let lang = q.get("lang");
+  try { lang = lang || localStorage.getItem("iav-formula-lang"); } catch (_) {}
+  applyLang(lang || "en");
+})();
+</script>
+<script src="/web/sci_bg.js"></script>
+</body>
+</html>

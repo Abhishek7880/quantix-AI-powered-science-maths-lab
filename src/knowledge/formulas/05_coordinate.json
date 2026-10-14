@@ -1,0 +1,100 @@
+{
+  "id": "coordinate",
+  "title": "Coordinate Geometry",
+  "icon": "xy",
+  "order": 5,
+  "description": "Points, straight lines, circles, conic sections (parabola, ellipse, hyperbola) and 3D lines and planes.",
+  "sections": [
+    {"title": "Points", "items": [
+      ["Distance", "d = √((x₂ − x₁)² + (y₂ − y₁)²)", ""],
+      ["Distance from origin", "√(x² + y²)", ""],
+      ["Mid-point", "((x₁ + x₂)/2, (y₁ + y₂)/2)", ""],
+      ["Section — internal m : n", "((mx₂ + nx₁)/(m + n), (my₂ + ny₁)/(m + n))", ""],
+      ["Section — external m : n", "((mx₂ − nx₁)/(m − n), (my₂ − ny₁)/(m − n))", ""],
+      ["Centroid", "((x₁ + x₂ + x₃)/3, (y₁ + y₂ + y₃)/3)", ""],
+      ["Incentre", "((ax₁ + bx₂ + cx₃)/(a + b + c), (ay₁ + by₂ + cy₃)/(a + b + c))", ""],
+      ["Triangle area", "½ |x₁(y₂ − y₃) + x₂(y₃ − y₁) + x₃(y₁ − y₂)|", ""],
+      ["Collinear points", "triangle area = 0", ""],
+      ["Polygon area (shoelace)", "½ |Σ (xᵢyᵢ₊₁ − xᵢ₊₁yᵢ)|", ""],
+      ["Polar ↔ Cartesian", "x = r cos θ, y = r sin θ;  r = √(x² + y²), θ = tan⁻¹(y/x)", ""]
+    ]},
+    {"title": "Straight lines", "items": [
+      ["Slope", "m = tan θ = (y₂ − y₁)/(x₂ − x₁)", ""],
+      ["Slope from general form", "m = −a/b", "ax + by + c = 0"],
+      ["Slope–intercept form", "y = mx + c", ""],
+      ["Point–slope form", "y − y₁ = m(x − x₁)", ""],
+      ["Two-point form", "(y − y₁)/(y₂ − y₁) = (x − x₁)/(x₂ − x₁)", ""],
+      ["Intercept form", "x/a + y/b = 1", ""],
+      ["Normal form", "x cos α + y sin α = p", ""],
+      ["Parallel lines", "m₁ = m₂", ""],
+      ["Perpendicular lines", "m₁ · m₂ = −1", ""],
+      ["Angle between lines", "tan θ = |(m₁ − m₂)/(1 + m₁m₂)|", ""],
+      ["Point to line distance", "|ax₁ + by₁ + c| / √(a² + b²)", ""],
+      ["Distance between parallel lines", "|c₁ − c₂| / √(a² + b²)", ""],
+      ["Foot of perpendicular", "(x − x₁)/a = (y − y₁)/b = −(ax₁ + by₁ + c)/(a² + b²)", ""],
+      ["Concurrent lines", "|a₁ b₁ c₁; a₂ b₂ c₂; a₃ b₃ c₃| = 0", ""]
+    ]},
+    {"title": "Circle", "items": [
+      ["Centre–radius form", "(x − h)² + (y − k)² = r²", ""],
+      ["General form", "x² + y² + 2gx + 2fy + c = 0", ""],
+      ["Centre & radius (general)", "centre (−g, −f),  r = √(g² + f² − c)", ""],
+      ["Diameter form", "(x − x₁)(x − x₂) + (y − y₁)(y − y₂) = 0", ""],
+      ["Tangent at (x₁, y₁)", "xx₁ + yy₁ + g(x + x₁) + f(y + y₁) + c = 0", ""],
+      ["Tangent condition", "y = mx + c touches x² + y² = a² ⇔ c² = a²(1 + m²)", ""],
+      ["Length of tangent", "√S₁ = √(x₁² + y₁² + 2gx₁ + 2fy₁ + c)", ""],
+      ["Parametric", "x = h + r cos θ,  y = k + r sin θ", ""]
+    ]},
+    {"title": "Parabola  y² = 4ax", "items": [
+      ["Focus / directrix", "focus (a, 0);  directrix x = −a", ""],
+      ["Latus rectum", "length 4a", ""],
+      ["Parametric", "(at², 2at)", ""],
+      ["Tangent at (x₁, y₁)", "yy₁ = 2a(x + x₁)", ""],
+      ["Tangent (slope form)", "y = mx + a/m", ""],
+      ["Normal (slope form)", "y = mx − 2am − am³", ""],
+      ["Focal distance", "x + a", ""],
+      ["Other orientations", "x² = 4ay (opens up), y² = −4ax (left), x² = −4ay (down)", ""]
+    ]},
+    {"title": "Ellipse  x²/a² + y²/b² = 1  (a > b)", "items": [
+      ["Eccentricity", "e = √(1 − b²/a²)", "0 < e < 1"],
+      ["Foci", "(±ae, 0)", ""],
+      ["Directrices", "x = ±a/e", ""],
+      ["Latus rectum", "2b²/a", ""],
+      ["Sum of focal distances", "PS + PS′ = 2a", ""],
+      ["Parametric", "(a cos θ, b sin θ)", ""],
+      ["Tangent at (x₁, y₁)", "xx₁/a² + yy₁/b² = 1", ""],
+      ["Tangent (slope form)", "y = mx ± √(a²m² + b²)", ""],
+      ["Area", "πab", ""]
+    ]},
+    {"title": "Hyperbola  x²/a² − y²/b² = 1", "items": [
+      ["Eccentricity", "e = √(1 + b²/a²)", "e > 1"],
+      ["Foci", "(±ae, 0)", ""],
+      ["Asymptotes", "y = ±(b/a)x", ""],
+      ["Latus rectum", "2b²/a", ""],
+      ["Difference of focal distances", "|PS − PS′| = 2a", ""],
+      ["Parametric", "(a sec θ, b tan θ)", ""],
+      ["Tangent (slope form)", "y = mx ± √(a²m² − b²)", ""],
+      ["Rectangular hyperbola", "xy = c²;  e = √2", ""]
+    ]},
+    {"title": "General conic", "items": [
+      ["General equation", "ax² + 2hxy + by² + 2gx + 2fy + c = 0", ""],
+      ["Type test", "h² − ab < 0 ellipse;  = 0 parabola;  > 0 hyperbola", "if non-degenerate"],
+      ["Pair of lines", "abc + 2fgh − af² − bg² − ch² = 0", ""],
+      ["Angle between pair of lines", "tan θ = 2√(h² − ab)/(a + b)", ""]
+    ]},
+    {"title": "3D coordinates, lines & planes", "items": [
+      ["Distance", "√((x₂−x₁)² + (y₂−y₁)² + (z₂−z₁)²)", ""],
+      ["Direction cosines", "l² + m² + n² = 1", ""],
+      ["Direction cosines from ratios", "l = a/√(a²+b²+c²), …", ""],
+      ["Angle between lines", "cos θ = |l₁l₂ + m₁m₂ + n₁n₂|", ""],
+      ["Line — symmetric form", "(x − x₁)/a = (y − y₁)/b = (z − z₁)/c", ""],
+      ["Line through two points", "(x−x₁)/(x₂−x₁) = (y−y₁)/(y₂−y₁) = (z−z₁)/(z₂−z₁)", ""],
+      ["Plane — general", "ax + by + cz + d = 0", "normal (a, b, c)"],
+      ["Plane — intercept form", "x/a + y/b + z/c = 1", ""],
+      ["Plane through a point", "a(x − x₁) + b(y − y₁) + c(z − z₁) = 0", ""],
+      ["Point to plane distance", "|ax₁ + by₁ + cz₁ + d| / √(a² + b² + c²)", ""],
+      ["Angle between planes", "cos θ = |a₁a₂ + b₁b₂ + c₁c₂| / (|n₁||n₂|)", ""],
+      ["Sphere", "(x − a)² + (y − b)² + (z − c)² = r²", ""],
+      ["Skew lines distance", "|(b₁ × b₂)·(a₂ − a₁)| / |b₁ × b₂|", ""]
+    ]}
+  ]
+}

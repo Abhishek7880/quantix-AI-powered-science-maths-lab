@@ -1,0 +1,71 @@
+# Project configuration. Every key is optional - anything omitted uses the default in src/config.py.
+# CLI flags override these values. Relative paths are relative to this project folder.
+
+# Class names for YOUR use case (order = class id in the label files).
+# After editing, regenerate dataset/data.yaml:
+#   python -m src.dataset_utils make-yaml --overwrite
+class_names:
+  - defect
+
+device: auto          # auto | cpu | 0 | 0,1
+model_path: ""        # empty = latest trained model in models/registry.json
+
+paths:
+  dataset_dir: dataset
+  data_yaml: dataset/data.yaml
+  models_dir: models
+  outputs_dir: outputs
+  samples_dir: samples
+
+train:
+  base_model: yolo11n.pt   # lightweight COCO-pretrained detector (yolo11s.pt / yolo11m.pt for more accuracy)
+  epochs: 50
+  imgsz: 640
+  batch: 8
+  lr0: 0.01
+  workers: 2
+  patience: 15             # early stopping
+  seed: 42
+
+inference:
+  conf: 0.25
+  iou: 0.45
+  imgsz: 640
+  max_det: 100
+
+camera:
+  index: 0
+  width: 1280
+  height: 720
+
+# Contact-us email alerts. The sending account + password are NOT here: run
+#   .venv\Scripts\python.exe tools\setup_email.py
+# (saves them in secrets\smtp.json, which is git-ignored and left out of backups).
+contact:
+  notify_to: ay2276770@gmail.com   # who gets an email for every new message
+  confirm_to_sender: false         # true = also email the visitor a "we received it" note with the ticket
+  smtp_host: smtp.gmail.com
+  smtp_port: 587
+  inbox_url: http://127.0.0.1:8000/contact/inbox
+
+# Social-media links: shown as icons in the footer of every page and as "Follow us" on the Contact page.
+# Paste the full profile link or just the username; leave empty to hide. Changes show after a browser refresh.
+social:
+  github: https://github.com/Abhishek7880
+  youtube: https://youtube.com/@aiwith_abhishek
+  linkedin: https://www.linkedin.com/in/abhishekyadav-backend
+  instagram: ""
+  x: ""            # X / Twitter
+  facebook: ""
+  threads: ""
+  telegram: ""
+  whatsapp: ""     # phone number with country code, e.g. 919876543210
+  discord: ""      # invite code or link
+
+# The signature in the footer of every page (empty fields are hidden). Changes show after a browser refresh.
+author:
+  name: Abhishek Yadav
+  title: AI-Enabled Full-Stack Developer
+  email: abhishekyadav24991@gmail.com
+  phone: "+91 7080397264"        # delete this line to hide the number on the public site
+  url: https://github.com/Abhishek7880

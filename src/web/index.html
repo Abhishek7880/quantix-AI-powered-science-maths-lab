@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quantix — AI-powered science &amp; maths lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<script>document.documentElement.classList.add("js-reveal");</script>
+<style>
+  /* colours, header, cards and buttons: /web/lab.css (shared by every page) */
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 14px 24px;
+           display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 18px; margin: 0; font-weight: 650; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  header .spacer { flex: 1; }
+  .pages { display: flex; gap: 4px; }
+  .pages a { color: var(--muted); text-decoration: none; font-size: 14px; padding: 6px 10px; border-radius: 6px; }
+  .pages a.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); font-weight: 600; }
+  .pages a:hover { color: var(--ink); }
+  .status { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
+  .dot.up { background: var(--ok); } .dot.down { background: var(--err); }
+  main { max-width: 1280px; margin: 0 auto; padding: 20px 24px 48px;
+         display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 860px) { main { grid-template-columns: minmax(0, 1fr); padding: 16px; } }
+  main > * { min-width: 0; }
+  .note, .msg pre, .result-head .meta { overflow-wrap: anywhere; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+  .controls { padding: 18px; position: sticky; top: 16px; }
+  @media (max-width: 860px) { .controls { position: static; } }
+  label.field { display: block; font-size: 13px; font-weight: 600; margin: 0 0 6px; }
+  .hint { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
+  select, input[type=number] { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px;
+                               background: var(--panel); color: var(--ink); font: inherit; }
+  .group { margin-bottom: 16px; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  input[type=range] { flex: 1; accent-color: var(--accent); }
+  .val { font-variant-numeric: tabular-nums; min-width: 38px; text-align: right; font-weight: 600; }
+  .drop { border: 2px dashed var(--line); border-radius: 10px; padding: 22px 14px; text-align: center;
+          background: var(--drop); cursor: pointer; transition: border-color .15s, background .15s; }
+  .drop:hover, .drop:focus-visible, .drop.over { border-color: var(--accent); outline: none; }
+  .drop strong { display: block; font-size: 15px; margin-bottom: 4px; }
+  .drop span { color: var(--muted); font-size: 13px; }
+  .queue { margin: 12px 0 0; padding: 0; list-style: none; max-height: 180px; overflow: auto; }
+  .queue li { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 5px 0;
+              border-bottom: 1px solid var(--line); }
+  .queue img { width: 34px; height: 34px; object-fit: cover; border-radius: 4px; flex: none; }
+  .queue .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .queue button { border: none; background: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 0 4px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 16px;
+         border-radius: 7px; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+         font: inherit; font-weight: 600; cursor: pointer; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); width: 100%; margin-top: 14px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn.small { padding: 5px 10px; font-size: 13px; font-weight: 500; }
+  .actions { display: flex; gap: 8px; margin-top: 8px; }
+  .actions .btn { flex: 1; }
+  .results { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .empty { padding: 48px 24px; text-align: center; color: var(--muted); }
+  .empty .big { font-size: 40px; line-height: 1; margin-bottom: 8px; }
+  .result { padding: 16px; min-width: 0; }
+  .result-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .result-head h2 { font-size: 15px; margin: 0; overflow-wrap: anywhere; }
+  .result-head .meta { color: var(--muted); font-size: 12px; }
+  .result-head .spacer { flex: 1; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .pair { grid-template-columns: 1fr; } }
+  figure { margin: 0; }
+  figure img { width: 100%; border-radius: 7px; border: 1px solid var(--line); display: block; cursor: zoom-in;
+               background: var(--bg); }
+  figcaption { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 8px; }
+  .chip { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line);
+          display: inline-flex; align-items: center; gap: 6px; }
+  .chip i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 7px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 7px 10px; text-align: left; white-space: nowrap; }
+  th { background: var(--bg); font-weight: 600; position: sticky; top: 0; }
+  tbody tr:nth-child(even) { background: color-mix(in srgb, var(--bg) 55%, transparent); }
+  .bar { height: 6px; border-radius: 3px; background: var(--line); width: 70px; display: inline-block; vertical-align: middle; margin-left: 6px; }
+  .bar > span { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
+  .msg { padding: 10px 12px; border-radius: 7px; font-size: 13px; margin-top: 10px; }
+  .msg.err { background: var(--err-bg); color: var(--err); }
+  .msg.warn { background: var(--warn-bg); color: var(--warn); }
+  .msg code { font-size: 12px; }
+  .msg pre { white-space: pre-wrap; margin: 6px 0 0; font: 12px/1.45 ui-monospace, Consolas, monospace; color: var(--ink); }
+  .spinner { width: 18px; height: 18px; border: 2px solid var(--line); border-top-color: var(--accent);
+             border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .note { color: var(--muted); font-size: 12px; margin-top: 10px; }
+  .headline { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 14px 0 4px; }
+  .headline .big { font-size: 22px; font-weight: 700; }
+  .badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; letter-spacing: .03em;
+           background: var(--drop); color: var(--accent); border: 1px solid var(--line); }
+  .badge.d3 { background: color-mix(in srgb, var(--ok) 15%, transparent); color: var(--ok); }
+  .formulas { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin: 12px 0; }
+  .fcard { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; background: var(--bg); min-width: 0; }
+  .fcard h3 { margin: 0 0 6px; font-size: 15px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .fcard dl { margin: 0 0 8px; font-size: 12px; color: var(--muted); display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; }
+  .fcard dt { font-weight: 700; color: var(--ink); font-style: italic; }
+  .fcard dd { margin: 0; }
+  .fcard table { font-size: 13px; }
+  .fcard td { white-space: normal; padding: 5px 6px; border-top: 1px solid var(--line); vertical-align: top; }
+  .fcard td.f { font: 600 14px/1.4 "Cambria Math", "STIX Two Math", Cambria, Georgia, serif; overflow-wrap: anywhere; }
+  .fcard .fnote { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .supported { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .explorer { padding: 16px; }
+  .xp-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .xp-head h2 { font-size: 16px; margin: 0; }
+  .xp-head .spacer { flex: 1; }
+  .xp-head select { width: auto; padding: 6px 8px; }
+  .btn.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .xp-body { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(300px, 1fr); gap: 18px; }
+  .xp-big .xp-body { grid-template-columns: minmax(0, 1fr); }
+  .xp-big .xp-body > div:last-child { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 0 20px; align-items: start; }
+  .xp-big .xp-params { grid-column: 1; } .xp-big .xp-results { grid-column: 2; grid-row: 1 / span 2; } .xp-big .xp-lines { grid-column: 1; }
+  @media (max-width: 900px) { .xp-big .xp-body > div:last-child { grid-template-columns: minmax(0, 1fr); }
+    .xp-big .xp-results { grid-column: 1; grid-row: auto; } }
+  @media (max-width: 1100px) { .xp-body { grid-template-columns: minmax(0, 1fr); } }
+  .xp-canvas { border: 1px solid var(--line); border-radius: 8px; background: var(--bg); overflow: hidden;
+               touch-action: none; cursor: grab; }
+  .xp-canvas:active { cursor: grabbing; }
+  .xp-canvas:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .xp-canvas { position: relative; }
+  .xp-canvas canvas { display: block; }
+  .xp-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .xp-label { position: absolute; transform: translate(-50%, -50%); white-space: nowrap;
+              font: 600 12px/1.2 system-ui, "Segoe UI", sans-serif; color: var(--ink);
+              background: color-mix(in srgb, var(--panel) 82%, transparent); border: 1px solid var(--line);
+              padding: 2px 6px; border-radius: 6px; font-style: italic; }
+  .xp-param { margin-bottom: 10px; }
+  .xp-param label { display: block; font-size: 13px; margin-bottom: 4px; }
+  .xp-param label b { font: italic 700 15px Cambria, Georgia, serif; }
+  .xp-param input[type=number] { width: 96px; flex: none; }
+  .xp-table td { white-space: normal; vertical-align: top; }
+  .xp-table td.f { font: 600 13px/1.4 "Cambria Math", Cambria, Georgia, serif; white-space: nowrap; }
+  .xp-table td.w { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+  .xp-table td.res { font-weight: 700; white-space: nowrap; }
+  .xp-vtx { position: absolute; transform: translate(-50%, -50%); font: italic 700 14px Cambria, Georgia, serif;
+            color: var(--ink); text-shadow: 0 0 3px var(--panel), 0 0 3px var(--panel); pointer-events: none; }
+  .xp-vtx.sel { color: #f59e0b; font-size: 17px; }
+  .xp-label.xp-len { border-color: #f59e0b; color: #f59e0b; font-style: normal; }
+  .xp-lines { margin-top: 12px; }
+  .xp-lines-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .xp-draw { gap: 6px; flex-wrap: wrap; font-size: 13px; }
+  .xp-draw select { width: auto; padding: 4px 6px; }
+  .xp-x { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 0 4px; }
+  .xp-x:hover { color: var(--err); }
+  .result-list { display: flex; flex-direction: column; gap: 16px; }
+  .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: center;
+              justify-content: center; padding: 20px; z-index: 10; cursor: zoom-out; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 100%; border-radius: 6px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* ---- formula cards strip (src/web/formula_cards.js) */
+  .fcards { grid-column: 1 / -1; padding: 14px 16px 12px; }
+  .fcards:has(.fc-showbtn) { padding: 8px; background: none; border: 0; box-shadow: none; }
+  .fc-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .fc-title { margin: 0; font-size: 16px; }
+  .fc-count { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .fc-spacer { flex: 1; }
+  .fc-opt { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); font-weight: 600; }
+  .fc-opt select { width: auto; max-width: 190px; padding: 4px 8px; font-size: 13px; }
+  .fc-lang { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+  .fc-lang button { border: 0; background: var(--panel); color: var(--muted); font: inherit; font-size: 12px; font-weight: 600; padding: 4px 9px; cursor: pointer; }
+  .fc-lang button + button { border-left: 1px solid var(--line); }
+  .fc-lang button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  .fc-btn { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+            border-radius: 7px; padding: 5px 11px; font: inherit; font-size: 13px; cursor: pointer; text-decoration: none; }
+  .fc-btn:hover { border-color: var(--accent); }
+  .fc-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .fc-body { display: grid; grid-template-columns: 40px minmax(0, 1fr) 40px; gap: 10px; align-items: center; margin-top: 12px; }
+  .fc-nav { height: 100%; min-height: 120px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 10px;
+            font-size: 26px; cursor: pointer; }
+  .fc-nav:hover { border-color: var(--accent); color: var(--accent); }
+  .fc-card { border-radius: 12px; padding: 16px 20px; min-height: 150px; outline: none; display: flex; flex-direction: column; gap: 10px;
+             background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, var(--panel)), var(--panel) 60%);
+             border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line)); }
+  .fc-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .fc-anim { animation: fcIn .35s ease-out; }
+  @keyframes fcIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .fc-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+  .fc-chip { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); font-weight: 700; border-radius: 999px; padding: 2px 10px; }
+  .fc-main { display: flex; gap: 18px; align-items: center; }
+  .fc-sketch { width: 120px; height: auto; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 4px; flex: none; }
+  .fc-text { min-width: 0; }
+  .fc-name { font-size: 15px; font-weight: 600; }
+  .fc-formula { font: 30px/1.3 "Cambria Math", "STIX Two Math", Cambria, Georgia, "Nirmala UI", serif; overflow-wrap: anywhere; margin-top: 4px; }
+  .fc-note { font-size: 13px; color: var(--muted); font-style: italic; margin-top: 4px; }
+  .fc-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .fc-keys { font-size: 11.5px; color: var(--muted); margin-left: auto; }
+  .fc-foot { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .fc-play { width: 34px; justify-content: center; padding: 4px 0; }
+  .fc-progress { flex: 1; height: 4px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  .fc-bar { height: 100%; width: 0; background: var(--accent); }
+  .fc-empty { color: var(--muted); padding: 10px 4px; }
+  @media (max-width: 700px) {
+    .fc-body { grid-template-columns: minmax(0, 1fr); }
+    .fc-nav { display: none; }
+    .fc-formula { font-size: 22px; }
+    .fc-sketch { width: 84px; }
+    .fc-keys { display: none; }
+  }
+  :root[lang="hi"] .fc-name, .fc-card :lang(hi) { font-family: "Nirmala UI", "Noto Sans Devanagari", system-ui, sans-serif; }
+
+  /* =================================================================== science-lab skin */
+  .status { font: 500 12px var(--f-mono); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px;
+            background: color-mix(in srgb, var(--panel-solid) 55%, transparent); }
+  @keyframes pulse { 50% { transform: scale(1.25); opacity: .8; } }
+  .dot.up { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); animation: beacon 2s infinite; }
+  @keyframes beacon { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 55%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
+  main { max-width: 1320px; padding: 28px 28px 64px; gap: 22px; }
+
+  .fcards:has(.fc-showbtn)::after { display: none; }
+  .pages { display: flex; gap: 4px; }       /* header nav: look comes from lab.css (header nav) */
+  .card h2, .xp-head h2, .fc-title { font-family: var(--f-head); letter-spacing: -.005em; }
+
+  select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* drop zone: scanning beam */
+  .drop { position: relative; overflow: hidden; border: 1.5px dashed color-mix(in srgb, var(--accent) 55%, var(--line)); border-radius: 14px;
+          background: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%), var(--drop); }
+  .drop strong::before { content: "⬆"; display: block; font-size: 24px; margin-bottom: 6px; color: var(--accent); text-shadow: 0 0 18px var(--glow); }
+  .drop::before { content: ""; position: absolute; left: 0; right: 0; height: 40%; top: -40%; pointer-events: none;
+                  background: linear-gradient(transparent, color-mix(in srgb, var(--accent) 22%, transparent), transparent); }
+  .drop:hover::before, .drop.over::before, .drop.ping::before { animation: scan 1.6s ease-in-out infinite; }
+  .drop.ping { box-shadow: 0 0 0 4px var(--glow); }
+  @keyframes scan { to { top: 100%; } }
+
+  /* hero */
+  .hero { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: center;
+          padding: 18px 4px 6px; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 14px; font: 600 12px var(--f-mono); letter-spacing: .16em;
+             text-transform: uppercase; color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+             background: color-mix(in srgb, var(--accent) 8%, transparent); padding: 6px 12px; border-radius: 999px; }
+  .beacon { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: beacon2 1.8s infinite; }
+  @keyframes beacon2 { 0% { box-shadow: 0 0 0 0 var(--glow); } 100% { box-shadow: 0 0 0 9px transparent; } }
+  .hero-title { font: 700 clamp(34px, 5vw, 60px)/1.04 var(--f-head); letter-spacing: -.03em; margin: 0 0 16px; }
+  .hero-lead { font-size: 17px; line-height: 1.6; color: var(--muted); max-width: 58ch; margin: 0 0 22px; }
+  .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero-cta .btn { width: auto; margin: 0; padding: 12px 20px; font-size: 15px; text-decoration: none; }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+  .stat { border-left: 2px solid color-mix(in srgb, var(--accent) 60%, transparent); padding: 2px 0 2px 12px; }
+  .stat strong { display: block; font: 700 26px/1.1 var(--f-head); font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 12px; color: var(--muted); }
+  .hero-stage { perspective: 900px; display: flex; justify-content: center; }
+  .hero-visual { position: relative; width: min(440px, 100%); aspect-ratio: 1; transition: transform .3s ease-out; transform-style: preserve-3d; }
+  .hero-visual svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 24px var(--glow)); }
+  .ring { fill: none; stroke: var(--line); stroke-width: 1.5; }
+  .ring-a { stroke-dasharray: 2 10; stroke: color-mix(in srgb, var(--accent) 45%, transparent); transform-origin: center; animation: spin 60s linear infinite; }
+  .ring-b { stroke-dasharray: 60 14 4 14; stroke: color-mix(in srgb, var(--accent-2) 40%, transparent); transform-origin: center; animation: spin 40s linear infinite reverse; }
+  .axis line { stroke: var(--grid); stroke-width: 1; }
+  .orbit { fill: none; stroke: color-mix(in srgb, var(--accent) 55%, transparent); stroke-width: 1.6; }
+  .e { filter: drop-shadow(0 0 8px var(--accent)); }
+  .e-a { fill: var(--accent); } .e-b { fill: var(--accent-2); }
+  .hero-visual text { fill: var(--ink); font: italic 700 20px "Cambria Math", Cambria, Georgia, serif; text-anchor: middle; }
+  .core { fill: var(--panel-solid); stroke: var(--accent); stroke-width: 2; }
+  .core-glow { transform-origin: center; animation: pulse 3.2s ease-in-out infinite; }
+  .hero-visual .core-txt { font-size: 18px; fill: var(--accent); }
+  .chip-f { position: absolute; font: italic 600 15px "Cambria Math", Cambria, Georgia, serif; padding: 6px 12px; border-radius: 10px;
+            background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); white-space: nowrap;
+            -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); animation: bob 6s ease-in-out infinite; }
+  .chip-f.f1 { top: 8%; left: -2%; } .chip-f.f2 { top: 18%; right: -4%; animation-delay: -1.5s; }
+  .chip-f.f3 { bottom: 14%; left: 0; animation-delay: -3s; } .chip-f.f4 { bottom: 4%; right: 6%; animation-delay: -4.5s; }
+  @keyframes bob { 50% { transform: translateY(-10px); } }
+  /* home_fx.js: the formula cards travel slowly round the outer ring (it sets each card's transform) and swap
+     formula every 5 s; electron symbols swap after every full orbit */
+  .hero-visual.orbiting .chip-f { top: 0; left: 0; right: auto; bottom: auto; animation: none; will-change: transform;
+                                  font-size: 14px; padding: 5px 10px; z-index: 1; }
+  .chip-f > span, .e-sym { transition: opacity .35s ease, transform .35s ease; }
+  .chip-f > span { display: inline-block; }
+  .chip-f.swap > span { opacity: 0; transform: translateY(6px) scale(.9); }
+  .e-sym { transform-box: fill-box; transform-origin: center; }
+  .e-sym.swap { opacity: 0; transform: scale(.4); }
+
+  /* tool tiles with a rotating light border */
+  .tiles { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+  .tile { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border-radius: 16px; text-decoration: none;
+          color: var(--ink); background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); isolation: isolate;
+          -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transition: transform .25s, box-shadow .25s; }
+  .tile::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; z-index: -1; opacity: 0;
+    background: conic-gradient(from var(--ang), transparent 0 60%, var(--accent), var(--accent-2), transparent 95%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); transition: opacity .3s; animation: ang 3s linear infinite; }
+  .tile:hover, .tile:focus-visible { transform: translateY(-4px); box-shadow: 0 18px 40px -14px var(--glow); outline: none; }
+  .tile:hover::before, .tile:focus-visible::before { opacity: 1; }
+  @keyframes ang { to { --ang: 360deg; } }
+  .tile .ti { width: 40px; height: 40px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 6px;
+              font: 700 20px "Cambria Math", Cambria, serif; color: var(--accent);
+              background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 20%, transparent), color-mix(in srgb, var(--accent-2) 20%, transparent));
+              border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
+  .tile b { font: 600 16px var(--f-head); }
+  .tile > span:last-child { font-size: 13px; color: var(--muted); }
+
+  /* formula cards strip */
+  .fcards { padding: 16px 18px 14px; }
+  .fc-count { font-family: var(--f-mono); }
+  .fc-card { position: relative; isolation: isolate; border-radius: 14px; border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
+             background: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 55%),
+                         radial-gradient(120% 140% at 100% 100%, color-mix(in srgb, var(--accent-2) 12%, transparent), transparent 55%),
+                         color-mix(in srgb, var(--panel-solid) 60%, transparent); }
+  .fc-formula { text-shadow: 0 0 22px var(--glow); }
+  .fc-nav { border-radius: 14px; background: color-mix(in srgb, var(--panel-solid) 50%, transparent); transition: color .2s, border-color .2s, transform .2s; }
+  .fc-nav:hover { transform: scale(1.04); }
+  .fc-bar { background: linear-gradient(90deg, var(--accent), var(--accent-2)); box-shadow: 0 0 10px var(--glow); }
+  .fc-btn, .fc-lang button { background: color-mix(in srgb, var(--panel-solid) 55%, transparent); }
+  .fc-lang button[aria-pressed="true"] { background: linear-gradient(120deg, var(--btn-a), var(--btn-b)); color: #fff; }
+
+  /* section label */
+  .lab-label { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; font: 600 18px var(--f-head); margin-top: 8px; flex-wrap: wrap; }
+  .lab-label .idx { font: 600 12px var(--f-mono); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+                    border-radius: 6px; padding: 2px 7px; }
+  .lab-label .rule { flex: 1; min-width: 40px; height: 1px; background: linear-gradient(90deg, var(--accent), transparent); opacity: .5; }
+  .lab-hint { font: 500 12px var(--f-mono); color: var(--muted); }
+
+  .xp-canvas { border-radius: 12px; background: radial-gradient(90% 90% at 50% 40%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%), var(--bg); }
+  .empty .big { filter: drop-shadow(0 0 16px var(--glow)); }
+
+  /* reveal on scroll (html.js-reveal is added in <head>; without JS everything simply shows) */
+  .js-reveal .reveal { opacity: 0; transform: translateY(22px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); }
+  .js-reveal .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 1000px) {
+    .hero { grid-template-columns: minmax(0, 1fr); }
+    .hero-stage { order: -1; } .hero-visual { width: min(320px, 80%); }
+    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 860px) {
+    header { position: static; padding: 12px 16px; }
+    .controls { top: 16px; }
+    main { padding: 16px 16px 48px; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 520px) {
+    .tiles { grid-template-columns: minmax(0, 1fr); }
+    .chip-f { font-size: 12px; padding: 4px 8px; }
+    .lab-hint { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+
+  /* ---- home contact section */
+  .hc { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 24px; padding: 22px 24px; }
+  @media (max-width: 860px) { .hc { grid-template-columns: minmax(0, 1fr); } }
+  .hc h2 { margin: 0 0 8px; font: 700 24px var(--f-head); }
+  .hc-copy p { color: var(--muted); margin: 0 0 12px; }
+  .hc-list { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .hc-list li { font-size: 13.5px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: color-mix(in srgb, var(--panel-solid) 50%, transparent); }
+  .hc-copy .btn { width: auto; margin: 0; text-decoration: none; }
+  .hc-form { display: flex; flex-direction: column; gap: 10px; }
+  .hc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 520px) { .hc-row { grid-template-columns: 1fr; } }
+  .hc-form label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; }
+  .hc-form input, .hc-form textarea { padding: 9px 11px; border-radius: 10px; border: 1px solid var(--line); background: color-mix(in srgb, var(--panel-solid) 70%, transparent);
+                                      color: var(--ink); font: inherit; font-weight: 400; }
+  .hc-form textarea { min-height: 96px; resize: vertical; }
+  .hc-form input:focus, .hc-form textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+  .hc-form [aria-invalid="true"] { border-color: var(--err); }
+  .hc-form .btn.primary { margin-top: 2px; }
+  .hc-trap { position: absolute; left: -10000px; width: 1px; height: 1px; }
+  .hc-out { margin: 0; font-size: 14px; min-height: 1.2em; }
+  .hc-out.ok { color: var(--ok); font-weight: 600; } .hc-out.bad { color: var(--err); }
+</style>
+<link rel="stylesheet" href="/web/lab.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="/" aria-label="Quantix — home">
+    <svg class="logo" viewBox="-50 -50 100 100" aria-hidden="true">
+      <defs><radialGradient id="lgCore"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient></defs>
+      <g class="lg-orbits" fill="none" stroke-width="3">
+        <ellipse rx="44" ry="15" stroke="var(--accent)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent-2)" transform="rotate(60)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent)" transform="rotate(120)" opacity=".75"/>
+      </g>
+      <circle r="12" fill="url(#lgCore)" class="lg-core"/>
+    </svg>
+    <span>
+      <h1>Quant<span class="grad">ix</span></h1>
+      <span class="kicker">AI · Science · Maths</span>
+    </span>
+  </a>
+  <nav class="pages" aria-label="Pages"><a href="/" title="Image Inspection — home" class="on" aria-current="page">Home</a><a href="/measure" title="Measure real objects in a photo">Measure</a><a href="/formulas" title="Formula Library">Formulas</a><a href="/elements" title="Periodic Table">Elements</a><a href="/physics" title="Physics Lab">Physics</a><a href="/handwriting" title="Equation Solver (handwriting)">Solver</a><a href="/converter" title="Unit Converter">Converter</a><a href="/graph" title="Graph Plotter">Graphs</a></nav>
+  <div class="spacer"></div>
+  <div class="status" id="status" aria-live="polite"><span class="dot" id="statusDot"></span><span id="statusText">Connecting…</span></div>
+  <button class="btn small" id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
+</header>
+
+<main>
+  <section class="hero reveal" aria-labelledby="heroTitle">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="beacon" aria-hidden="true"></span>Science · Maths · Computer vision</p>
+      <h2 class="hero-title" id="heroTitle">See the <span class="grad">science</span> inside every shape.</h2>
+      <p class="hero-lead">Show it a photo of a 2D or 3D shape — get its name, a rotatable 3D model and every mensuration
+        formula. Then explore a library of formulas with step-by-step calculators, unit conversions and graphs.</p>
+      <div class="hero-cta">
+        <a class="btn primary" href="#drop" data-goto-drop>⬆ Upload an image</a>
+        <a class="btn ghost" href="/formulas">∑ Formula Library</a>
+      </div>
+      <div class="stats" aria-label="What is inside">
+        <div class="stat"><strong data-count="formulas">—</strong><span>formulas</span></div>
+        <div class="stat"><strong data-count="calc">—</strong><span>step-by-step calculators</span></div>
+        <div class="stat"><strong data-count="units">—</strong><span>units to convert</span></div>
+        <div class="stat"><strong data-count="shapes">—</strong><span>shapes with sketches</span></div>
+      </div>
+    </div>
+    <div class="hero-stage" aria-hidden="true">
+      <div class="hero-visual">
+        <svg viewBox="-200 -200 400 400">
+          <defs>
+            <radialGradient id="core"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient>
+            <path id="orb" d="M -165 0 A 165 56 0 1 0 165 0 A 165 56 0 1 0 -165 0"/>
+          </defs>
+          <circle r="188" class="ring ring-a"/>
+          <circle r="150" class="ring ring-b"/>
+          <g class="axis"><line x1="-196" y1="0" x2="196" y2="0"/><line x1="0" y1="-196" x2="0" y2="196"/></g>
+          <g transform="rotate(-28)"><use href="#orb" class="orbit"/>
+            <g><circle r="7" class="e e-a"/><text class="e-sym" y="-14">π</text><animateMotion dur="7s" repeatCount="indefinite"><mpath href="#orb"/></animateMotion></g></g>
+          <g transform="rotate(32)"><use href="#orb" class="orbit"/>
+            <g><circle r="7" class="e e-b"/><text class="e-sym" y="-14">∑</text><animateMotion dur="9s" begin="-3s" repeatCount="indefinite"><mpath href="#orb"/></animateMotion></g></g>
+          <g transform="rotate(90)"><use href="#orb" class="orbit"/>
+            <g><circle r="7" class="e e-a"/><text class="e-sym" y="-14">∫</text><animateMotion dur="11s" begin="-5s" repeatCount="indefinite"><mpath href="#orb"/></animateMotion></g></g>
+          <circle r="54" fill="url(#core)" class="core-glow"/>
+          <circle r="22" class="core"/>
+          <text class="core-txt" y="6">√x</text>
+        </svg>
+        <span class="chip-f f1">E = mc²</span>
+        <span class="chip-f f2">a² + b² = c²</span>
+        <span class="chip-f f3">V = ⅓πr²h</span>
+        <span class="chip-f f4">λ = h / p</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="tiles reveal" aria-label="Tools">
+    <a class="tile" href="#drop" data-goto-drop><span class="ti">🔬</span><b>Image Inspection</b><span>Detect a shape · 3D model · its formulas</span></a>
+    <a class="tile" href="/measure"><span class="ti">📏</span><b>Measure</b><span>Real sizes from a photo · coin / card scale</span></a>
+    <a class="tile" href="/formulas"><span class="ti">∑</span><b>Formula Library</b><span>Maths &amp; physics · PDFs · हिन्दी · 🧮 solver</span></a>
+    <a class="tile" href="/elements"><span class="ti">⚛</span><b>Periodic Table</b><span>118 elements · atom models · molar mass</span></a>
+    <a class="tile" href="/physics"><span class="ti">🌀</span><b>Physics Lab</b><span>Projectile · pendulum · lens · circuits</span></a>
+    <a class="tile" href="/handwriting"><span class="ti">✍️</span><b>Equation Solver</b><span>Write or snap maths · solved step by step</span></a>
+    <a class="tile" href="/converter"><span class="ti">⇄</span><b>Unit Converter</b><span>150 units · lakh ↔ million · °C ↔ °F</span></a>
+    <a class="tile" href="/graph"><span class="ti">📈</span><b>Graph Plotter</b><span>Cartesian · trigonometric · 3D planes</span></a>
+  </section>
+
+  <section class="card fcards reveal" id="formulaCards" aria-label="Formula cards"></section>
+
+  <div class="lab-label reveal"><span class="idx">01</span><span>Image Inspection Lab</span><span class="rule" aria-hidden="true"></span>
+    <span class="lab-hint">Drop a photo · get the shape, its 3D model and formulas</span></div>
+  <section class="card controls" aria-label="Upload settings">
+    <div class="group">
+      <label class="field" for="model">Model</label>
+      <select id="model"></select>
+      <p class="hint" id="modelHint"></p>
+    </div>
+    <div class="group">
+      <label class="field" for="conf">Confidence threshold</label>
+      <div class="row"><input type="range" id="conf" min="0.05" max="0.95" step="0.05" value="0.25"><span class="val" id="confVal">0.25</span></div>
+      <p class="hint">Objects scoring below this are hidden. Scores are not calibrated probabilities.</p>
+    </div>
+    <div class="group">
+      <label class="field" for="imgsz">Image size (px)</label>
+      <input type="number" id="imgsz" min="32" max="4096" step="32" value="640">
+      <p class="hint">Use the size the model was trained with (demo model: 320).</p>
+    </div>
+
+    <div class="drop" id="drop" tabindex="0" role="button" aria-describedby="dropHelp">
+      <strong>Drop images here</strong>
+      <span id="dropHelp">or click to browse · Ctrl+V to paste · JPG / PNG, max 25 MB</span>
+    </div>
+    <input type="file" id="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" multiple class="sr">
+    <ul class="queue" id="queue" aria-label="Selected images"></ul>
+    <button class="btn primary" id="run" type="button" disabled>Run detection</button>
+    <div class="actions">
+      <button class="btn small" id="clearQueue" type="button" disabled>Clear selection</button>
+      <button class="btn small" id="clearResults" type="button" disabled>Clear results</button>
+    </div>
+  </section>
+
+  <section class="results" id="results">
+    <div class="card explorer" id="explorer" aria-label="3D model and calculator"></div>
+    <div class="result-list" id="resultList" aria-live="polite">
+      <div class="card empty" id="empty">
+        <div class="big">🖼️</div>
+        <div>No results yet. Add one or more images and press <b>Run detection</b>.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="lab-label reveal"><span class="idx">02</span><span id="hcLabel">Contact us</span><span class="rule" aria-hidden="true"></span>
+    <span class="lab-hint" id="hcHint">Questions, ideas or a bug — we read every message</span></div>
+  <section class="card hc reveal" id="contactSection" aria-labelledby="hcTitle">
+    <div class="hc-copy">
+      <h2 id="hcTitle">Talk to the lab ✉</h2>
+      <p id="hcLead">Missing a formula, found a wrong value, or want a tool for your class? Send a quick note — you get a ticket number.</p>
+      <ul class="hc-list">
+        <li id="hc1">💡 Suggest a feature</li><li id="hc2">🐞 Report a bug</li><li id="hc3">∑ Fix a formula or data</li>
+      </ul>
+      <a class="btn ghost" href="/contact" id="hcFull">Full contact form →</a>
+    </div>
+    <form class="hc-form" id="hcForm" novalidate>
+      <div class="hc-row">
+        <label><span id="hcName">Your name</span><input id="hcN" autocomplete="name" maxlength="80" required></label>
+        <label><span id="hcEmail">Email</span><input id="hcE" type="email" autocomplete="email" maxlength="254" required></label>
+      </div>
+      <label><span id="hcMsg">Message</span><textarea id="hcM" maxlength="3000" required></textarea></label>
+      <input class="hc-trap" id="hcW" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="btn primary" type="submit" id="hcSend">✉ <span id="hcSendT">Send</span></button>
+      <p class="hc-out" id="hcOut" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+</main>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Enlarged image"><img alt=""></div>
+
+<script src="/web/vendor/three.min.js"></script>
+<script src="/web/shapes3d.js"></script>
+<script src="/web/formula_cards.js"></script>
+<script src="/web/units.js"></script>
+<script src="/web/sci_bg.js"></script>
+<script src="/web/home_fx.js"></script>
+<script>
+(() => {
+  const API = "/api/v1";
+  const MAX_MB = 25;
+  const OK_TYPES = ["image/jpeg", "image/png"];
+  const $ = (id) => document.getElementById(id);
+  const queue = [];   // {file, url}
+
+  // ---------------------------------------------------------------- theme
+  const root = document.documentElement;
+  try { const t = localStorage.getItem("iav-theme"); if (t) root.dataset.theme = t; } catch (_) {}
+  $("themeBtn").onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("iav-theme", root.dataset.theme); } catch (_) {}
+  };
+
+  // ---------------------------------------------------------------- helpers
+  function el(tag, props = {}, ...children) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(props)) {
+      if (k === "class") n.className = v;
+      else if (k === "style") n.style.cssText = v;
+      else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v);
+    }
+    for (const c of children.flat(Infinity)) if (c != null) n.append(c.nodeType ? c : document.createTextNode(String(c)));
+    return n;
+  }
+  function classColor(name) {          // stable colour per class name
+    let h = 0; for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360;
+    return `hsl(${h} 70% 50%)`;
+  }
+  async function api(path, opts = {}) {
+    let res, body;
+    try { res = await fetch(API + path, opts); }
+    catch (e) { return { success: false, code: 0, error: { errorCode: "NETWORK_ERROR", errorTitle: "API not reachable",
+                errorContent: "Could not reach the API. Is `python -m src.api` running?" } }; }
+    try { body = await res.json(); }
+    catch (e) { return { success: false, code: res.status, error: { errorCode: "BAD_RESPONSE",
+                errorTitle: "Unexpected response", errorContent: `HTTP ${res.status} returned non-JSON content.` } }; }
+    return body;
+  }
+  function errorBox(body) {
+    const e = body.error || {};
+    return el("div", { class: "msg err", role: "alert" },
+      el("b", {}, e.errorTitle || "Error"), " ",
+      el("code", {}, `${e.errorCode || "ERROR"} · HTTP ${body.code != null ? body.code : "?"}`),
+      el("pre", {}, e.errorContent || body.message || ""));
+  }
+
+  // ---------------------------------------------------------------- status + models
+  async function loadStatus() {
+    const h = await api("/health");
+    $("statusDot").className = "dot " + (h.success ? "up" : "down");
+    $("statusText").textContent = h.success ? `API online · v${h.data.version}` : "API offline";
+    if (h.success) {
+      const info = await api("/system/info");
+      if (info.success) $("statusText").textContent += ` · ${String(info.data.selected_device).toUpperCase()}`;
+    }
+  }
+  async function loadModels() {
+    const sel = $("model");
+    sel.replaceChildren();
+    const r = await api("/models");
+    if (!r.success) { sel.append(el("option", { value: "" }, "(models unavailable)")); return; }
+    const d = r.data;
+    // training image size per model folder, so the size field can follow the selected model
+    modelImgsz = {};
+    (d.registry || []).forEach(e => { if (e.imgsz && e.best) modelImgsz[dirOf(e.best)] = e.imgsz; });
+    defaultModel = d.default_model || "";
+    sel.append(el("option", { value: "" }, d.default_model ? `Default — ${d.default_model}` : "Default (none trained yet)"));
+    const trained = d.files.filter(f => f.kind === "trained");
+    const pre = d.files.filter(f => f.kind === "pretrained");
+    if (trained.length) sel.append(el("optgroup", { label: "Your trained models" },
+      trained.map(f => el("option", { value: f.path }, f.path))));
+    if (pre.length) sel.append(el("optgroup", { label: "General pretrained (80 everyday objects)" },
+      pre.map(f => el("option", { value: f.path }, f.path))));
+    try { const saved = localStorage.getItem("iav-model"); if (saved != null && [...sel.options].some(o => o.value === saved)) sel.value = saved; } catch (_) {}
+    updateModelHint();
+  }
+  let modelImgsz = {}, defaultModel = "";
+  function dirOf(p) { return String(p).replace(/\\/g, "/").replace(/\/[^/]*$/, ""); }
+  function updateModelHint() {
+    const v = $("model").value;
+    const path = v || defaultModel;
+    $("modelHint").textContent = path.includes("pretrained")
+      ? "Generic COCO model: detects people, vehicles, bottles, laptops… — not industrial defects."
+      : "Detects only the classes this model was trained on.";
+    const size = path.includes("pretrained") ? 640 : modelImgsz[dirOf(path)];
+    if (size) $("imgsz").value = size;
+    try { localStorage.setItem("iav-model", v); } catch (_) {}
+  }
+
+  function formulaCard(key, info, conf) {
+    const vars = Object.entries(info.variables || {});
+    return el("div", { class: "fcard" },
+      el("h3", {}, info.name,
+        el("span", { class: "badge" + (info.dimension === "3D" ? " d3" : "") }, info.dimension || ""),
+        conf != null ? el("span", { class: "hint", style: "margin:0" }, `confidence ${(conf * 100).toFixed(0)}%`) : null),
+      vars.length ? el("dl", {}, vars.map(([k, v]) => [el("dt", {}, k), el("dd", {}, v)])) : null,
+      el("table", {}, el("tbody", {}, (info.formulas || []).map(f =>
+        el("tr", {}, el("td", {}, f.label), el("td", { class: "f" }, f.formula))))),
+      info.note ? el("div", { class: "fnote" }, info.note) : null,
+      window.ShapeExplorer && window.ShapeExplorer.has(key)
+        ? el("button", { class: "btn small", type: "button", style: "margin-top:8px",
+            onclick: () => { window.ShapeExplorer.show(key); $("explorer").scrollIntoView({ behavior: "smooth", block: "start" }); } },
+            "Open in 3D / calculator")
+        : null);
+  }
+
+  function shapeSection(d) {
+    const info = d.class_info || {};
+    const keys = Object.keys(info);
+    if (!d.count) {
+      const known = (d.model_classes || []).map(c => c.replace(/_/g, " "));
+      return el("div", { class: "msg warn" },
+        el("b", {}, "Nothing recognised above the confidence threshold."),
+        el("div", { class: "supported" }, "Try lowering the confidence slider, or use a clearer image. ",
+          known.length ? `This model knows: ${known.join(", ")}.` : ""));
+    }
+    if (!keys.length) return null;   // model classes without formula information (e.g. defects)
+    const best = {};                  // highest confidence per class
+    d.detections.forEach(x => { if (info[x.class_name] && !(best[x.class_name] >= x.confidence)) best[x.class_name] = x.confidence; });
+    const order = keys.sort((a, b) => best[b] - best[a]);
+    const top = info[order[0]];
+    return el("div", {},
+      el("div", { class: "headline" },
+        el("span", { class: "big" }, top.name),
+        el("span", { class: "badge" + (top.dimension === "3D" ? " d3" : "") }, top.dimension),
+        el("span", { class: "hint", style: "margin:0" }, `${(best[order[0]] * 100).toFixed(0)}% confidence`
+          + (order.length > 1 ? ` · ${order.length} different shapes found` : ""))),
+      el("div", { class: "formulas" }, order.map(k => formulaCard(k, info[k], best[k]))));
+  }
+  $("model").onchange = updateModelHint;
+  $("conf").oninput = () => { $("confVal").textContent = Number($("conf").value).toFixed(2); };
+
+  // ---------------------------------------------------------------- queue
+  function addFiles(files) {
+    const rejected = [];
+    for (const f of files) {
+      const okType = OK_TYPES.includes(f.type) || /\.(jpe?g|png)$/i.test(f.name);
+      if (!okType) { rejected.push(`${f.name}: not a JPG/PNG`); continue; }
+      if (f.size > MAX_MB * 1024 * 1024) { rejected.push(`${f.name}: larger than ${MAX_MB} MB`); continue; }
+      queue.push({ file: f, url: URL.createObjectURL(f) });
+    }
+    renderQueue();
+    if (rejected.length) showNotice(rejected.join("\n"));
+  }
+  function renderQueue() {
+    const ul = $("queue");
+    ul.replaceChildren(...queue.map((q, i) => el("li", {},
+      el("img", { src: q.url, alt: "" }),
+      el("span", { class: "name", title: q.file.name }, q.file.name),
+      el("span", { class: "hint" }, `${(q.file.size / 1024).toFixed(0)} KB`),
+      el("button", { type: "button", "aria-label": `Remove ${q.file.name}`, onclick: () => {
+        URL.revokeObjectURL(q.url); queue.splice(i, 1); renderQueue(); } }, "×"))));
+    $("run").disabled = queue.length === 0;
+    $("clearQueue").disabled = queue.length === 0;
+    $("run").textContent = queue.length > 1 ? `Run detection on ${queue.length} images` : "Run detection";
+  }
+  function showNotice(text) {
+    const n = el("div", { class: "card result" }, el("div", { class: "msg warn", role: "alert" }, el("b", {}, "Some files were skipped"), el("pre", {}, text)));
+    $("empty").hidden = true;
+    $("resultList").prepend(n);
+    $("clearResults").disabled = false;
+  }
+
+  const drop = $("drop"), input = $("file");
+  drop.onclick = () => input.click();
+  drop.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } };
+  input.onchange = () => { addFiles(input.files); input.value = ""; };
+  ["dragenter", "dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", e => addFiles(e.dataTransfer.files));
+  document.addEventListener("paste", e => {
+    const files = [...((e.clipboardData && e.clipboardData.items) || [])].filter(i => i.kind === "file").map(i => i.getAsFile()).filter(Boolean)
+      .map((f, k) => new File([f], f.name && f.name !== "image.png" ? f.name : `pasted_${Date.now()}_${k}.png`, { type: f.type }));
+    if (files.length) addFiles(files);
+  });
+  $("clearQueue").onclick = () => { queue.forEach(q => URL.revokeObjectURL(q.url)); queue.length = 0; renderQueue(); };
+  $("clearResults").onclick = () => {
+    $("resultList").querySelectorAll(".result").forEach(n => n.remove());
+    $("empty").hidden = false; $("clearResults").disabled = true;
+  };
+
+  // ---------------------------------------------------------------- run
+  $("run").onclick = async () => {
+    const items = queue.splice(0, queue.length);
+    renderQueue();
+    $("run").disabled = true;
+    $("empty").hidden = true;
+    $("clearResults").disabled = false;
+    for (const item of items) await runOne(item);
+    $("run").disabled = queue.length === 0;
+  };
+
+  async function runOne(item) {
+    const card = el("article", { class: "card result" },
+      el("div", { class: "result-head" }, el("h2", {}, item.file.name), el("span", { class: "spinner", "aria-label": "Running" })));
+    $("resultList").prepend(card);
+
+    const fd = new FormData();
+    fd.append("file", item.file, item.file.name);
+    fd.append("conf", $("conf").value);
+    fd.append("imgsz", String(parseInt($("imgsz").value, 10) || 640));
+    fd.append("return_image", "true");
+    if ($("model").value) fd.append("model", $("model").value);
+    const body = await api("/predict/image", { method: "POST", body: fd });
+    card.replaceChildren();
+
+    if (!body.success) {
+      card.append(el("div", { class: "result-head" }, el("h2", {}, item.file.name)),
+                  el("div", { class: "pair" }, el("figure", {}, el("img", { src: item.url, alt: "Uploaded image" }))),
+                  errorBox(body));
+      wireZoom(card);
+      return;
+    }
+    const d = body.data;
+    const annotated = "data:image/jpeg;base64," + d.annotated_image_base64;
+    const counts = {};
+    d.detections.forEach(x => counts[x.class_name] = (counts[x.class_name] || 0) + 1);
+    const download = el("a", { class: "btn small", href: annotated,
+      download: item.file.name.replace(/\.[^.]+$/, "") + "_pred.jpg" }, "Download");
+
+    const parts = [
+      el("div", { class: "result-head" },
+        el("h2", {}, item.file.name),
+        el("span", { class: "meta" }, `${d.width}×${d.height} · ${d.latency_ms} ms on ${d.device.toUpperCase()} · conf ≥ ${Number(d.conf).toFixed(2)}`),
+        el("span", { class: "spacer" }), download),
+      el("div", { class: "pair" },
+        el("figure", {}, el("img", { src: item.url, alt: "Uploaded image" }), el("figcaption", {}, "Original")),
+        el("figure", {}, el("img", { src: annotated, alt: `Detections: ${d.count} object(s)` }),
+          el("figcaption", {}, `Prediction — ${body.message}`))),
+      shapeSection(d),
+      el("div", { class: "chips" },
+        d.count === 0 ? el("span", { class: "chip" }, "No objects above threshold")
+          : Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
+              el("span", { class: "chip" }, el("i", { style: `background:${classColor(k)}` }), `${k} × ${v}`))),
+      d.count ? el("div", { class: "table-wrap" }, el("table", {},
+        el("thead", {}, el("tr", {}, ["#", "Class", "Confidence", "x1", "y1", "x2", "y2", "Width", "Height"].map(h => el("th", { scope: "col" }, h)))),
+        el("tbody", {}, d.detections.map((x, i) => el("tr", {},
+          el("td", {}, i + 1),
+          el("td", {}, el("span", { class: "chip", style: "border:none;padding:0" }, el("i", { style: `background:${classColor(x.class_name)}` }), x.class_name)),
+          el("td", {}, x.confidence.toFixed(3), el("span", { class: "bar" }, el("span", { style: `width:${Math.round(x.confidence * 100)}%` }))),
+          el("td", {}, x.x1), el("td", {}, x.y1), el("td", {}, x.x2), el("td", {}, x.y2),
+          el("td", {}, (x.x2 - x.x1).toFixed(1)), el("td", {}, (x.y2 - x.y1).toFixed(1))))))) : null,
+      d.generic_pretrained_model ? el("div", { class: "msg warn" },
+        "Generic pretrained model — not trained on your parts or defects.") : null,
+      el("div", { class: "note" }, d.saved_path ? `Saved on server: ${d.saved_path}` : "", " · ", d.note)];
+    card.append(...parts.filter(Boolean));  // native append would render null as the text "null"
+    wireZoom(card);
+    // load the most confident recognised shape into the 3D model / calculator
+    const best = d.detections.filter(x => window.ShapeExplorer && window.ShapeExplorer.has(x.class_name))
+      .sort((a, b) => b.confidence - a.confidence)[0];
+    if (best) window.ShapeExplorer.show(best.class_name);
+  }
+
+  // ---------------------------------------------------------------- lightbox
+  const lb = $("lightbox");
+  let lbFrom = null;                                  // element to give focus back to when the lightbox closes
+  function wireZoom(scope) {
+    scope.querySelectorAll("figure img").forEach(img => {
+      const open = () => { lbFrom = img; lb.querySelector("img").src = img.src; lb.classList.add("open"); lb.focus(); };
+      img.onclick = open;
+      img.tabIndex = 0; img.setAttribute("role", "button"); img.setAttribute("aria-label", "Enlarge image");
+      img.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } };
+    });
+  }
+  lb.tabIndex = -1;
+  function closeLb() {
+    if (!lb.classList.contains("open")) return;
+    lb.classList.remove("open");
+    if (lbFrom) lbFrom.focus();
+  }
+  lb.onclick = closeLb;
+  lb.onkeydown = e => { if (e.key === "Enter" || e.key === " " || e.key === "Tab") { e.preventDefault(); closeLb(); } };
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeLb(); });
+
+  loadStatus();
+  loadModels();
+  if (window.ShapeExplorer) window.ShapeExplorer.mount($("explorer"));
+  else $("explorer").hidden = true;
+})();
+</script>
+<script src="/web/site.js"></script>
+
+<script>
+/* home-page quick contact form -> POST /api/v1/contact (same validation as /contact) */
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const T = {
+    en: { hcLabel: "Contact us", hcHint: "Questions, ideas or a bug — we read every message", hcTitle: "Talk to the lab ✉",
+          hcLead: "Missing a formula, found a wrong value, or want a tool for your class? Send a quick note — you get a ticket number.",
+          hc1: "💡 Suggest a feature", hc2: "🐞 Report a bug", hc3: "∑ Fix a formula or data", hcFull: "Full contact form →",
+          hcName: "Your name", hcEmail: "Email", hcMsg: "Message", hcSendT: "Send",
+          ok: (tk) => `✓ Thank you! Your ticket: ${tk}`, name: "Please enter your name.", email: "Please enter a valid email.",
+          msg: "Please write at least 10 characters.", wait: "Too many messages — try again in a few minutes.", off: "Server not reachable." },
+    hi: { hcLabel: "संपर्क करें", hcHint: "प्रश्न, सुझाव या गड़बड़ी — हम हर संदेश पढ़ते हैं", hcTitle: "लैब से बात करें ✉",
+          hcLead: "कोई सूत्र छूटा, गलत मान मिला, या कक्षा के लिए कोई उपकरण चाहिए? छोटा संदेश भेजें — आपको टिकट नंबर मिलेगा।",
+          hc1: "💡 सुविधा सुझाएँ", hc2: "🐞 गड़बड़ी बताएँ", hc3: "∑ सूत्र या आँकड़ा सुधारें", hcFull: "पूरा संपर्क फ़ॉर्म →",
+          hcName: "आपका नाम", hcEmail: "ईमेल", hcMsg: "संदेश", hcSendT: "भेजें",
+          ok: (tk) => `✓ धन्यवाद! आपका टिकट: ${tk}`, name: "कृपया अपना नाम लिखें।", email: "कृपया सही ईमेल लिखें।",
+          msg: "कृपया कम से कम 10 अक्षर लिखें।", wait: "बहुत अधिक संदेश — कुछ मिनट बाद प्रयास करें।", off: "सर्वर उपलब्ध नहीं।" },
+  };
+  const L = () => T[document.documentElement.lang === "hi" ? "hi" : "en"];
+  function texts() { Object.keys(T.en).forEach((k) => { const el = $(k); if (el && typeof T.en[k] === "string") el.textContent = L()[k]; }); }
+  texts();
+  new MutationObserver(texts).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+  const out = (msg, cls) => { $("hcOut").textContent = msg; $("hcOut").className = "hc-out " + (cls || ""); };
+  $("hcForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const n = $("hcN").value.trim(), em = $("hcE").value.trim(), m = $("hcM").value.trim();
+    const bad = n.length < 2 ? ["hcN", "name"] : !/^[^@\s<>]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(em) ? ["hcE", "email"] : m.length < 10 ? ["hcM", "msg"] : null;
+    ["hcN", "hcE", "hcM"].forEach((id) => $(id).setAttribute("aria-invalid", String(!!bad && bad[0] === id)));
+    if (bad) { out(L()[bad[1]], "bad"); $(bad[0]).focus(); return; }
+    $("hcSend").disabled = true;
+    let b = null;
+    try {
+      b = await (await fetch("/api/v1/contact", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: n, email: em, message: m, topic: "general", lang: document.documentElement.lang === "hi" ? "hi" : "en",
+                               page: "/", website: $("hcW").value }) })).json();
+    } catch (_) { /* below */ }
+    $("hcSend").disabled = false;
+    if (!b) return out(L().off, "bad");
+    if (!b.success) return out(b.error.errorCode === "TOO_MANY_MESSAGES" ? L().wait : `${b.error.errorTitle}: ${b.error.errorContent}`, "bad");
+    $("hcForm").reset();
+    out(L().ok(b.data.ticket), "ok");
+  });
+})();
+</script>
+</body>
+</html>

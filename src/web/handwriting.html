@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Equation Solver · Quantix</title>
+<style>
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  :root[lang="hi"] body { font-family: "Nirmala UI", "Noto Sans Devanagari", Mangal, system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 18px; }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav a { text-decoration: none; font-size: 14px; padding: 6px 10px; }
+  .spacer { flex: 1; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; border: 1px solid var(--line);
+         background: color-mix(in srgb, var(--panel-solid) 55%, transparent); color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; text-decoration: none; }
+  .btn.small { padding: 4px 10px; font-size: 13px; font-weight: 500; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .lang { display: inline-flex; border: 1px solid var(--line); overflow: hidden; }
+  .lang button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 600; padding: 5px 11px; cursor: pointer; }
+  .lang button + button { border-left: 1px solid var(--line); }
+  main { padding-top: 18px; padding-bottom: 40px; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 1100px) { main { grid-template-columns: minmax(0, 1fr); } }
+  .card { padding: 14px 16px; min-width: 0; }
+  h2 { margin: 0 0 8px; font: 700 18px var(--f-head); }
+  .tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+  .tabs button { border: 0; background: transparent; color: var(--ink); padding: 7px 14px; font: inherit; font-size: 14px; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: linear-gradient(120deg, var(--btn-a), var(--btn-b)); color: #fff; }
+  .pad-wrap { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: #fdfdf8; }
+  .pad-wrap::before { content: ""; position: absolute; left: 4%; right: 4%; top: 62%; border-top: 1px dashed #c8ccd4; pointer-events: none; }
+  #pad { display: block; width: 100%; aspect-ratio: 3 / 1; touch-action: none; cursor: crosshair; }
+  .pad-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+  .pad-tools label { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .drop { border: 1.5px dashed color-mix(in srgb, var(--accent) 55%, var(--line)); border-radius: 12px; padding: 22px 12px; text-align: center; cursor: pointer; background: var(--drop); }
+  .drop:hover, .drop:focus-visible, .drop.over { border-color: var(--accent); outline: none; }
+  .drop span { display: block; font-size: 12.5px; color: var(--muted); }
+  #photoPrev { max-width: 100%; max-height: 260px; display: block; margin: 10px auto 0; border-radius: 10px; border: 1px solid var(--line); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .hint { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
+  .go { margin-top: 12px; width: 100%; }
+  .seen { position: relative; margin-top: 12px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: #fff; }
+  .seen img { display: block; width: 100%; }
+  .seen .bx { position: absolute; border: 2px solid; border-radius: 4px; pointer-events: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .chip { position: relative; min-width: 38px; padding: 4px 8px 6px; border-radius: 9px; border: 1px solid var(--line); cursor: pointer; text-align: center;
+          font: 600 20px "Cambria Math", Cambria, Georgia, serif; background: color-mix(in srgb, var(--panel-solid) 55%, transparent); color: var(--ink); }
+  .chip small { display: block; font: 600 9.5px var(--f-mono); color: var(--muted); }
+  .chip.low { border-color: var(--warn); box-shadow: 0 0 0 1px var(--warn); }
+  .chip.power { transform: translateY(-8px) scale(.85); }
+  .chip:focus-visible { outline: 2px solid var(--accent); }
+  .pick { position: absolute; z-index: 5; top: 100%; left: 0; margin-top: 4px; padding: 8px; border-radius: 10px; border: 1px solid var(--line);
+          background: var(--panel-solid); box-shadow: var(--shadow); display: grid; grid-template-columns: repeat(6, 34px); gap: 4px; }
+  .pick button { height: 32px; border-radius: 7px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer;
+                 font: 600 16px "Cambria Math", Cambria, serif; }
+  .pick button.alt { border-color: var(--accent); color: var(--accent); }
+  .expr-row { display: flex; gap: 8px; }
+  .expr-row input { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: color-mix(in srgb, var(--panel-solid) 70%, transparent);
+                    color: var(--ink); font: 600 20px "Cambria Math", Cambria, Georgia, serif; }
+  .expr-row input:focus { outline: 2px solid var(--accent); }
+  .pretty { font: 600 26px "Cambria Math", Cambria, Georgia, serif; margin: 6px 0 2px; overflow-wrap: anywhere; }
+  .steps { margin: 6px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+  .steps li { font-size: 13px; color: var(--muted); }
+  .steps li span { display: block; color: var(--ink); font: 16px/1.4 "Cambria Math", Cambria, Georgia, serif; overflow-wrap: anywhere; }
+  .answer { border: 1px solid color-mix(in srgb, var(--ok) 45%, var(--line)); background: color-mix(in srgb, var(--ok) 9%, var(--panel)); border-radius: 12px; padding: 10px 14px; margin-top: 10px; }
+  .answer b { display: block; font: 600 11px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .answer .big { font: 700 24px "Cambria Math", Cambria, Georgia, serif; overflow-wrap: anywhere; }
+  #plot { width: 100%; height: 300px; display: block; border-radius: 10px; border: 1px solid var(--line); margin-top: 10px; background: var(--panel-solid); }
+  .err { color: var(--err); font-size: 14px; margin-top: 8px; }
+  .note { font-size: 12.5px; color: var(--muted); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/web/lab.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="/" aria-label="Quantix — home">
+    <svg class="logo" viewBox="-50 -50 100 100" aria-hidden="true">
+      <defs><radialGradient id="lgCore"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient></defs>
+      <g class="lg-orbits" fill="none" stroke-width="3">
+        <ellipse rx="44" ry="15" stroke="var(--accent)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent-2)" transform="rotate(60)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent)" transform="rotate(120)" opacity=".75"/>
+      </g>
+      <circle r="12" fill="url(#lgCore)" class="lg-core"/>
+    </svg>
+    <span>
+      <h1 id="tTitle">Equation Solver</h1>
+      <span class="kicker">Quantix</span>
+    </span>
+  </a>
+  <nav aria-label="Pages"><a href="/" title="Image Inspection — home">Home</a><a href="/measure" title="Measure real objects in a photo">Measure</a><a href="/formulas" title="Formula Library">Formulas</a><a href="/elements" title="Periodic Table">Elements</a><a href="/physics" title="Physics Lab">Physics</a><a href="/handwriting" title="Equation Solver (handwriting)" class="on" aria-current="page">Solver</a><a href="/converter" title="Unit Converter">Converter</a><a href="/graph" title="Graph Plotter">Graphs</a></nav>
+  <span class="spacer"></span>
+  <div class="lang" role="group" aria-label="Language / भाषा">
+    <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+    <button type="button" data-lang="hi" aria-pressed="false" lang="hi">हिन्दी</button>
+  </div>
+  <button class="btn small" id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
+</header>
+
+<main>
+  <section class="card" aria-labelledby="inTitle">
+    <h2 id="inTitle">✍️ Write or snap an equation</h2>
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" id="tabDraw" aria-selected="true" aria-controls="paneDraw">✏️ <span id="tDraw">Write</span></button>
+      <button type="button" role="tab" id="tabPhoto" aria-selected="false" aria-controls="panePhoto">📷 <span id="tPhoto">Photo</span></button>
+    </div>
+    <div id="paneDraw" role="tabpanel" aria-labelledby="tabDraw">
+      <div class="pad-wrap"><canvas id="pad" aria-label="Writing pad for mouse, pen or touch. With a keyboard, type the equation in the equation box instead."></canvas></div>
+      <div class="pad-tools">
+        <button class="btn small" id="undoBtn" type="button">↶ <span id="tUndo">Undo</span></button>
+        <button class="btn small" id="clearBtn" type="button">🗑 <span id="tClear">Clear</span></button>
+        <label><span id="tPen">Pen</span> <input type="range" id="pen" min="3" max="14" value="7"></label>
+        <span class="note" id="tPadHint">Write on one line. Make powers small and raised: x², 2³.</span>
+      </div>
+    </div>
+    <div id="panePhoto" role="tabpanel" aria-labelledby="tabPhoto" hidden>
+      <div class="drop" id="drop" tabindex="0" role="button"><b id="tDrop">Drop a photo of ONE line of maths</b><span id="tDropHelp">or click · Ctrl+V to paste · dark ink on light paper</span></div>
+      <div class="row" style="margin-top:8px"><button class="btn small" id="camBtn" type="button">📷 <span id="tCam">Take a photo</span></button></div>
+      <input class="sr" id="file" type="file" accept="image/*">
+      <input class="sr" id="cam" type="file" accept="image/*" capture="environment">
+      <img id="photoPrev" alt="" hidden>
+    </div>
+    <button class="btn primary go" id="readBtn" type="button">🔎 <span id="tRead">Read my handwriting</span></button>
+    <p class="hint" id="tScope">Works best with neat single-line maths: digits, x y z a b c n, + − × ÷ = ( ) /, decimal points, powers and simple fractions.</p>
+    <div id="seenBox" hidden>
+      <div class="seen" id="seen"><img id="seenImg" alt="What the solver saw"></div>
+      <p class="hint" id="tFix">Tap a symbol to correct it. Orange = not sure.</p>
+      <div class="chips" id="chips"></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="outTitle">
+    <h2 id="outTitle">🧮 Solve</h2>
+    <form class="expr-row" id="exprForm" autocomplete="off">
+      <input id="expr" type="text" spellcheck="false" aria-labelledby="outTitle" placeholder="2x + 3 = 7">
+      <button class="btn primary" type="submit" id="solveBtn"><span id="tSolve">Solve</span></button>
+    </form>
+    <p class="hint" id="tType">You can also type here: x^2 - 5x + 6 = 0 · y = x^2 - 4x + 3 · (3+4)*2</p>
+    <div id="result" aria-live="polite"></div>
+    <p class="note" id="credits" style="margin-top:14px">Recognition model trained on HASYv2 (Martin Thoma, ODbL 1.0) and MNIST handwritten digits. Solving: SymPy.</p>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  const API = "/api/v1";
+  const $ = (id) => document.getElementById(id);
+  const CLASSES = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "x", "y", "z", "a", "b", "c", "n", "pi", "plus", "minus", "times", "div", "eq", "lpar", "rpar", "slash", "dot"];
+  const SHOW = { plus: "+", minus: "−", times: "×", div: "÷", eq: "=", lpar: "(", rpar: ")", slash: "/", dot: ".", pi: "π", cdot: "·" };
+  const S = { lang: "en", mode: "draw", strokes: [], photo: null, rec: null, open: null };
+  const T = {
+    en: { title: "Equation Solver", inTitle: "✍️ Write or snap an equation", draw: "Write", photo: "Photo", undo: "Undo", clear: "Clear", pen: "Pen",
+          padHint: "Write on one line. Make powers small and raised: x², 2³.", drop: "Drop a photo of ONE line of maths",
+          dropHelp: "or click · Ctrl+V to paste · dark ink on light paper", cam: "Take a photo", read: "Read my handwriting",
+          scope: "Works best with neat single-line maths: digits, x y z a b c n, + − × ÷ = ( ) /, decimal points, powers and simple fractions.",
+          fix: "Tap a symbol to correct it. Orange = not sure.", outTitle: "🧮 Solve", solve: "Solve",
+          type: "You can also type here: x^2 - 5x + 6 = 0 · y = x^2 - 4x + 3 · (3+4)*2", reading: "Reading…", solving: "Solving…",
+          answer: "Answer", graph: "📈 Open in Graph Plotter", steps: "Working", nothing: "Write something first.", offline: "API not reachable — start it with start_ui.bat.",
+          noModel: "The handwriting model is not trained yet — run: python tools/train_handwriting.py. You can still type the equation.",
+          kinds: { check: "Check", value: "Value", expression: "Expression", equation: "Solution", relation: "Graph of the relation", formula: "Formula" },
+          credits: "Recognition model trained on HASYv2 (Martin Thoma, ODbL 1.0) and MNIST handwritten digits. Solving: SymPy." },
+    hi: { title: "समीकरण हलकर्ता", inTitle: "✍️ समीकरण लिखें या फ़ोटो लें", draw: "लिखें", photo: "फ़ोटो", undo: "पूर्ववत्", clear: "मिटाएँ", pen: "पेन",
+          padHint: "एक ही पंक्ति में लिखें। घात छोटी और ऊपर लिखें: x², 2³।", drop: "गणित की एक पंक्ति की फ़ोटो छोड़ें",
+          dropHelp: "या क्लिक करें · Ctrl+V · हल्के कागज़ पर गहरी स्याही", cam: "फ़ोटो खींचें", read: "मेरी लिखावट पढ़ें",
+          scope: "साफ़ एक-पंक्ति गणित के लिए सबसे अच्छा: अंक, x y z a b c n, + − × ÷ = ( ) /, दशमलव, घात और सरल भिन्न।",
+          fix: "सुधारने के लिए किसी चिह्न पर टैप करें। नारंगी = अनिश्चित।", outTitle: "🧮 हल करें", solve: "हल करें",
+          type: "आप यहाँ लिख भी सकते हैं: x^2 - 5x + 6 = 0 · y = x^2 - 4x + 3 · (3+4)*2", reading: "पढ़ा जा रहा है…", solving: "हल हो रहा है…",
+          answer: "उत्तर", graph: "📈 ग्राफ़ प्लॉटर में खोलें", steps: "हल के चरण", nothing: "पहले कुछ लिखें।", offline: "API उपलब्ध नहीं है — start_ui.bat से चालू करें।",
+          noModel: "लिखावट मॉडल अभी प्रशिक्षित नहीं है — चलाएँ: python tools/train_handwriting.py। आप समीकरण टाइप कर सकते हैं।",
+          kinds: { check: "जाँच", value: "मान", expression: "व्यंजक", equation: "हल", relation: "संबंध का ग्राफ़", formula: "सूत्र" },
+          credits: "पहचान मॉडल HASYv2 (Martin Thoma, ODbL 1.0) व MNIST हस्तलिखित अंकों पर प्रशिक्षित। हल: SymPy।" },
+  };
+  const t = (k) => T[S.lang][k];
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    Object.entries(props || {}).forEach(([k, v]) => {
+      if (v == null || v === false) return;
+      if (k === "class") el.className = v;
+      else if (k === "style" && typeof v === "object") Object.assign(el.style, v);
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v);
+    });
+    kids.flat(Infinity).forEach((c) => c != null && c !== false && el.append(c.nodeType ? c : document.createTextNode(String(c))));
+    return el;
+  }
+  const fill = (el, ...kids) => el.replaceChildren(...kids.flat(Infinity).filter((k) => k != null && k !== false));
+  async function post(path, body, isForm) {
+    const r = await fetch(`${API}${path}`, isForm ? { method: "POST", body } : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    return r.json();
+  }
+  const errBox = (b) => h("p", { class: "err", role: "alert" }, b && b.error ? `${b.error.errorTitle}: ${b.error.errorContent}` : t("offline"));
+
+  // ---------------------------------------------------------------- writing pad
+  const pad = $("pad"), pctx = pad.getContext("2d");
+  function sizePad() {
+    const r = pad.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+    pad.width = Math.round(r.width * dpr); pad.height = Math.round(r.height * dpr);
+    redraw();
+  }
+  function redraw() {
+    pctx.setTransform(1, 0, 0, 1, 0, 0);
+    pctx.fillStyle = "#fdfdf8"; pctx.fillRect(0, 0, pad.width, pad.height);
+    const k = pad.width / 1200;                                   // strokes are stored in a 1200-wide space
+    pctx.lineCap = pctx.lineJoin = "round"; pctx.strokeStyle = "#111827";
+    S.strokes.forEach((st) => {
+      pctx.lineWidth = st.w * k; pctx.beginPath();
+      st.pts.forEach(([x, y], i) => (i ? pctx.lineTo(x * k, y * k) : pctx.moveTo(x * k, y * k)));
+      if (st.pts.length === 1) pctx.lineTo(st.pts[0][0] * k + 0.1, st.pts[0][1] * k);
+      pctx.stroke();
+    });
+  }
+  new ResizeObserver(sizePad).observe(pad);
+  let cur = null;
+  const padPt = (e) => { const r = pad.getBoundingClientRect(); return [((e.clientX - r.left) / r.width) * 1200, ((e.clientY - r.top) / r.width) * 1200]; };
+  pad.addEventListener("pointerdown", (e) => { pad.setPointerCapture(e.pointerId); cur = { w: Number($("pen").value), pts: [padPt(e)] }; S.strokes.push(cur); redraw(); });
+  pad.addEventListener("pointermove", (e) => { if (cur) { cur.pts.push(padPt(e)); redraw(); } });
+  pad.addEventListener("pointerup", () => { cur = null; });
+  $("undoBtn").onclick = () => { S.strokes.pop(); redraw(); };
+  $("clearBtn").onclick = () => { S.strokes = []; redraw(); fill($("chips")); $("seenBox").hidden = true; };
+  function padBlob() {
+    // render the strokes at a fixed size, white paper, black ink — the same look as a clean photo
+    const c = document.createElement("canvas"); c.width = 1200; c.height = 400;
+    const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, 1200, 400);
+    x.lineCap = x.lineJoin = "round"; x.strokeStyle = "#000";
+    S.strokes.forEach((st) => { x.lineWidth = st.w; x.beginPath(); st.pts.forEach(([a, b], i) => (i ? x.lineTo(a, b) : x.moveTo(a, b)));
+      if (st.pts.length === 1) x.lineTo(st.pts[0][0] + 0.1, st.pts[0][1]); x.stroke(); });
+    return new Promise((r) => c.toBlob(r, "image/png"));
+  }
+
+  // ---------------------------------------------------------------- photo
+  function setTab(m) {
+    S.mode = m;
+    $("tabDraw").setAttribute("aria-selected", String(m === "draw")); $("tabPhoto").setAttribute("aria-selected", String(m === "photo"));
+    $("paneDraw").hidden = m !== "draw"; $("panePhoto").hidden = m !== "photo";
+    if (m === "draw") sizePad();
+  }
+  $("tabDraw").onclick = () => setTab("draw"); $("tabPhoto").onclick = () => setTab("photo");
+  async function loadPhoto(file) {
+    if (!file || !/^image\//.test(file.type)) return;
+    let bmp; try { bmp = await createImageBitmap(file, { imageOrientation: "from-image" }); } catch (_) { bmp = await createImageBitmap(file); }
+    const k = Math.min(1, 1800 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas"); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    S.photo = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.92));
+    $("photoPrev").src = URL.createObjectURL(S.photo); $("photoPrev").hidden = false;
+    setTab("photo");
+  }
+  $("drop").onclick = () => $("file").click();
+  $("drop").onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } };
+  $("camBtn").onclick = () => $("cam").click();
+  $("file").onchange = (e) => loadPhoto(e.target.files[0]);
+  $("cam").onchange = (e) => loadPhoto(e.target.files[0]);
+  ["dragover", "dragenter"].forEach((ev) => $("drop").addEventListener(ev, (e) => { e.preventDefault(); $("drop").classList.add("over"); }));
+  ["dragleave", "drop"].forEach((ev) => $("drop").addEventListener(ev, () => $("drop").classList.remove("over")));
+  $("drop").addEventListener("drop", (e) => { e.preventDefault(); loadPhoto(e.dataTransfer.files[0]); });
+  document.addEventListener("paste", (e) => { const f = [...((e.clipboardData || {}).files || [])][0]; if (f) loadPhoto(f); });
+
+  // ---------------------------------------------------------------- recognise + correct
+  $("readBtn").onclick = async () => {
+    let blob;
+    if (S.mode === "draw") { if (!S.strokes.length) return fill($("result"), h("p", { class: "err" }, t("nothing"))); blob = await padBlob(); }
+    else { if (!S.photo) return fill($("result"), h("p", { class: "err" }, t("nothing"))); blob = S.photo; }
+    const fd = new FormData(); fd.append("file", blob, S.mode === "draw" ? "pad.png" : "photo.jpg");
+    fill($("result"), h("p", { class: "note" }, t("reading")));
+    let b; try { b = await post("/handwriting/recognize", fd, true); } catch (_) { return fill($("result"), errBox()); }
+    if (!b.success) { fill($("result"), b.error && b.error.errorCode === "HANDWRITING_MODEL_MISSING" ? h("p", { class: "err" }, t("noModel")) : errBox(b)); return; }
+    S.rec = b.data;
+    $("seenImg").src = URL.createObjectURL(blob); $("seenBox").hidden = false;
+    renderSymbols();
+    $("expr").value = S.rec.text;
+    solve();
+  };
+  function renderSymbols() {
+    const r = S.rec, seen = $("seen");
+    seen.querySelectorAll(".bx").forEach((b) => b.remove());
+    const order = r.symbols.map((s, i) => i).sort((a, b) => r.symbols[a].box[0] - r.symbols[b].box[0]);
+    order.forEach((i) => {
+      const s = r.symbols[i], low = s.confidence < 0.6;
+      seen.append(h("div", { class: "bx", style: { left: `${(s.box[0] / r.width) * 100}%`, top: `${(s.box[1] / r.height) * 100}%`,
+        width: `${((s.box[2] - s.box[0]) / r.width) * 100}%`, height: `${((s.box[3] - s.box[1]) / r.height) * 100}%`, borderColor: low ? "var(--warn)" : "var(--accent)" } }));
+    });
+    fill($("chips"), order.map((i) => {
+      const s = r.symbols[i];
+      return h("div", { style: { position: "relative" } },
+        h("button", { class: "chip" + (s.confidence < 0.6 ? " low" : "") + (s.role === "power" ? " power" : ""), type: "button",
+          "aria-label": `${SHOW[s.cls] || s.cls} (${Math.round(s.confidence * 100)}%)`, "aria-expanded": String(S.open === i),
+          onclick: () => { S.open = S.open === i ? null : i; S.refocus = S.open === i ? "pick" : i; renderSymbols(); } }, SHOW[s.cls] || s.cls, h("small", {}, `${Math.round(s.confidence * 100)}%`)),
+        S.open === i ? h("div", { class: "pick", role: "menu", onkeydown: pickKeys }, [...new Set([...s.alternatives, ...CLASSES])].map((c) =>
+          h("button", { type: "button", role: "menuitem", class: s.alternatives.includes(c) ? "alt" : null, onclick: () => fix(i, c) }, SHOW[c] || c))) : null);
+    }));
+    // keyboard: an opened menu takes focus; closing it returns focus to its symbol
+    if (S.refocus != null) {
+      const rf = S.refocus; S.refocus = null;
+      const el = rf === "pick" ? $("chips").querySelector(".pick button") : $("chips").querySelectorAll(".chip")[order.indexOf(rf)];
+      if (el) el.focus();
+    }
+  }
+  function pickKeys(e) {                     // arrow keys / Home / End move through the menu items
+    const items = [...e.currentTarget.querySelectorAll("button")], k = items.indexOf(document.activeElement);
+    const to = { ArrowDown: k + 1, ArrowRight: k + 1, ArrowUp: k - 1, ArrowLeft: k - 1, Home: 0, End: items.length - 1 }[e.key];
+    if (to == null) return;
+    e.preventDefault();
+    items[(to + items.length) % items.length].focus();
+  }
+  async function fix(i, cls) {
+    S.rec.symbols[i].cls = cls; S.rec.symbols[i].confidence = 1; S.open = null; S.refocus = i;
+    renderSymbols();
+    const b = await post("/handwriting/relayout", { symbols: S.rec.symbols, line_height: S.rec.line_height }).catch(() => null);
+    if (b && b.success) { S.rec.text = b.data.text; $("expr").value = b.data.text; solve(); }
+  }
+  document.addEventListener("click", (e) => { if (S.open != null && !e.target.closest(".chip, .pick")) { S.open = null; renderSymbols(); } });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && S.open != null) { S.refocus = S.open; S.open = null; renderSymbols(); } });
+
+  // ---------------------------------------------------------------- solve + plot
+  $("exprForm").addEventListener("submit", (e) => { e.preventDefault(); solve(); });
+  async function solve() {
+    const text = $("expr").value.trim();
+    if (!text) return;
+    fill($("result"), h("p", { class: "note" }, t("solving")));
+    let b; try { b = await post("/handwriting/solve", { text, lang: S.lang }); } catch (_) { return fill($("result"), errBox()); }
+    if (!b.success) return fill($("result"), errBox(b));
+    const d = b.data;
+    let ans = null;
+    if (d.kind === "value") ans = `= ${Number(d.value.toPrecision(10))}`;
+    else if (d.kind === "equation") ans = d.solutions.length ? d.solutions.map((v) => `${d.variable} = ${Number(v.toPrecision(10))}`).join(" ; ")
+                                                              : d.complex_solutions.map((v) => `${d.variable} = ${v}`).join(" ; ");
+    else if (d.kind === "relation" && d.y_of_x) ans = `y = ${d.y_of_x}`;
+    else if (d.kind === "formula") ans = d.note;
+    else if (d.kind === "check") ans = d.verdict;
+    const [lhsT, rhsT] = text.split("=").map((v) => (v || "").trim());
+    const asY = d.kind === "relation" ? d.graph : d.kind === "equation" && d.variable === "x"
+      ? (rhsT === "0" ? `y = ${lhsT}` : `y = ${lhsT} - (${rhsT})`) : `y = ${text}`;   // roots of the equation = where y crosses 0
+    const graphUrl = `/graph?e=${encodeURIComponent(asY)}`;
+    fill($("result"),
+      h("div", { class: "pretty" }, d.pretty),
+      ans ? h("div", { class: "answer" }, h("b", {}, t("kinds")[d.kind] || t("answer")), h("div", { class: "big" }, ans)) : null,
+      d.steps.length ? [h("div", { class: "lbl", style: { marginTop: "12px", font: "600 11px var(--f-mono)", letterSpacing: ".1em", textTransform: "uppercase", color: "var(--muted)" } }, t("steps")),
+        h("ol", { class: "steps" }, d.steps.map((s) => h("li", {}, s.label, h("span", {}, s.text))))] : null,
+      d.plot ? [h("canvas", { id: "plot", role: "img", "aria-label": "Graph" }),
+                h("div", { class: "row", style: { marginTop: "8px" } }, h("a", { class: "btn small", href: graphUrl }, t("graph")))] : null);
+    if (d.plot) drawPlot(d.plot, d.kind === "equation" ? d.solutions : []);
+  }
+  function drawPlot(plot, roots) {
+    const c = $("plot"), r = c.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+    c.width = r.width * dpr; c.height = r.height * dpr;
+    const x = c.getContext("2d"); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cs = getComputedStyle(document.documentElement), col = (n) => cs.getPropertyValue(n).trim();
+    const W = r.width, H = r.height, ys = plot.series.flat().map((p) => p[1]).filter((v) => v != null);
+    let lo = Math.min(...ys, 0), hi = Math.max(...ys, 0);
+    const q = (arr, f) => arr.slice().sort((a, b) => a - b)[Math.floor(f * (arr.length - 1))];
+    if (ys.length > 10) { lo = Math.min(q(ys, 0.03), 0); hi = Math.max(q(ys, 0.97), 0); }      // ignore asymptote spikes
+    if (hi - lo < 1) { hi += 1; lo -= 1; }
+    const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+    const X = (v) => ((v - plot.x[0]) / (plot.x[1] - plot.x[0])) * W, Y = (v) => H - ((v - lo) / (hi - lo)) * H;
+    x.strokeStyle = col("--grid") || "#223"; x.lineWidth = 1;
+    for (let gx = Math.ceil(plot.x[0]); gx <= plot.x[1]; gx++) { x.beginPath(); x.moveTo(X(gx), 0); x.lineTo(X(gx), H); x.stroke(); }
+    x.strokeStyle = col("--muted"); x.beginPath(); x.moveTo(0, Y(0)); x.lineTo(W, Y(0)); x.moveTo(X(0), 0); x.lineTo(X(0), H); x.stroke();
+    x.fillStyle = col("--muted"); x.font = "11px system-ui"; x.fillText("x", W - 12, Y(0) - 6); x.fillText("y", X(0) + 6, 12);
+    [-10, -5, 5, 10].forEach((v) => x.fillText(String(v), X(v) - 6, Y(0) + 14));
+    const colors = [col("--accent"), col("--accent-2")];
+    plot.series.forEach((pts, si) => {
+      x.strokeStyle = colors[si % 2]; x.lineWidth = 2.5; x.beginPath(); let pen = false;
+      pts.forEach(([a, b]) => { if (b == null || b < lo - (hi - lo) || b > hi + (hi - lo)) { pen = false; return; } pen ? x.lineTo(X(a), Y(b)) : x.moveTo(X(a), Y(b)); pen = true; });
+      x.stroke();
+    });
+    (roots || []).forEach((v) => { if (v >= plot.x[0] && v <= plot.x[1]) { x.fillStyle = col("--warn"); x.beginPath(); x.arc(X(v), Y(0), 5, 0, Math.PI * 2); x.fill(); } });
+  }
+
+  // ---------------------------------------------------------------- language, theme
+  function applyLang(l) {
+    S.lang = T[l] ? l : "en";
+    try { localStorage.setItem("iav-formula-lang", S.lang); } catch (_) {}
+    document.documentElement.lang = S.lang; document.title = t("title") + " · Quantix";
+    [["tTitle", "title"], ["inTitle", "inTitle"], ["tDraw", "draw"], ["tPhoto", "photo"], ["tUndo", "undo"], ["tClear", "clear"], ["tPen", "pen"],
+     ["tPadHint", "padHint"], ["tDrop", "drop"], ["tDropHelp", "dropHelp"], ["tCam", "cam"], ["tRead", "read"], ["tScope", "scope"], ["tFix", "fix"],
+     ["outTitle", "outTitle"], ["tSolve", "solve"], ["tType", "type"], ["credits", "credits"]].forEach(([id, k]) => { $(id).textContent = t(k); });
+    document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === S.lang)));
+    if ($("expr").value.trim() && $("result").childElementCount) solve();
+  }
+  document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
+  const root = document.documentElement;
+  try { const th = localStorage.getItem("iav-theme"); if (th) root.dataset.theme = th; } catch (_) {}
+  $("themeBtn").onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("iav-theme", root.dataset.theme); } catch (_) {}
+  };
+  let lang = new URLSearchParams(location.search).get("lang");
+  try { lang = lang || localStorage.getItem("iav-formula-lang"); } catch (_) {}
+  applyLang(lang || "en");
+  sizePad();
+})();
+</script>
+<script src="/web/sci_bg.js"></script>
+<script src="/web/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+{
+  "id": "geometry",
+  "title": "Geometry",
+  "icon": "△",
+  "order": 4,
+  "description": "Lines and angles, triangles, congruence and similarity, quadrilaterals, polygons and circle theorems.",
+  "sections": [
+    {"title": "Lines & angles", "items": [
+      ["Angles on a straight line", "sum = 180°", ""],
+      ["Angles around a point", "sum = 360°", ""],
+      ["Vertically opposite angles", "equal", ""],
+      ["Parallel lines + transversal", "corresponding = alternate interior angles; co-interior sum 180°", ""],
+      ["Complementary / supplementary", "sum 90° / sum 180°", ""]
+    ]},
+    {"title": "Triangles", "items": [
+      ["Angle sum", "A + B + C = 180°", ""],
+      ["Exterior angle", "exterior angle = sum of the two opposite interior angles", ""],
+      ["Triangle inequality", "a + b > c (for every pair)", ""],
+      ["Pythagoras", "c² = a² + b²", "right angle opposite c"],
+      ["Pythagorean triples", "(3, 4, 5), (5, 12, 13), (8, 15, 17), (7, 24, 25), (20, 21, 29)", ""],
+      ["Acute / obtuse test", "c² < a² + b² acute;  c² > a² + b² obtuse", "c longest side"],
+      ["Area", "½ × base × height", ""],
+      ["Equilateral triangle", "Area = (√3/4)a²;  height = (√3/2)a", ""],
+      ["Equilateral radii", "R = a/√3;  r = a/(2√3)", ""],
+      ["Isosceles right triangle", "hypotenuse = a√2", ""],
+      ["30-60-90 triangle", "sides 1 : √3 : 2", ""],
+      ["45-45-90 triangle", "sides 1 : 1 : √2", ""],
+      ["Apollonius (median)", "AB² + AC² = 2(AD² + BD²)", "D midpoint of BC"],
+      ["Angle bisector theorem", "BD / DC = AB / AC", ""],
+      ["Centroid", "divides each median 2 : 1", ""],
+      ["Mid-point theorem", "segment joining mid-points ∥ third side = half of it", ""],
+      ["Right triangle altitude", "altitude² = product of the hypotenuse segments", ""],
+      ["Stewart's theorem", "b²m + c²n = a(d² + mn)", "cevian d splits a into m, n"]
+    ]},
+    {"title": "Congruence & similarity", "items": [
+      ["Congruence rules", "SSS, SAS, ASA, AAS, RHS", ""],
+      ["Similarity rules", "AA, SSS, SAS", ""],
+      ["Similar triangles — sides", "a₁/a₂ = b₁/b₂ = c₁/c₂ = k", ""],
+      ["Similar triangles — areas", "Area₁/Area₂ = k²", ""],
+      ["Similar solids — volumes", "V₁/V₂ = k³", ""],
+      ["Basic proportionality (Thales)", "DE ∥ BC ⇒ AD/DB = AE/EC", ""]
+    ]},
+    {"title": "Quadrilaterals & polygons", "items": [
+      ["Angle sum of quadrilateral", "360°", ""],
+      ["Interior angle sum (n-gon)", "(n − 2) × 180°", ""],
+      ["Each interior angle (regular)", "(n − 2) × 180° / n", ""],
+      ["Each exterior angle (regular)", "360° / n", ""],
+      ["Exterior angle sum", "360°", ""],
+      ["Number of diagonals", "n(n − 3) / 2", ""],
+      ["Regular polygon area", "(n a²) / (4 tan(π/n))", "side a"],
+      ["Parallelogram", "opposite sides & angles equal; diagonals bisect each other", ""],
+      ["Rhombus", "diagonals bisect at 90°;  4a² = d₁² + d₂²", ""],
+      ["Rectangle diagonals", "equal: d = √(l² + b²)", ""],
+      ["Cyclic quadrilateral", "opposite angles sum to 180°", ""],
+      ["Ptolemy (cyclic)", "AC · BD = AB · CD + AD · BC", ""],
+      ["Brahmagupta (cyclic area)", "√((s−a)(s−b)(s−c)(s−d))", ""]
+    ]},
+    {"title": "Circles", "items": [
+      ["Circumference", "C = 2πr = πd", ""],
+      ["Area", "A = πr²", ""],
+      ["Arc length", "l = (θ/360°) × 2πr", ""],
+      ["Sector area", "(θ/360°) × πr²", ""],
+      ["Segment area", "r²/2 (θ·π/180° − sin θ)", ""],
+      ["Angle at centre", "= 2 × angle at circumference on the same arc", ""],
+      ["Angle in a semicircle", "90°", ""],
+      ["Angles in the same segment", "equal", ""],
+      ["Tangent ⊥ radius", "at the point of contact", ""],
+      ["Tangents from an external point", "equal in length", ""],
+      ["Tangent length", "√(d² − r²)", "d distance from centre"],
+      ["Chord from centre", "perpendicular from centre bisects a chord", ""],
+      ["Chord length", "2√(r² − d²)", ""],
+      ["Intersecting chords", "AE · EB = CE · ED", ""],
+      ["Secant–tangent", "PT² = PA · PB", ""],
+      ["Alternate segment theorem", "tangent–chord angle = angle in the alternate segment", ""],
+      ["Direct common tangent", "√(d² − (r₁ − r₂)²)", ""],
+      ["Transverse common tangent", "√(d² − (r₁ + r₂)²)", ""]
+    ]}
+  ]
+}

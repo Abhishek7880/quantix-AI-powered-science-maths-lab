@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit Converter · Quantix</title>
+<style>
+  :root {
+    --bg: #f4f6f9; --panel: #ffffff; --ink: #1c2430; --muted: #5d6b7e; --line: #dde3ea;
+    --accent: #1f6feb; --accent-ink: #ffffff; --soft: #eef4ff; --ok: #1a7f37;
+    --shadow: 0 1px 3px rgba(16,24,40,.08), 0 4px 12px rgba(16,24,40,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1117; --panel: #161b22; --ink: #e6edf3; --muted: #9aa7b4; --line: #2b333d;
+      --accent: #4493f8; --accent-ink: #0e1117; --soft: #13233d; --ok: #3fb950; --shadow: 0 1px 3px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1117; --panel: #161b22; --ink: #e6edf3; --muted: #9aa7b4; --line: #2b333d;
+    --accent: #4493f8; --accent-ink: #0e1117; --soft: #13233d; --ok: #3fb950; --shadow: 0 1px 3px rgba(0,0,0,.4);
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  :root[lang="hi"] body { font-family: "Nirmala UI", "Noto Sans Devanagari", Mangal, system-ui, sans-serif; }
+  header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 12px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  header h1 { font-size: 18px; margin: 0; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav a { color: var(--muted); text-decoration: none; font-size: 14px; padding: 6px 10px; border-radius: 6px; }
+  nav a.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); font-weight: 600; }
+  nav a:hover { color: var(--ink); }
+  .spacer { flex: 1; }
+  main { max-width: 1280px; margin: 0 auto; padding: 18px 24px 56px; display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 18px; align-items: start; }
+  @media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); padding: 14px 16px 40px; } aside { position: static !important; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 16px; min-width: 0; }
+  aside { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 12px; }
+  .field { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; }
+  .field:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .lbl { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; display: block; }
+  .stat { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+  .quick-out { margin-top: 10px; font-weight: 600; font-size: 15px; overflow-wrap: anywhere; }
+  .quick-out.err { color: #d1242f; font-weight: 500; font-size: 13px; }
+  .qs { display: flex; flex-direction: column; gap: 2px; }
+  .q { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 8px; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+  .q:hover { background: var(--bg); }
+  .q.on { background: var(--soft); color: var(--accent); font-weight: 600; }
+  .q .ic { width: 30px; height: 28px; border-radius: 7px; background: var(--bg); border: 1px solid var(--line); display: inline-flex; align-items: center; justify-content: center; flex: none; font-size: 14px; }
+  .q .t { flex: 1; font-size: 14px; line-height: 1.25; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 14px; border-radius: 7px; border: 1px solid var(--line);
+         background: var(--panel); color: var(--ink); font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.small { padding: 4px 10px; font-size: 13px; font-weight: 500; }
+  .lang { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+  .lang button { border: 0; background: var(--panel); color: var(--muted); font: inherit; font-size: 13px; font-weight: 600; padding: 5px 11px; cursor: pointer; }
+  .lang button + button { border-left: 1px solid var(--line); }
+  .lang button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  h2 { margin: 0 0 14px; font-size: 22px; }
+  .conv { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 14px; align-items: end; }
+  @media (max-width: 700px) { .conv { grid-template-columns: minmax(0, 1fr); } .swap { justify-self: center; transform: rotate(90deg); } }
+  .side { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .side input.field { font-size: 22px; font-weight: 600; padding: 12px 14px; }
+  .out { font-size: 22px; font-weight: 700; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--ok) 45%, var(--line)); border-radius: 8px;
+         background: color-mix(in srgb, var(--ok) 8%, var(--panel)); min-height: 54px; overflow-wrap: anywhere; display: flex; align-items: center; gap: 8px; }
+  .out span { flex: 1; }
+  .swap { width: 44px; height: 44px; border-radius: 50%; padding: 0; font-size: 18px; margin-bottom: 52px; }
+  @media (max-width: 700px) { .swap { margin-bottom: 0; } }
+  .factor { margin-top: 14px; color: var(--muted); font-size: 14px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .factor b { color: var(--ink); font-weight: 600; }
+  .opts { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px; align-items: end; }
+  .opts label { display: flex; flex-direction: column; font-size: 12px; color: var(--muted); gap: 4px; font-weight: 600; }
+  .opts select { padding: 6px 8px; border-radius: 7px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: 14px; }
+  select.field { padding: 9px 10px; }
+  .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 8px; max-height: 560px; margin-top: 10px; box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th { position: sticky; top: 0; background: var(--accent); color: var(--accent-ink); text-align: left; font-weight: 600; padding: 9px 12px; font-size: 13px; cursor: pointer; user-select: none; white-space: nowrap; }
+  th[aria-sort="ascending"]::after { content: " ▲"; font-size: 10px; }
+  th[aria-sort="descending"]::after { content: " ▼"; font-size: 10px; }
+  td { padding: 8px 12px; border-top: 1px solid var(--line); }
+  tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--bg) 60%, var(--panel)); }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover td { background: var(--soft); }
+  tbody tr.sel td { background: color-mix(in srgb, var(--accent) 16%, var(--panel)); font-weight: 600; }
+  td.v { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  td.sym { font-family: Cambria, Georgia, serif; }
+  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+  .toolbar h3 { margin: 0; font-size: 16px; }
+  .toolbar input { max-width: 240px; padding: 7px 10px; }
+  .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--panel); padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 9; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/web/lab.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="/" aria-label="Quantix — home">
+    <svg class="logo" viewBox="-50 -50 100 100" aria-hidden="true">
+      <defs><radialGradient id="lgCore"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient></defs>
+      <g class="lg-orbits" fill="none" stroke-width="3">
+        <ellipse rx="44" ry="15" stroke="var(--accent)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent-2)" transform="rotate(60)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent)" transform="rotate(120)" opacity=".75"/>
+      </g>
+      <circle r="12" fill="url(#lgCore)" class="lg-core"/>
+    </svg>
+    <span>
+      <h1 id="tTitle">Unit Converter</h1>
+      <span class="kicker">Quantix</span>
+      <span class="sub" id="tSub">Length · Area · Volume · Mass · Time · Speed · Temperature · Pressure · Energy · Power · and more</span>
+    </span>
+  </a>
+  <nav aria-label="Pages"><a href="/" title="Image Inspection — home">Home</a><a href="/measure" title="Measure real objects in a photo">Measure</a><a href="/formulas" title="Formula Library">Formulas</a><a href="/elements" title="Periodic Table">Elements</a><a href="/physics" title="Physics Lab">Physics</a><a href="/handwriting" title="Equation Solver (handwriting)">Solver</a><a href="/converter" title="Unit Converter" class="on" aria-current="page">Converter</a><a href="/graph" title="Graph Plotter">Graphs</a></nav>
+  <span class="spacer"></span>
+  <div class="lang" role="group" aria-label="Language / भाषा">
+    <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+    <button type="button" data-lang="hi" aria-pressed="false" lang="hi">हिन्दी</button>
+  </div>
+  <button class="btn small" id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
+</header>
+
+<main>
+  <aside>
+    <div class="card">
+      <form id="quickForm" autocomplete="off">
+        <label class="lbl" for="quick" id="tQuick">Quick convert</label>
+        <input class="field" id="quick" type="text" spellcheck="false" placeholder="e.g. 5 km to mi">
+      </form>
+      <div class="quick-out" id="quickOut" aria-live="polite"></div>
+      <p class="stat" id="tQuickHint">Type a value, a unit, “to”, and another unit. Press /.</p>
+    </div>
+    <div class="card" style="padding:8px">
+      <div class="qs" id="qs" role="tablist" aria-label="Quantities"></div>
+    </div>
+  </aside>
+
+  <section style="display:flex;flex-direction:column;gap:16px;min-width:0">
+    <div class="card">
+      <h2 id="qTitle"></h2>
+      <div class="conv">
+        <div class="side">
+          <label class="lbl" for="fromVal" id="tFrom">From</label>
+          <input class="field" id="fromVal" type="text" inputmode="decimal" value="1" autocomplete="off">
+          <select class="field" id="fromUnit" aria-labelledby="tFrom"></select>
+        </div>
+        <button class="btn swap" id="swap" type="button" aria-label="Swap units" title="Swap">⇄</button>
+        <div class="side">
+          <span class="lbl" id="tTo">To</span>
+          <div class="out" id="out" aria-live="polite" aria-labelledby="tTo"><span id="outVal">—</span>
+            <button class="btn small" id="copyBtn" type="button" aria-label="Copy result" title="Copy">⧉</button></div>
+          <select class="field" id="toUnit" aria-labelledby="tTo"></select>
+        </div>
+      </div>
+      <div class="factor" id="factor"></div>
+      <div class="opts">
+        <label><span id="tPrec">Significant digits</span>
+          <select id="prec"><option>4</option><option selected>6</option><option>8</option><option>10</option><option>12</option></select></label>
+        <label><span id="tFmt">Number format</span>
+          <select id="fmt"><option value="intl">1,234,567.89</option><option value="indian">12,34,567.89</option><option value="sci">1.23 × 10⁶</option></select></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <h3 id="allTitle">All units</h3>
+        <input class="field" id="filter" type="search" placeholder="Filter units…" aria-label="Filter units">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th data-k="name" id="thName">Unit</th><th data-k="sym" id="thSym">Symbol</th><th data-k="val" id="thVal" style="text-align:right">Value</th></tr></thead>
+          <tbody id="allBody"></tbody>
+        </table>
+      </div>
+      <p class="stat" id="tAllHint">Click a row to convert into that unit.</p>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script src="/web/units.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const DATA = window.UNIT_DATA;
+  const S = { q: DATA[0].id, from: {}, to: {}, sig: 6, fmt: "intl", lang: "en", sortK: null, sortDir: 1, filter: "" };
+  const T = {
+    en: {
+      title: "Unit Converter", sub: "Length · Area · Volume · Mass · Time · Speed · Temperature · Pressure · Energy · Power · and more",
+      quick: "Quick convert", quickPh: "e.g. 5 km to mi", quickHint: "Type a value, a unit, “to”, and another unit. Press /.",
+      from: "From", to: "To", prec: "Significant digits", fmt: "Number format", all: "All units", filter: "Filter units…",
+      unit: "Unit", sym: "Symbol", val: "Value", allHint: "Click a row to convert into that unit.", copied: "Copied",
+      swap: "Swap units", copy: "Copy result", noParse: "Could not read that. Try “5 km to mi”, “100 °F in °C”, “2 lakh to million”.",
+      noUnit: (u) => `Unknown unit “${u}”.`, mismatch: "Those units measure different things.", invalid: "Enter a number",
+      pageTitle: "Unit Converter",
+    },
+    hi: {
+      title: "मात्रक परिवर्तक", sub: "लंबाई · क्षेत्रफल · आयतन · द्रव्यमान · समय · चाल · ताप · दाब · ऊर्जा · शक्ति · और भी",
+      quick: "तुरंत बदलें", quickPh: "जैसे 5 km to mi", quickHint: "मान, मात्रक, “to” और दूसरा मात्रक लिखें। / दबाएँ।",
+      from: "से", to: "में", prec: "सार्थक अंक", fmt: "संख्या प्रारूप", all: "सभी मात्रक", filter: "मात्रक खोजें…",
+      unit: "मात्रक", sym: "प्रतीक", val: "मान", allHint: "उस मात्रक में बदलने के लिए किसी पंक्ति पर क्लिक करें।", copied: "कॉपी हो गया",
+      swap: "मात्रक अदला-बदली करें", copy: "परिणाम कॉपी करें", noParse: "समझ नहीं आया। ऐसे लिखें: “5 km to mi”, “100 °F in °C”, “2 lakh to million”।",
+      noUnit: (u) => `अज्ञात मात्रक “${u}”।`, mismatch: "ये मात्रक अलग-अलग राशियाँ मापते हैं।", invalid: "संख्या लिखें",
+      pageTitle: "मात्रक परिवर्तक",
+    },
+  };
+  const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === "function" ? v(...a) : v; };
+  const name = (o) => o[S.lang] || o.en;
+  const quantity = (id) => DATA.find((q) => q.id === id) || DATA[0];
+  const unitOf = (q, s) => q.units.find((u) => u.s === s) || q.units[0];
+
+  function h(tag, props, ...kids) {
+    const e = document.createElement(tag);
+    Object.entries(props || {}).forEach(([k, v]) => {
+      if (k === "class") e.className = v;
+      else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+      else if (v != null) e.setAttribute(k, v);
+    });
+    kids.flat(Infinity).forEach((c) => c != null && c !== false && e.append(c.nodeType ? c : document.createTextNode(String(c))));
+    return e;
+  }
+  function toast(msg) { const el = $("toast"); el.textContent = msg; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (el.hidden = true), 1400); }
+  function save() { try { localStorage.setItem("iav-conv", JSON.stringify({ q: S.q, from: S.from, to: S.to, sig: S.sig, fmt: S.fmt })); } catch (_) {} }
+
+  // "6.674e-11", "6.674×10^-11", "1,50,000", "3/4", "−5" -> number
+  function parseNum(raw) {
+    let s = String(raw).trim().replace(/−/g, "-").replace(/\s+/g, "");
+    if (/^-?\d{1,3}(,\d{2,3})+(\.\d+)?$/.test(s)) s = s.replace(/,/g, "");   // grouping commas
+    s = s.replace(/,/g, ".").replace(/[×x*]10\^?/i, "e");
+    const frac = s.match(/^(-?\d*\.?\d+)\/(\d*\.?\d+)$/);
+    if (frac) return Number(frac[1]) / Number(frac[2]);
+    return s === "" ? NaN : Number(s);
+  }
+  const SUP = { "-": "⁻", "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹" };
+  function fmtNum(x) {
+    if (!Number.isFinite(x)) return "—";
+    if (x === 0) return "0";
+    const a = Math.abs(x);
+    if (S.fmt === "sci" || a >= 1e15 || a < 1e-6) {
+      const [m, e] = x.toExponential(S.sig - 1).split("e");
+      const mm = m.includes(".") ? m.replace(/0+$/, "").replace(/\.$/, "") : m;
+      return Number(e) === 0 ? mm : `${mm} × 10${String(Number(e)).replace(/./g, (c) => SUP[c] || c)}`;
+    }
+    return Number(x.toPrecision(S.sig)).toLocaleString(S.fmt === "indian" ? "en-IN" : "en-US", { maximumFractionDigits: 12 });
+  }
+  const plain = (x) => (Number.isFinite(x) ? String(Number(x.toPrecision(S.sig))) : "");
+  const convert = (x, from, to) => to.from(from.to(x));
+
+  // ---------------------------------------------------------------- rendering
+  function renderQs() {
+    $("qs").replaceChildren(...DATA.map((q) => h("button", {
+      class: "q" + (q.id === S.q ? " on" : ""), type: "button", role: "tab", "aria-selected": String(q.id === S.q),
+      onclick: () => selectQ(q.id) }, h("span", { class: "ic", "aria-hidden": "true" }, q.icon), h("span", { class: "t" }, name(q)))));
+  }
+
+  function fillSelect(sel, q, value) {
+    sel.replaceChildren(...q.units.map((u) => h("option", { value: u.s }, `${name(u)} (${u.s})`)));
+    sel.value = value;
+  }
+
+  function selectQ(id, keepFocus) {
+    S.q = quantity(id).id;
+    const q = quantity(S.q);
+    if (!S.from[S.q]) S.from[S.q] = q.units[0].s;
+    if (!S.to[S.q]) S.to[S.q] = q.units[1] ? q.units[1].s : q.units[0].s;
+    history.replaceState(null, "", `#${S.q}`);
+    $("qTitle").textContent = `${q.icon}  ${name(q)}`;
+    fillSelect($("fromUnit"), q, S.from[S.q]);
+    fillSelect($("toUnit"), q, S.to[S.q]);
+    S.filter = "";
+    $("filter").value = "";
+    renderQs();
+    update();
+    save();
+  }
+
+  function update() {
+    const q = quantity(S.q);
+    const from = unitOf(q, S.from[S.q]), to = unitOf(q, S.to[S.q]);
+    const x = parseNum($("fromVal").value);
+    const ok = Number.isFinite(x);
+    $("fromVal").setAttribute("aria-invalid", String(!ok && $("fromVal").value.trim() !== ""));
+    const y = ok ? convert(x, from, to) : NaN;
+    $("outVal").textContent = ok ? `${fmtNum(y)} ${to.s}` : t("invalid");
+    $("out").dataset.value = plain(y);
+    // factor line: 1 from = k to  and  1 to = k from (linear units only)
+    const parts = [];
+    if (from.factor && to.factor) {
+      parts.push(h("span", {}, h("b", {}, `1 ${from.s}`), ` = ${fmtNum(convert(1, from, to))} ${to.s}`));
+      parts.push(h("span", {}, h("b", {}, `1 ${to.s}`), ` = ${fmtNum(convert(1, to, from))} ${from.s}`));
+    } else if (ok) {
+      parts.push(h("span", {}, h("b", {}, `${fmtNum(x)} ${from.s}`), ` = ${fmtNum(y)} ${to.s}`));
+    }
+    $("factor").replaceChildren(...parts);
+    renderAll(x, from);
+  }
+
+  function renderAll(x, from) {
+    const q = quantity(S.q);
+    const f = S.filter.toLowerCase();
+    let rows = q.units.map((u) => ({ u, name: name(u), sym: u.s, val: Number.isFinite(x) ? convert(x, from, u) : NaN }))
+      .filter((r) => !f || [r.name, r.sym, r.u.en, ...r.u.a].some((s) => String(s).toLowerCase().includes(f)));
+    if (S.sortK) rows = rows.slice().sort((a, b) => (S.sortK === "val" ? a.val - b.val : String(a[S.sortK]).localeCompare(String(b[S.sortK]))) * S.sortDir);
+    $("allBody").replaceChildren(...rows.map((r) => h("tr", {
+      class: r.u.s === S.to[S.q] ? "sel" : "", tabindex: "0", "aria-selected": String(r.u.s === S.to[S.q]),
+      onclick: () => setTo(r.u.s), onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setTo(r.u.s); } } },
+      h("td", {}, r.name), h("td", { class: "sym" }, r.sym), h("td", { class: "v" }, fmtNum(r.val)))));
+    document.querySelectorAll("th[data-k]").forEach((th) => th.setAttribute("aria-sort", th.dataset.k === S.sortK ? (S.sortDir > 0 ? "ascending" : "descending") : "none"));
+  }
+
+  function setTo(s) { S.to[S.q] = s; $("toUnit").value = s; update(); save(); }
+
+  // ---------------------------------------------------------------- quick convert: "5 km to mi"
+  const LOOKUP = (() => {
+    const exact = new Map(), loose = new Map();
+    const add = (m, k, v) => { if (!k) return; if (!m.has(k)) m.set(k, []); m.get(k).push(v); };
+    DATA.forEach((q) => q.units.forEach((u) => {
+      add(exact, u.s, { q, u });
+      [u.s, u.en, u.hi, ...u.a].forEach((k) => {
+        const key = String(k).toLowerCase().replace(/\s+/g, " ").trim();
+        add(loose, key, { q, u });
+        add(loose, key.replace(/\s*\(.*\)$/, ""), { q, u });                 // "tonne (metric ton)" -> "tonne"
+        if (/^[a-z ]+$/.test(key) && !key.endsWith("s")) add(loose, key + "s", { q, u });
+      });
+    }));
+    return { exact, loose };
+  })();
+  function findUnit(txt) {
+    const k = txt.trim().replace(/^°\s+/, "°");                               // "° C" -> "°C"
+    // exact symbol matches first (MB vs mb), then names / aliases; "c" is both Celsius and the speed of light
+    return [...(LOOKUP.exact.get(k) || []), ...(LOOKUP.loose.get(k.toLowerCase().replace(/\s+/g, " ")) || [])];
+  }
+  function quick(text) {
+    const out = $("quickOut");
+    out.className = "quick-out";
+    if (!text.trim()) { out.textContent = ""; return; }
+    const m = text.match(/^\s*([−\-+]?[\d.,]+(?:\s*(?:e|×\s*10\^?)\s*[−\-+]?\d+)?)\s*(.+?)\s+(?:to|in|into|as|=|->|→|से|में)\s+(.+?)\s*$/i);
+    if (!m) { out.className = "quick-out err"; out.textContent = t("noParse"); return; }
+    const x = parseNum(m[1].replace(/\s+/g, ""));
+    const a = findUnit(m[2]), b = findUnit(m[3]);
+    if (!a.length) { out.className = "quick-out err"; out.textContent = t("noUnit", m[2]); return; }
+    if (!b.length) { out.className = "quick-out err"; out.textContent = t("noUnit", m[3]); return; }
+    let pair = null;
+    for (const p of a) { const q2 = b.find((r) => r.q.id === p.q.id); if (q2) { pair = [p, q2]; break; } }
+    if (!pair || !Number.isFinite(x)) { out.className = "quick-out err"; out.textContent = Number.isFinite(x) ? t("mismatch") : t("noParse"); return; }
+    const [p, r] = pair;
+    out.textContent = `${fmtNum(x)} ${p.u.s} = ${fmtNum(convert(x, p.u, r.u))} ${r.u.s}`;
+    S.from[p.q.id] = p.u.s;
+    S.to[p.q.id] = r.u.s;
+    $("fromVal").value = plain(x) || m[1];
+    selectQ(p.q.id);
+  }
+
+  // ---------------------------------------------------------------- language, theme, events
+  function applyLang(lang) {
+    S.lang = T[lang] ? lang : "en";
+    try { localStorage.setItem("iav-formula-lang", S.lang); } catch (_) {}
+    document.documentElement.lang = S.lang;
+    document.title = t("pageTitle") + " · Quantix";
+    const set = (id, k) => { $(id).textContent = t(k); };
+    set("tTitle", "title"); set("tSub", "sub"); set("tQuick", "quick"); set("tQuickHint", "quickHint"); set("tFrom", "from");
+    set("tTo", "to"); set("tPrec", "prec"); set("tFmt", "fmt"); set("allTitle", "all"); set("thName", "unit"); set("thSym", "sym");
+    set("thVal", "val"); set("tAllHint", "allHint");
+    $("quick").placeholder = t("quickPh");
+    $("filter").placeholder = t("filter");
+    $("filter").setAttribute("aria-label", t("filter"));
+    $("swap").setAttribute("aria-label", t("swap"));
+    $("copyBtn").setAttribute("aria-label", t("copy"));
+    document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === S.lang)));
+    selectQ(S.q);
+    if ($("quick").value.trim()) quick($("quick").value);
+  }
+
+  const root = document.documentElement;
+  try { const th = localStorage.getItem("iav-theme"); if (th) root.dataset.theme = th; } catch (_) {}
+  $("themeBtn").onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("iav-theme", root.dataset.theme); } catch (_) {}
+  };
+  document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
+  $("fromVal").addEventListener("input", update);
+  $("fromUnit").addEventListener("change", (e) => { S.from[S.q] = e.target.value; update(); save(); });
+  $("toUnit").addEventListener("change", (e) => { S.to[S.q] = e.target.value; update(); save(); });
+  $("swap").onclick = () => {
+    const out = $("out").dataset.value;
+    [S.from[S.q], S.to[S.q]] = [S.to[S.q], S.from[S.q]];
+    if (out) $("fromVal").value = out;
+    selectQ(S.q);
+  };
+  $("copyBtn").onclick = async () => {
+    const v = $("out").dataset.value;
+    if (!v) return;
+    try { await navigator.clipboard.writeText(v); } catch (_) {
+      const ta = h("textarea", {}); ta.value = v; document.body.append(ta); ta.select();
+      try { document.execCommand("copy"); } catch (e) { /* ignored */ } ta.remove();
+    }
+    toast(t("copied"));
+  };
+  $("prec").addEventListener("change", (e) => { S.sig = Number(e.target.value); update(); save(); });
+  $("fmt").addEventListener("change", (e) => { S.fmt = e.target.value; update(); save(); });
+  $("filter").addEventListener("input", (e) => { S.filter = e.target.value; update(); });
+  document.querySelectorAll("th[data-k]").forEach((th) => {
+    th.tabIndex = 0;
+    const sort = () => { if (S.sortK === th.dataset.k) S.sortDir *= -1; else { S.sortK = th.dataset.k; S.sortDir = 1; } update(); };
+    th.addEventListener("click", sort);
+    th.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); sort(); } });
+  });
+  let qt = null;
+  $("quick").addEventListener("input", (e) => { clearTimeout(qt); qt = setTimeout(() => quick(e.target.value), 300); });
+  $("quickForm").addEventListener("submit", (e) => { e.preventDefault(); quick($("quick").value); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) { e.preventDefault(); $("quick").focus(); }
+  });
+
+  try {
+    const st = JSON.parse(localStorage.getItem("iav-conv") || "{}");
+    Object.assign(S, { q: st.q || S.q, from: st.from || {}, to: st.to || {}, sig: st.sig || 6, fmt: st.fmt || "intl" });
+  } catch (_) {}
+  const hash = location.hash.slice(1);
+  if (DATA.some((q) => q.id === hash)) S.q = hash;
+  $("prec").value = String(S.sig);
+  $("fmt").value = S.fmt;
+  let lang = new URLSearchParams(location.search).get("lang");
+  try { lang = lang || localStorage.getItem("iav-formula-lang"); } catch (_) {}
+  applyLang(lang || "en");
+})();
+</script>
+<script src="/web/sci_bg.js"></script>
+<script src="/web/site.js"></script>
+</body>
+</html>

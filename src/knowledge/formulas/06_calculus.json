@@ -1,0 +1,108 @@
+{
+  "id": "calculus",
+  "title": "Calculus",
+  "icon": "∫",
+  "order": 6,
+  "description": "Limits, derivatives, applications of derivatives, indefinite and definite integrals, area and differential equations.",
+  "sections": [
+    {"title": "Standard limits", "items": [
+      ["sin x / x", "lim(x→0) sin x / x = 1", ""],
+      ["tan x / x", "lim(x→0) tan x / x = 1", ""],
+      ["(1 − cos x) / x²", "lim(x→0) = ½", ""],
+      ["(eˣ − 1) / x", "lim(x→0) = 1", ""],
+      ["(aˣ − 1) / x", "lim(x→0) = ln a", ""],
+      ["ln(1 + x) / x", "lim(x→0) = 1", ""],
+      ["(xⁿ − aⁿ) / (x − a)", "lim(x→a) = n·aⁿ⁻¹", ""],
+      ["e definition", "lim(x→0) (1 + x)^(1/x) = e;  lim(n→∞) (1 + 1/n)ⁿ = e", ""],
+      ["1^∞ form", "lim f^g = e^(lim g(f − 1))", ""],
+      ["L'Hôpital's rule", "lim f/g = lim f′/g′", "0/0 or ∞/∞ forms"]
+    ]},
+    {"title": "Derivatives of standard functions", "items": [
+      ["Constant", "d/dx (c) = 0", ""],
+      ["Power", "d/dx (xⁿ) = n·xⁿ⁻¹", ""],
+      ["Exponential", "d/dx (eˣ) = eˣ;  d/dx (aˣ) = aˣ ln a", ""],
+      ["Logarithm", "d/dx (ln x) = 1/x;  d/dx (logₐ x) = 1/(x ln a)", ""],
+      ["sin, cos", "d/dx sin x = cos x;  d/dx cos x = −sin x", ""],
+      ["tan, cot", "d/dx tan x = sec²x;  d/dx cot x = −cosec²x", ""],
+      ["sec, cosec", "d/dx sec x = sec x tan x;  d/dx cosec x = −cosec x cot x", ""],
+      ["sin⁻¹, cos⁻¹", "± 1/√(1 − x²)", ""],
+      ["tan⁻¹, cot⁻¹", "± 1/(1 + x²)", ""],
+      ["sec⁻¹", "1/(|x|√(x² − 1))", ""],
+      ["√x", "1 / (2√x)", ""],
+      ["1/x", "−1/x²", ""]
+    ]},
+    {"title": "Rules of differentiation", "items": [
+      ["Sum", "(u ± v)′ = u′ ± v′", ""],
+      ["Product", "(uv)′ = u′v + uv′", ""],
+      ["Quotient", "(u/v)′ = (u′v − uv′) / v²", ""],
+      ["Chain rule", "dy/dx = dy/du · du/dx", ""],
+      ["Parametric", "dy/dx = (dy/dt) / (dx/dt)", ""],
+      ["Logarithmic differentiation", "y = u^v ⇒ y′/y = v′ ln u + v u′/u", ""],
+      ["Second derivative (parametric)", "d²y/dx² = d/dt(dy/dx) / (dx/dt)", ""],
+      ["Leibniz (n-th derivative)", "(uv)⁽ⁿ⁾ = Σ ⁿCᵣ u⁽ⁿ⁻ʳ⁾ v⁽ʳ⁾", ""]
+    ]},
+    {"title": "Applications of derivatives", "items": [
+      ["Slope of tangent", "m = dy/dx at (x₁, y₁)", ""],
+      ["Tangent line", "y − y₁ = m(x − x₁)", ""],
+      ["Normal line", "y − y₁ = −(1/m)(x − x₁)", ""],
+      ["Increasing / decreasing", "f′(x) > 0 increasing;  f′(x) < 0 decreasing", ""],
+      ["Critical point", "f′(x) = 0 or undefined", ""],
+      ["Second derivative test", "f″ < 0 maximum;  f″ > 0 minimum", ""],
+      ["Point of inflection", "f″ changes sign", ""],
+      ["Rate of change", "dA/dt = (dA/dr)(dr/dt)", ""],
+      ["Approximation", "f(x + Δx) ≈ f(x) + f′(x)Δx", ""],
+      ["Mean value theorem", "f′(c) = (f(b) − f(a))/(b − a)", ""],
+      ["Taylor series", "f(x) = Σ f⁽ⁿ⁾(a)(x − a)ⁿ / n!", ""]
+    ]},
+    {"title": "Standard integrals", "items": [
+      ["Power", "∫ xⁿ dx = xⁿ⁺¹/(n + 1) + C,  n ≠ −1", ""],
+      ["1/x", "∫ dx/x = ln|x| + C", ""],
+      ["Exponential", "∫ eˣ dx = eˣ + C;  ∫ aˣ dx = aˣ/ln a + C", ""],
+      ["sin, cos", "∫ sin x dx = −cos x + C;  ∫ cos x dx = sin x + C", ""],
+      ["sec², cosec²", "∫ sec²x dx = tan x + C;  ∫ cosec²x dx = −cot x + C", ""],
+      ["tan, cot", "∫ tan x dx = ln|sec x| + C;  ∫ cot x dx = ln|sin x| + C", ""],
+      ["sec", "∫ sec x dx = ln|sec x + tan x| + C", ""],
+      ["cosec", "∫ cosec x dx = ln|cosec x − cot x| + C", ""],
+      ["1/(a² + x²)", "(1/a) tan⁻¹(x/a) + C", ""],
+      ["1/√(a² − x²)", "sin⁻¹(x/a) + C", ""],
+      ["1/(x² − a²)", "(1/2a) ln|(x − a)/(x + a)| + C", ""],
+      ["1/(a² − x²)", "(1/2a) ln|(a + x)/(a − x)| + C", ""],
+      ["1/√(x² ± a²)", "ln|x + √(x² ± a²)| + C", ""],
+      ["√(a² − x²)", "(x/2)√(a² − x²) + (a²/2) sin⁻¹(x/a) + C", ""],
+      ["√(x² + a²)", "(x/2)√(x² + a²) + (a²/2) ln|x + √(x² + a²)| + C", ""],
+      ["eˣ[f(x) + f′(x)]", "eˣ f(x) + C", ""]
+    ]},
+    {"title": "Integration techniques", "items": [
+      ["Substitution", "∫ f(g(x)) g′(x) dx = ∫ f(u) du", ""],
+      ["By parts", "∫ u dv = uv − ∫ v du", "ILATE order for choosing u"],
+      ["Partial fractions", "P(x)/((x − a)(x − b)) = A/(x − a) + B/(x − b)", ""],
+      ["f′/f", "∫ f′(x)/f(x) dx = ln|f(x)| + C", ""]
+    ]},
+    {"title": "Definite integrals", "items": [
+      ["Fundamental theorem", "∫ₐᵇ f(x) dx = F(b) − F(a)", ""],
+      ["Reverse limits", "∫ₐᵇ f = −∫ᵇₐ f", ""],
+      ["Splitting", "∫ₐᵇ f = ∫ₐᶜ f + ∫_cᵇ f", "a < c < b"],
+      ["King property", "∫ₐᵇ f(x) dx = ∫ₐᵇ f(a + b − x) dx", ""],
+      ["∫₀ᵃ property", "∫₀ᵃ f(x) dx = ∫₀ᵃ f(a − x) dx", ""],
+      ["Even function", "∫₋ₐᵃ f = 2∫₀ᵃ f", ""],
+      ["Odd function", "∫₋ₐᵃ f = 0", ""],
+      ["Periodic function", "∫₀ⁿᵀ f = n∫₀ᵀ f", ""],
+      ["Wallis", "∫₀^(π/2) sinⁿx dx = (n−1)/n · (n−3)/(n−2) · …  (× π/2 if n even)", ""],
+      ["Leibniz rule", "d/dx ∫_{a(x)}^{b(x)} f(t) dt = f(b)b′ − f(a)a′", ""]
+    ]},
+    {"title": "Area & volume by integration", "items": [
+      ["Area under curve", "A = ∫ₐᵇ |f(x)| dx", ""],
+      ["Area between curves", "A = ∫ₐᵇ |f(x) − g(x)| dx", ""],
+      ["Volume of revolution (disc)", "V = π ∫ₐᵇ y² dx", ""],
+      ["Arc length", "L = ∫ₐᵇ √(1 + (dy/dx)²) dx", ""]
+    ]},
+    {"title": "Differential equations", "items": [
+      ["Variable separable", "f(y) dy = g(x) dx ⇒ integrate both sides", ""],
+      ["Linear first order", "dy/dx + Py = Q;  IF = e^(∫P dx);  y·IF = ∫ Q·IF dx + C", ""],
+      ["Homogeneous", "substitute y = vx", ""],
+      ["Bernoulli", "dy/dx + Py = Qyⁿ;  substitute z = y^(1−n)", ""],
+      ["Order & degree", "order = highest derivative; degree = its power (polynomial form)", ""],
+      ["Growth / decay", "dN/dt = kN ⇒ N = N₀e^(kt)", ""]
+    ]}
+  ]
+}

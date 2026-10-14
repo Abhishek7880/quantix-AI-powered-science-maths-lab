@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Contact inbox · Quantix</title>
+<style>
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  :root[lang="hi"] body { font-family: "Nirmala UI", "Noto Sans Devanagari", Mangal, system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 18px; }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav a { text-decoration: none; font-size: 14px; padding: 6px 10px; }
+  .spacer { flex: 1; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 13px; border: 1px solid var(--line);
+         background: color-mix(in srgb, var(--panel-solid) 55%, transparent); color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; text-decoration: none; }
+  .btn.small { padding: 4px 10px; font-size: 13px; font-weight: 500; }
+  .btn.danger { border-color: color-mix(in srgb, var(--err) 55%, transparent); color: var(--err); }
+  .lang { display: inline-flex; border: 1px solid var(--line); overflow: hidden; }
+  .lang button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 600; padding: 5px 11px; cursor: pointer; }
+  .lang button + button { border-left: 1px solid var(--line); }
+  main { padding-top: 18px; padding-bottom: 40px; display: flex; flex-direction: column; gap: 16px; }
+  .card { padding: 16px 18px; min-width: 0; }
+  .gate { max-width: 460px; margin: 40px auto; text-align: center; }
+  .gate h2 { font: 700 22px var(--f-head); margin: 6px 0; }
+  .gate input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: color-mix(in srgb, var(--panel-solid) 70%, transparent);
+                color: var(--ink); font: 15px var(--f-mono); margin: 12px 0; }
+  .gate input:focus { outline: 2px solid var(--accent); }
+  .muted { color: var(--muted); font-size: 13px; }
+  .err { color: var(--err); font-size: 14px; }
+  .kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 800px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .kpi { padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; text-align: left; color: var(--ink); font: inherit; }
+  .kpi[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .kpi b { display: block; font: 700 26px var(--f-head); }
+  .kpi span { font-size: 12.5px; color: var(--muted); }
+  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .toolbar input { flex: 1; min-width: 200px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: color-mix(in srgb, var(--panel-solid) 70%, transparent); color: var(--ink); font: inherit; }
+  .toolbar input:focus { outline: 2px solid var(--accent); }
+  .table-wrap { overflow: auto; border-radius: 12px; border: 1px solid var(--line); box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th { position: sticky; top: 0; text-align: left; padding: 9px 12px; font-size: 12.5px; color: #fff; background: linear-gradient(120deg, var(--btn-a), var(--btn-b)); white-space: nowrap; cursor: pointer; user-select: none; }
+  th[aria-sort="ascending"]::after { content: " ▲"; font-size: 10px; } th[aria-sort="descending"]::after { content: " ▼"; font-size: 10px; }
+  td { padding: 9px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+  tbody tr { cursor: pointer; } tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--panel-solid) 35%, transparent); }
+  tbody tr:hover td { background: var(--soft); }
+  tr.new td { font-weight: 600; }
+  td.prev { color: var(--muted); max-width: 420px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  td.mono { font: 12.5px var(--f-mono); white-space: nowrap; }
+  .badge { display: inline-block; font: 600 11px var(--f-mono); padding: 2px 8px; border-radius: 999px; border: 1px solid; text-transform: uppercase; }
+  .s-new { color: var(--accent); } .s-read { color: var(--muted); } .s-replied { color: var(--ok); } .s-closed { color: var(--accent-2); }
+  .pager { display: flex; gap: 8px; align-items: center; justify-content: flex-end; margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .empty { text-align: center; padding: 30px; color: var(--muted); }
+  .scrim { position: fixed; inset: 0; background: rgba(5,10,22,.45); z-index: 20; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(620px, 100vw); z-index: 21; display: flex; flex-direction: column; border-left: 1px solid var(--line); box-shadow: -10px 0 40px rgba(0,0,0,.3); }
+  .d-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .d-head h2 { flex: 1; margin: 0; font: 700 17px var(--f-head); }
+  .d-body { overflow-y: auto; padding: 16px 18px 28px; display: flex; flex-direction: column; gap: 14px; }
+  .meta { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 14px; }
+  .meta b { font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+  .meta a { color: var(--accent); }
+  .msgtext { white-space: pre-wrap; overflow-wrap: anywhere; padding: 12px 14px; border-radius: 12px; background: var(--soft); border: 1px solid var(--line); font-size: 15px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .st[aria-pressed="true"] { background: linear-gradient(120deg, var(--btn-a), var(--btn-b)); color: #fff; border-color: transparent; }
+  textarea { width: 100%; min-height: 80px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: color-mix(in srgb, var(--panel-solid) 70%, transparent); color: var(--ink); font: inherit; }
+  textarea:focus { outline: 2px solid var(--accent); }
+  .modal { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(5,10,22,.55); padding: 16px; }
+  .modal .box { max-width: 420px; width: 100%; padding: 20px; border-radius: 16px; background: var(--panel-solid); border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .modal h3 { margin: 0 0 6px; font: 700 18px var(--f-head); }
+  .mailbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 12px 16px; }
+  .mailbar .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .mailbar .txt { flex: 1; min-width: 220px; font-size: 14px; }
+  .mailbar ol { margin: 6px 0 0; padding-left: 20px; font-size: 13px; color: var(--muted); }
+  .mailbar code { font: 12.5px var(--f-mono); }
+  .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); padding: 8px 14px; border-radius: 8px; font-size: 13px; z-index: 40; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/web/lab.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="/" aria-label="Quantix — home">
+    <svg class="logo" viewBox="-50 -50 100 100" aria-hidden="true">
+      <defs><radialGradient id="lgCore"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient></defs>
+      <g class="lg-orbits" fill="none" stroke-width="3">
+        <ellipse rx="44" ry="15" stroke="var(--accent)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent-2)" transform="rotate(60)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent)" transform="rotate(120)" opacity=".75"/>
+      </g>
+      <circle r="12" fill="url(#lgCore)" class="lg-core"/>
+    </svg>
+    <span>
+      <h1 id="tTitle">Contact inbox</h1>
+      <span class="kicker">Quantix · Admin</span>
+    </span>
+  </a>
+  <nav aria-label="Pages"></nav>
+  <span class="spacer"></span>
+  <button class="btn small" id="lockBtn" type="button" hidden>🔒 <span id="tLock">Lock</span></button>
+  <div class="lang" role="group" aria-label="Language / भाषा">
+    <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+    <button type="button" data-lang="hi" aria-pressed="false" lang="hi">हिन्दी</button>
+  </div>
+  <button class="btn small" id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
+</header>
+
+<main>
+  <section class="card gate" id="gate">
+    <div style="font-size:40px">🔐</div>
+    <h2 id="tGate">Admin key needed</h2>
+    <p class="muted" id="tGateHelp">Find it on the server in <code>outputs/contact/admin_token.txt</code> (or the IAV_ADMIN_TOKEN environment variable).</p>
+    <form id="gateForm" autocomplete="off">
+      <label class="sr" for="key" style="position:absolute;left:-9999px">Admin key</label>
+      <input id="key" type="password" spellcheck="false" placeholder="••••••••••••••••">
+      <button class="btn primary" type="submit" style="width:100%"><span id="tOpen">Open inbox</span></button>
+    </form>
+    <p class="err" id="gateErr" role="alert" hidden></p>
+  </section>
+
+  <div id="app" hidden>
+    <section class="card mailbar" id="mailbar" aria-live="polite"></section>
+    <section class="kpis" id="kpis" aria-label="Filter by status"></section>
+    <section class="card">
+      <div class="toolbar">
+        <input id="q" type="search" placeholder="Search name, email, ticket or text…" aria-label="Search messages">
+        <button class="btn" id="refresh" type="button">↻ <span id="tRefresh">Refresh</span></button>
+        <button class="btn" id="csv" type="button">⬇ CSV</button>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th data-k="ticket" id="hTicket">Ticket</th><th data-k="created" id="hDate">Received</th><th data-k="name" id="hFrom">From</th>
+          <th data-k="topic" id="hTopic">Topic</th><th data-k="subject" id="hMsg">Message</th><th data-k="status" id="hStatus">Status</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <div class="pager" id="pager"></div>
+    </section>
+  </div>
+</main>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle" hidden>
+  <div class="d-head"><h2 id="dTitle"></h2><button class="btn small" id="dClose" type="button" aria-label="Close">✕</button></div>
+  <div class="d-body" id="dBody"></div>
+</aside>
+<div class="modal" id="modal" hidden role="alertdialog" aria-modal="true" aria-labelledby="mTitle"><div class="box">
+  <h3 id="mTitle"></h3><p class="muted" id="mText"></p>
+  <div class="row" style="justify-content:flex-end"><button class="btn" id="mNo" type="button"></button><button class="btn danger" id="mYes" type="button"></button></div>
+</div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="/web/site.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const API = "/api/v1/contact";
+  const STATUSES = ["new", "read", "replied", "closed"];
+  const PAGE = 20;
+  const S = { lang: "en", key: "", all: [], counts: {}, status: null, q: "", sortK: "created", sortDir: -1, page: 0, open: null, lastFocus: null };
+  const T = {
+    en: { title: "Contact inbox", gate: "Admin key needed", gateHelp: "Find it on the server in outputs/contact/admin_token.txt (or the IAV_ADMIN_TOKEN environment variable).",
+          open: "Open inbox", lock: "Lock", refresh: "Refresh", search: "Search name, email, ticket or text…", all: "All", ticket: "Ticket", date: "Received",
+          from: "From", topic: "Topic", msg: "Message", status: "Status", none: "No messages here yet.", wrongKey: "That key is not right.",
+          st: { new: "New", read: "Read", replied: "Replied", closed: "Closed" },
+          topics: { general: "General", bug: "Bug", feature: "Feature", data: "Formula / data", other: "Other" },
+          email: "Email", phone: "Phone", page: "Sent from", lang: "Language", note: "Private note", saveNote: "Save note", reply: "✉ Reply by email",
+          del: "🗑 Delete", delQ: "Delete this message?", delText: "This cannot be undone.", cancel: "Cancel", yes: "Delete", saved: "Saved", deleted: "Deleted",
+          pageOf: (a, b, n) => `${a}–${b} of ${n}`, prev: "‹ Prev", next: "Next ›", offline: "Server not reachable.",
+          mailOn: (to, from) => `Email alerts ON — every new message is emailed to ${to} (from ${from}).`,
+          mailOff: (to) => `Email alerts are not set up yet — messages still arrive here.${to ? ` Alerts will go to ${to}.` : ""}`,
+          mailSteps: ["In a terminal in the project folder run:  .venv\Scripts\python.exe tools\setup_email.py",
+                      "Enter the sending Gmail address and its 16-letter App Password (Google Account → Security → App passwords).",
+                      "It sends a test email; press Refresh here."],
+          testMail: "✉ Send test email", testOk: (to) => `Test email sent to ${to}`, mailCol: "Email alert",
+          mail: { sent: "✓ emailed", off: "— alerts off", pending: "… sending" } },
+    hi: { title: "संपर्क इनबॉक्स", gate: "एडमिन कुंजी चाहिए", gateHelp: "सर्वर पर outputs/contact/admin_token.txt में (या IAV_ADMIN_TOKEN पर्यावरण चर में) देखें।",
+          open: "इनबॉक्स खोलें", lock: "लॉक", refresh: "ताज़ा करें", search: "नाम, ईमेल, टिकट या संदेश खोजें…", all: "सभी", ticket: "टिकट", date: "प्राप्त",
+          from: "भेजने वाला", topic: "विषय", msg: "संदेश", status: "स्थिति", none: "अभी कोई संदेश नहीं।", wrongKey: "यह कुंजी सही नहीं है।",
+          st: { new: "नया", read: "पढ़ा", replied: "उत्तर दिया", closed: "बंद" },
+          topics: { general: "सामान्य", bug: "गड़बड़ी", feature: "सुविधा", data: "सूत्र / आँकड़ा", other: "अन्य" },
+          email: "ईमेल", phone: "फ़ोन", page: "किस पेज से", lang: "भाषा", note: "निजी टिप्पणी", saveNote: "टिप्पणी सहेजें", reply: "✉ ईमेल से उत्तर दें",
+          del: "🗑 हटाएँ", delQ: "यह संदेश हटाएँ?", delText: "इसे वापस नहीं लाया जा सकता।", cancel: "रद्द करें", yes: "हटाएँ", saved: "सहेजा गया", deleted: "हटाया गया",
+          pageOf: (a, b, n) => `${n} में से ${a}–${b}`, prev: "‹ पिछला", next: "अगला ›", offline: "सर्वर उपलब्ध नहीं।",
+          mailOn: (to, from) => `ईमेल सूचना चालू — हर नया संदेश ${to} पर भेजा जाता है (${from} से)।`,
+          mailOff: (to) => `ईमेल सूचना अभी सेट नहीं है — संदेश फिर भी यहाँ आते हैं।${to ? ` सूचना ${to} पर जाएगी।` : ""}`,
+          mailSteps: ["प्रोजेक्ट फ़ोल्डर में टर्मिनल खोलकर चलाएँ:  .venv\Scripts\python.exe tools\setup_email.py",
+                      "भेजने वाला Gmail पता और उसका 16-अक्षर App Password लिखें (Google Account → Security → App passwords)।",
+                      "यह एक परीक्षण ईमेल भेजेगा; फिर यहाँ ताज़ा करें दबाएँ।"],
+          testMail: "✉ परीक्षण ईमेल भेजें", testOk: (to) => `परीक्षण ईमेल ${to} पर भेजा गया`, mailCol: "ईमेल सूचना",
+          mail: { sent: "✓ ईमेल भेजा", off: "— सूचना बंद", pending: "… भेजा जा रहा" } },
+  };
+  const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === "function" ? v(...a) : v; };
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    Object.entries(props || {}).forEach(([k, v]) => {
+      if (v == null || v === false) return;
+      if (k === "class") el.className = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v);
+    });
+    kids.flat(Infinity).forEach((c) => c != null && c !== false && el.append(c.nodeType ? c : document.createTextNode(String(c))));
+    return el;
+  }
+  const fill = (el, ...kids) => el.replaceChildren(...kids.flat(Infinity).filter((k) => k != null && k !== false));
+  function toast(m) { const e = $("toast"); e.textContent = m; e.style.color = "var(--panel-solid)"; e.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (e.hidden = true), 1800); }
+  const when = (iso) => new Date(iso).toLocaleString(S.lang === "hi" ? "hi-IN" : "en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  async function call(path, opts = {}) {
+    const r = await fetch(API + path, { ...opts, headers: { "X-Admin-Key": S.key, ...(opts.body ? { "Content-Type": "application/json" } : {}), ...(opts.headers || {}) } });
+    if (path.endsWith(".csv") && r.ok) return r;
+    const b = await r.json();
+    if (b.error && b.error.errorCode === "ADMIN_KEY_REQUIRED") { lock(t("wrongKey")); throw new Error("auth"); }
+    return b;
+  }
+
+  // ---------------------------------------------------------------- gate
+  function lock(msg) {
+    S.key = ""; try { sessionStorage.removeItem("iav-admin-key"); } catch (_) {}
+    $("app").hidden = true; $("gate").hidden = false; $("lockBtn").hidden = true;
+    $("gateErr").hidden = !msg; $("gateErr").textContent = msg || ""; $("key").value = ""; $("key").focus();
+  }
+  $("gateForm").addEventListener("submit", (e) => { e.preventDefault(); S.key = $("key").value.trim(); if (S.key) load(true); });
+  $("lockBtn").onclick = () => lock();
+
+  async function load(fromGate) {
+    let b;
+    try { b = await call(`/messages`); } catch (e) { if (e.message !== "auth") toast(t("offline")); return; }
+    if (!b.success) { toast(`${b.error.errorTitle}: ${b.error.errorContent}`); return; }
+    try { sessionStorage.setItem("iav-admin-key", S.key); } catch (_) {}
+    S.all = b.data.messages; S.counts = b.data.counts;
+    $("gate").hidden = true; $("app").hidden = false; $("lockBtn").hidden = false;
+    render();
+    const ms = await call("/email-status").catch(() => null);
+    S.mail = ms && ms.success ? ms.data : null;
+    renderMail();
+    if (fromGate) $("q").focus();
+  }
+
+  // ---------------------------------------------------------------- email alerts bar
+  function renderMail() {
+    const m = S.mail;
+    if (!m) { fill($("mailbar")); return; }
+    fill($("mailbar"),
+      h("span", { class: "dot", style: `background:${m.enabled ? "var(--ok)" : "var(--warn)"}` }),
+      h("div", { class: "txt" }, m.enabled ? t("mailOn", m.to, m.from) : t("mailOff", m.to),
+        m.enabled ? null : h("ol", {}, t("mailSteps").map((x) => h("li", {}, x)))),
+      m.enabled ? h("button", { class: "btn small", type: "button", onclick: async (e) => {
+        e.target.disabled = true;
+        const b = await call("/test-email", { method: "POST" }).catch(() => null);
+        e.target.disabled = false;
+        toast(b && b.success ? t("testOk", b.data.to) : b ? `${b.error.errorTitle}: ${b.error.errorContent}` : t("offline"));
+      } }, t("testMail")) : null);
+  }
+  const mailText = (v) => !v ? t("mail").pending : v === "sent" ? t("mail").sent : v === "off" ? t("mail").off : `✗ ${v}`;
+
+  // ---------------------------------------------------------------- list
+  function filtered() {
+    const q = S.q.toLowerCase();
+    let rows = S.all.filter((m) => (!S.status || m.status === S.status) &&
+      (!q || [m.ticket, m.name, m.email, m.subject, m.message].some((v) => String(v || "").toLowerCase().includes(q))));
+    rows.sort((a, b) => String(a[S.sortK] || "").localeCompare(String(b[S.sortK] || "")) * S.sortDir);
+    return rows;
+  }
+  function render() {
+    const total = Object.values(S.counts).reduce((a, b) => a + b, 0);
+    fill($("kpis"), [[null, t("all"), total], ...STATUSES.map((s) => [s, t("st")[s], S.counts[s] || 0])].map(([s, label, n]) =>
+      h("button", { class: "kpi", type: "button", "aria-pressed": String(S.status === s), onclick: () => { S.status = s; S.page = 0; render(); } }, h("b", {}, n), h("span", {}, label))));
+    const rows = filtered(), pages = Math.max(1, Math.ceil(rows.length / PAGE));
+    S.page = Math.min(S.page, pages - 1);
+    const view = rows.slice(S.page * PAGE, S.page * PAGE + PAGE);
+    fill($("rows"), view.length ? view.map((m) => h("tr", { class: m.status === "new" ? "new" : null, tabindex: "0",
+      onclick: () => openMsg(m.id), onkeydown: (e) => { if (e.key === "Enter") openMsg(m.id); } },
+      h("td", { class: "mono" }, m.ticket), h("td", { class: "mono" }, when(m.created)),
+      h("td", {}, m.name, h("div", { class: "muted" }, m.email)), h("td", {}, t("topics")[m.topic] || m.topic),
+      h("td", { class: "prev" }, m.subject ? `${m.subject} — ` : "", m.message),
+      h("td", {}, h("span", { class: `badge s-${m.status}` }, t("st")[m.status])))) : h("tr", {}, h("td", { colspan: "6", class: "empty" }, t("none"))));
+    document.querySelectorAll("th[data-k]").forEach((th) => th.setAttribute("aria-sort", th.dataset.k === S.sortK ? (S.sortDir > 0 ? "ascending" : "descending") : "none"));
+    fill($("pager"), rows.length ? t("pageOf", S.page * PAGE + 1, Math.min(rows.length, S.page * PAGE + PAGE), rows.length) : "",
+      h("button", { class: "btn small", type: "button", disabled: S.page === 0 ? "" : null, onclick: () => { S.page--; render(); } }, t("prev")),
+      h("button", { class: "btn small", type: "button", disabled: S.page >= pages - 1 ? "" : null, onclick: () => { S.page++; render(); } }, t("next")));
+  }
+  document.querySelectorAll("th[data-k]").forEach((th) => {
+    th.tabIndex = 0;
+    const sort = () => { if (S.sortK === th.dataset.k) S.sortDir *= -1; else { S.sortK = th.dataset.k; S.sortDir = 1; } render(); };
+    th.addEventListener("click", sort);
+    th.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); sort(); } });
+  });
+  let qt = null;
+  $("q").addEventListener("input", (e) => { clearTimeout(qt); qt = setTimeout(() => { S.q = e.target.value.trim(); S.page = 0; render(); }, 200); });
+  $("refresh").onclick = () => load();
+  $("csv").onclick = async () => {
+    let r; try { r = await call("/export.csv"); } catch (_) { return; }
+    const a = h("a", { href: URL.createObjectURL(await r.blob()), download: "contact_messages.csv" }); document.body.append(a); a.click(); a.remove();
+  };
+
+  // ---------------------------------------------------------------- detail
+  async function setStatus(m, status) {
+    const b = await call(`/messages/${m.id}`, { method: "PATCH", body: JSON.stringify({ status }) }).catch(() => null);
+    if (!b || !b.success) return;
+    Object.assign(m, b.data); S.counts = recount(); render(); if (S.open === m.id) openMsg(m.id, true);
+  }
+  const recount = () => { const c = { new: 0, read: 0, replied: 0, closed: 0 }; S.all.forEach((m) => c[m.status]++); return c; };
+  function openMsg(id, keep) {
+    const m = S.all.find((x) => x.id === id);
+    if (!m) return;
+    if ($("drawer").hidden) S.lastFocus = document.activeElement;
+    S.open = id;
+    $("drawer").hidden = false; $("scrim").hidden = false;
+    $("dTitle").textContent = `${m.ticket} · ${m.name}`;
+    const subj = encodeURIComponent(`Re: [${m.ticket}] ${m.subject || t("topics")[m.topic] || ""}`);
+    const quote = encodeURIComponent(`\n\n---\n${m.name} wrote on ${when(m.created)}:\n> ${m.message.split("\n").join("\n> ")}`);
+    const note = h("textarea", { id: "note", "aria-label": t("note") }); note.value = m.note || "";
+    fill($("dBody"),
+      h("div", { class: "meta" },
+        h("b", {}, t("email")), h("span", {}, h("a", { href: `mailto:${m.email}` }, m.email)),
+        m.phone ? [h("b", {}, t("phone")), h("span", {}, h("a", { href: `tel:${m.phone.replace(/\s/g, "")}` }, m.phone))] : null,
+        h("b", {}, t("topic")), h("span", {}, t("topics")[m.topic] || m.topic),
+        h("b", {}, t("date")), h("span", {}, when(m.created)),
+        m.page ? [h("b", {}, t("page")), h("span", {}, m.page)] : null,
+        h("b", {}, t("lang")), h("span", {}, m.lang === "hi" ? "हिन्दी" : "English"),
+        h("b", {}, t("mailCol")), h("span", { style: m.mail && m.mail.startsWith("failed") ? "color:var(--err)" : null }, mailText(m.mail))),
+      m.subject ? h("div", { style: "font:700 17px var(--f-head)" }, m.subject) : null,
+      h("div", { class: "msgtext" }, m.message),
+      h("div", { class: "row" }, STATUSES.map((s) => h("button", { class: "btn small st", type: "button", "aria-pressed": String(m.status === s), onclick: () => setStatus(m, s) }, t("st")[s]))),
+      h("div", { class: "row" },
+        h("a", { class: "btn primary", href: `mailto:${m.email}?subject=${subj}&body=${quote}`, onclick: () => { if (m.status !== "closed") setStatus(m, "replied"); } }, t("reply")),
+        h("button", { class: "btn danger", type: "button", onclick: () => confirmDelete(m) }, t("del"))),
+      h("div", {}, h("label", { for: "note", class: "muted" }, t("note")), note,
+        h("button", { class: "btn small", type: "button", style: "margin-top:6px", onclick: async () => {
+          const b = await call(`/messages/${m.id}`, { method: "PATCH", body: JSON.stringify({ note: note.value }) }).catch(() => null);
+          if (b && b.success) { Object.assign(m, b.data); toast(t("saved")); } } }, t("saveNote"))));
+    if (!keep) { $("dClose").focus(); if (m.status === "new") setStatus(m, "read"); }
+  }
+  function closeMsg() {
+    $("drawer").hidden = true; $("scrim").hidden = true; S.open = null;
+    if (S.lastFocus && document.contains(S.lastFocus)) S.lastFocus.focus();
+  }
+  $("dClose").onclick = closeMsg; $("scrim").onclick = closeMsg;
+  $("drawer").addEventListener("keydown", (e) => { if (e.key === "Escape" && $("modal").hidden) closeMsg(); });
+  function confirmDelete(m) {
+    $("mTitle").textContent = t("delQ"); $("mText").textContent = `${m.ticket} — ${t("delText")}`;
+    $("mNo").textContent = t("cancel"); $("mYes").textContent = t("yes");
+    $("modal").hidden = false; $("mNo").focus();
+    $("mNo").onclick = () => { $("modal").hidden = true; };
+    $("mYes").onclick = async () => {
+      $("modal").hidden = true;
+      const b = await call(`/messages/${m.id}`, { method: "DELETE" }).catch(() => null);
+      if (b && b.success) { S.all = S.all.filter((x) => x.id !== m.id); S.counts = recount(); closeMsg(); render(); toast(t("deleted")); }
+    };
+  }
+  $("modal").addEventListener("keydown", (e) => { if (e.key === "Escape") $("modal").hidden = true; });
+
+  // ---------------------------------------------------------------- language
+  function applyLang(l) {
+    S.lang = T[l] ? l : "en";
+    try { localStorage.setItem("iav-formula-lang", S.lang); } catch (_) {}
+    document.documentElement.lang = S.lang; document.title = t("title") + " · Quantix";
+    [["tTitle", "title"], ["tGate", "gate"], ["tGateHelp", "gateHelp"], ["tOpen", "open"], ["tLock", "lock"], ["tRefresh", "refresh"], ["hTicket", "ticket"],
+     ["hDate", "date"], ["hFrom", "from"], ["hTopic", "topic"], ["hMsg", "msg"], ["hStatus", "status"]].forEach(([id, k]) => { $(id).textContent = t(k); });
+    $("q").placeholder = t("search");
+    document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === S.lang)));
+    if (!$("app").hidden) { render(); renderMail(); if (S.open) openMsg(S.open, true); }
+  }
+  document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
+  let lang = null;
+  try { lang = localStorage.getItem("iav-formula-lang"); S.key = sessionStorage.getItem("iav-admin-key") || ""; } catch (_) {}
+  applyLang(lang || "en");
+  if (S.key) load(); else $("key").focus();
+})();
+</script>
+<script src="/web/sci_bg.js"></script>
+</body>
+</html>

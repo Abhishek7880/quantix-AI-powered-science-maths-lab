@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Physics Lab · Quantix</title>
+<style>
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  :root[lang="hi"] body { font-family: "Nirmala UI", "Noto Sans Devanagari", Mangal, system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 18px; }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav a { text-decoration: none; font-size: 14px; padding: 6px 10px; }
+  .spacer { flex: 1; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 12px; border: 1px solid var(--line);
+         background: color-mix(in srgb, var(--panel-solid) 55%, transparent); color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  .btn.small { padding: 4px 10px; font-size: 13px; font-weight: 500; }
+  .lang { display: inline-flex; border: 1px solid var(--line); overflow: hidden; }
+  .lang button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 600; padding: 5px 11px; cursor: pointer; }
+  .lang button + button { border-left: 1px solid var(--line); }
+  main { padding-top: 18px; padding-bottom: 40px; display: grid; grid-template-columns: 250px minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
+  @media (max-width: 1300px) { main { grid-template-columns: 220px minmax(0, 1fr); } .side-r { grid-column: 1 / -1; } }
+  @media (max-width: 860px) { main { grid-template-columns: minmax(0, 1fr); } }
+  .card { padding: 14px 16px; min-width: 0; }
+  .sims { display: flex; flex-direction: column; gap: 4px; }
+  @media (max-width: 860px) { .sims { flex-direction: row; overflow-x: auto; } .sim { flex: none; } }
+  .sim { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 1px solid transparent; background: none; color: var(--ink);
+         font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+  .sim:hover { background: color-mix(in srgb, var(--panel-solid) 50%, transparent); }
+  .sim[aria-current="true"] { background: var(--soft); border-color: color-mix(in srgb, var(--accent) 40%, transparent); color: var(--accent); font-weight: 600; }
+  .sim .ic { width: 32px; height: 32px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; font-size: 17px; flex: none;
+             background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 22%, transparent), color-mix(in srgb, var(--accent-2) 22%, transparent)); }
+  .head { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .head h2 { margin: 0; font: 700 21px var(--f-head); }
+  .head p { margin: 2px 0 0; color: var(--muted); font-size: 14px; max-width: 80ch; }
+  .bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-left: auto; }
+  .bar select { padding: 5px 8px; border-radius: 8px; border: 1px solid var(--line); background: color-mix(in srgb, var(--panel-solid) 70%, transparent); color: var(--ink); font: inherit; font-size: 13px; }
+  .stage { position: relative; height: calc(100vh - 250px); min-height: 380px; border-radius: 14px; overflow: hidden; border: 1px solid var(--line);
+           background: radial-gradient(90% 90% at 50% 30%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%), var(--panel-solid); }
+  .stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+  .stage canvas.draggable { cursor: ew-resize; }
+  .ctl { display: flex; flex-direction: column; gap: 12px; }
+  .param label { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; font-weight: 600; }
+  .param label output { font: 600 13px var(--f-mono); color: var(--accent); }
+  .param input[type=range] { width: 100%; margin: 4px 0 0; }
+  .presets { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+  .presets button { border: 1px solid var(--line); border-radius: 999px; padding: 1px 9px; font: inherit; font-size: 12px; cursor: pointer;
+                    background: color-mix(in srgb, var(--panel-solid) 50%, transparent); color: var(--ink); }
+  .presets button:hover { border-color: var(--accent); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; flex-wrap: wrap; }
+  .seg button { border: 0; background: transparent; color: var(--ink); padding: 6px 11px; font: inherit; font-size: 13px; cursor: pointer; }
+  .lbl { font: 600 11px var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 4px 0 6px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  td { padding: 6px 4px; border-top: 1px solid var(--line); vertical-align: top; }
+  td.v { font: 600 13.5px var(--f-mono); color: var(--accent); white-space: nowrap; }
+  td.f { font: 13px "Cambria Math", Cambria, Georgia, serif; color: var(--muted); }
+  tr.formula td { border-top: 0; padding-top: 0; }
+  .keys { font-size: 12px; color: var(--muted); }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/web/lab.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="/" aria-label="Quantix — home">
+    <svg class="logo" viewBox="-50 -50 100 100" aria-hidden="true">
+      <defs><radialGradient id="lgCore"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent-2)" stop-opacity="0"/></radialGradient></defs>
+      <g class="lg-orbits" fill="none" stroke-width="3">
+        <ellipse rx="44" ry="15" stroke="var(--accent)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent-2)" transform="rotate(60)"/>
+        <ellipse rx="44" ry="15" stroke="var(--accent)" transform="rotate(120)" opacity=".75"/>
+      </g>
+      <circle r="12" fill="url(#lgCore)" class="lg-core"/>
+    </svg>
+    <span>
+      <h1 id="tTitle">Physics Lab</h1>
+      <span class="kicker">Quantix</span>
+    </span>
+  </a>
+  <nav aria-label="Pages"><a href="/" title="Image Inspection — home">Home</a><a href="/measure" title="Measure real objects in a photo">Measure</a><a href="/formulas" title="Formula Library">Formulas</a><a href="/elements" title="Periodic Table">Elements</a><a href="/physics" title="Physics Lab" class="on" aria-current="page">Physics</a><a href="/handwriting" title="Equation Solver (handwriting)">Solver</a><a href="/converter" title="Unit Converter">Converter</a><a href="/graph" title="Graph Plotter">Graphs</a></nav>
+  <span class="spacer"></span>
+  <div class="lang" role="group" aria-label="Language / भाषा">
+    <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+    <button type="button" data-lang="hi" aria-pressed="false" lang="hi">हिन्दी</button>
+  </div>
+  <button class="btn small" id="themeBtn" type="button" aria-label="Toggle dark mode">◐</button>
+</header>
+
+<main>
+  <section class="card" aria-label="Simulations" style="padding:8px">
+    <div class="sims" id="sims" role="list"></div>
+  </section>
+
+  <section class="card" aria-labelledby="simTitle">
+    <div class="head">
+      <div><h2 id="simTitle"></h2><p id="simBlurb"></p></div>
+      <div class="bar">
+        <button class="btn primary" id="actBtn" type="button" hidden></button>
+        <button class="btn" id="playBtn" type="button"></button>
+        <button class="btn" id="resetBtn" type="button"></button>
+        <label class="keys" for="speed" id="speedLbl">Speed</label>
+        <select id="speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
+      </div>
+    </div>
+    <div class="stage" id="stage"><canvas id="cv" role="img"></canvas></div>
+    <p class="keys" id="keys" style="margin:8px 0 0"></p>
+  </section>
+
+  <section class="side-r" style="display:flex;flex-direction:column;gap:16px">
+    <div class="card"><div class="lbl" id="ctlLbl">Controls</div><div class="ctl" id="ctl"></div></div>
+    <div class="card"><div class="lbl" id="outLbl">Live values</div><table><tbody id="out"></tbody></table></div>
+  </section>
+</main>
+
+<script src="/web/physics.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const SIMS = window.PHYSICS_SIMS;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const S = { lang: "en", sim: SIMS[0], p: {}, st: null, playing: !reduce, speed: 1, colors: null, lastOut: 0 };
+  const T = {
+    en: { title: "Physics Lab", play: "❚❚ Pause", resume: "▶ Play", reset: "↺ Reset", speed: "Speed", ctl: "Controls", out: "Live values",
+          keys: "Space: play / pause · R: reset · Enter: action · sliders work with the arrow keys" },
+    hi: { title: "भौतिकी प्रयोगशाला", play: "❚❚ रोकें", resume: "▶ चलाएँ", reset: "↺ फिर से", speed: "गति", ctl: "नियंत्रण", out: "लाइव मान",
+          keys: "Space: चलाएँ / रोकें · R: फिर से · Enter: क्रिया · स्लाइडर तीर कुंजियों से भी चलते हैं" },
+  };
+  const t = (k) => T[S.lang][k];
+  const tr = (o) => (o == null ? "" : typeof o === "string" ? o : o[S.lang] || o.en);
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    Object.entries(props || {}).forEach(([k, v]) => {
+      if (v == null || v === false) return;
+      if (k === "class") el.className = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v);
+    });
+    kids.flat(Infinity).forEach((c) => c != null && c !== false && el.append(c.nodeType ? c : document.createTextNode(String(c))));
+    return el;
+  }
+  const fill = (el, ...kids) => el.replaceChildren(...kids.flat(Infinity).filter((k) => k != null && k !== false));
+
+  function readColors() {
+    const s = getComputedStyle(document.documentElement), v = (n, d) => s.getPropertyValue(n).trim() || d;
+    S.colors = { ink: v("--ink", "#e6f0ff"), muted: v("--muted", "#93a6c4"), line: v("--line", "rgba(120,170,255,.15)"), grid: v("--grid", "rgba(120,170,255,.06)"),
+                 accent: v("--accent", "#38bdf8"), accent2: v("--accent-2", "#a78bfa"), ok: v("--ok", "#3fb950"), warn: v("--warn", "#d29922") };
+  }
+
+  // ---------------------------------------------------------------- choosing a simulation
+  function renderSims() {
+    fill($("sims"), SIMS.map((s) => h("button", { class: "sim", type: "button", role: "listitem", "aria-current": String(s === S.sim), onclick: () => choose(s.id) },
+      h("span", { class: "ic", "aria-hidden": "true" }, s.icon), tr(s.title))));
+  }
+  function choose(id) {
+    S.sim = SIMS.find((s) => s.id === id) || SIMS[0];
+    S.p = {};
+    S.sim.params.forEach((q) => (S.p[q.k] = q.v));
+    (S.sim.options || []).forEach((o) => (S.p[o.k] = o.v));
+    history.replaceState(null, "", `#${S.sim.id}`);
+    reset();
+    renderAll();
+  }
+  function reset() {
+    S.st = S.sim.init(S.p);
+    S.st.lang = S.lang;
+    if (S.sim.action && S.sim.id === "projectile") S.sim.act(S.st, S.p);   // first shot right away
+  }
+  function renderAll() {
+    renderSims();
+    $("simTitle").textContent = tr(S.sim.title);
+    $("simBlurb").textContent = tr(S.sim.blurb);
+    $("cv").setAttribute("aria-label", tr(S.sim.title));
+    $("actBtn").hidden = !S.sim.action;
+    if (S.sim.action) $("actBtn").textContent = tr(S.sim.action);
+    $("playBtn").hidden = !!S.sim.still;
+    $("cv").classList.toggle("draggable", !!S.sim.pointer);
+    renderControls(); renderPlay(); renderOut(true);
+  }
+  function renderPlay() { $("playBtn").textContent = S.playing ? t("play") : t("resume"); }
+
+  // ---------------------------------------------------------------- controls
+  const LIVE = new Set(["projectile", "circuit", "lens"]);          // change parameters without restarting
+  function onParam() {
+    if (!LIVE.has(S.sim.id)) { reset(); }
+    else if (S.sim.id === "projectile") { const th = S.sim.theory(S.p); S.st.scaleR = Math.max(S.st.scaleR, th.R * 1.12); S.st.scaleH = Math.max(S.st.scaleH, th.H * 1.25); }
+    renderOut(true);
+  }
+  function renderControls() {
+    const rows = S.sim.params.map((q) => {
+      const id = `p-${q.k}`, out = h("output", { for: id });
+      const r = h("input", { type: "range", id, min: q.min, max: q.max, step: q.step });
+      r.value = String(S.p[q.k]);
+      const show = () => { out.textContent = `${S.p[q.k]} ${q.unit}`; };
+      r.addEventListener("input", () => { S.p[q.k] = Number(r.value); show(); onParam(); });
+      show();
+      q._sync = () => { r.value = String(S.p[q.k]); show(); };
+      return h("div", { class: "param" }, h("label", { for: id }, h("span", {}, tr(q.label)), out), r,
+        q.presets ? h("div", { class: "presets" }, q.presets.map(([v, lab]) => h("button", { type: "button",
+          onclick: () => { S.p[q.k] = Number(v); q._sync(); onParam(); } }, `${tr(lab)} ${v}`))) : null);
+    });
+    const opts = (S.sim.options || []).map((o) => h("div", { class: "param" }, h("label", {}, tr(o.label)),
+      h("div", { class: "seg", role: "group", "aria-label": tr(o.label) }, o.choices.map(([v, lab]) => h("button", { type: "button", "aria-pressed": String(S.p[o.k] === v),
+        onclick: () => { S.p[o.k] = v; renderControls(); onParam(); } }, tr(lab))))));
+    fill($("ctl"), opts, rows);
+  }
+  function renderOut(force) {
+    const now = performance.now();
+    if (!force && now - S.lastOut < 120) return;          // ~8 updates a second is plenty to read
+    S.lastOut = now;
+    const rows = S.sim.readouts(S.st, S.p);
+    fill($("out"), rows.map(([lab, val, form]) => [
+      h("tr", {}, h("td", {}, tr(lab)), h("td", { class: "v" }, tr(val))),
+      tr(form) ? h("tr", { class: "formula" }, h("td", { class: "f", colspan: "2" }, tr(form))) : null]));
+  }
+
+  // ---------------------------------------------------------------- animation loop
+  const cv = $("cv"), ctx = cv.getContext("2d");
+  let W = 0, H = 0, last = 0;
+  function resize() {
+    const r = $("stage").getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+    W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  new ResizeObserver(resize).observe($("stage"));
+  function frame(now) {
+    const real = last ? Math.min(0.05, (now - last) / 1000) : 0;
+    last = now;
+    if (S.playing && !S.sim.still) {
+      const sub = 1 / 240;
+      let left = real * S.speed;
+      while (left > 1e-9) { const dt = Math.min(sub, left); S.sim.step(S.st, S.p, dt); left -= dt; }
+    }
+    ctx.clearRect(0, 0, W, H);
+    S.sim.draw(ctx, W, H, S.st, S.p, S.colors);
+    renderOut(false);
+    requestAnimationFrame(frame);
+  }
+
+  // ---------------------------------------------------------------- pointer (dragging, e.g. the lens object)
+  const local = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  cv.addEventListener("pointerdown", (e) => { if (S.sim.pointer && S.sim.pointer.down(S.st, S.p, ...local(e), W, H)) cv.setPointerCapture(e.pointerId); });
+  cv.addEventListener("pointermove", (e) => {
+    if (S.sim.pointer && S.sim.pointer.move(S.st, S.p, ...local(e), W, H)) { S.sim.params.forEach((q) => q._sync && q._sync()); renderOut(true); }
+  });
+  cv.addEventListener("pointerup", () => S.sim.pointer && S.sim.pointer.up(S.st, S.p));
+
+  // ---------------------------------------------------------------- buttons, keys, language, theme
+  $("playBtn").onclick = () => { S.playing = !S.playing; renderPlay(); };
+  $("resetBtn").onclick = () => { reset(); renderOut(true); };
+  $("actBtn").onclick = () => { S.sim.act(S.st, S.p); S.playing = true; renderPlay(); };
+  $("speed").onchange = (e) => { S.speed = Number(e.target.value); };
+  document.addEventListener("keydown", (e) => {
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) && document.activeElement.type !== "range") return;
+    if (e.key === " " && document.activeElement.tagName !== "BUTTON") { e.preventDefault(); $("playBtn").click(); }
+    if (e.key.toLowerCase() === "r" && !e.ctrlKey && !e.metaKey) $("resetBtn").click();
+    if (e.key === "Enter" && S.sim.action && document.activeElement.tagName !== "BUTTON") $("actBtn").click();
+  });
+  function applyLang(l) {
+    S.lang = T[l] ? l : "en";
+    try { localStorage.setItem("iav-formula-lang", S.lang); } catch (_) {}
+    document.documentElement.lang = S.lang; document.title = t("title") + " · Quantix";
+    $("tTitle").textContent = t("title"); $("resetBtn").textContent = t("reset"); $("speedLbl").textContent = t("speed");
+    $("ctlLbl").textContent = t("ctl"); $("outLbl").textContent = t("out"); $("keys").textContent = t("keys");
+    document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === S.lang)));
+    if (S.st) S.st.lang = S.lang;
+    renderAll();
+  }
+  document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
+  const root = document.documentElement;
+  try { const th = localStorage.getItem("iav-theme"); if (th) root.dataset.theme = th; } catch (_) {}
+  $("themeBtn").onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("iav-theme", root.dataset.theme); } catch (_) {}
+    readColors();
+  };
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", readColors);
+
+  readColors();
+  const start = SIMS.find((s) => s.id === location.hash.slice(1)) || SIMS[0];
+  S.sim = start;
+  let lang = new URLSearchParams(location.search).get("lang");
+  try { lang = lang || localStorage.getItem("iav-formula-lang"); } catch (_) {}
+  S.lang = T[lang] ? lang : "en";
+  choose(start.id);
+  applyLang(S.lang);
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+<script src="/web/sci_bg.js"></script>
+<script src="/web/site.js"></script>
+</body>
+</html>
