@@ -214,14 +214,33 @@ def quantix_call(name, args_json):
   };
 
   // ------------------------------------------------------------------ PDF links -> pre-made files
+  // Every PDF link is pointed straight at its file as soon as the index loads (and again whenever a page builds or
+  // changes one), so a click is a plain download link in every browser. A download started after an `await` loses
+  // the click's "user gesture" and some browsers then block it silently — the click handler below is only a
+  // fallback for a click before the index has arrived.
+  const PDF_LINK = 'a[href*="/api/v1/formulas/pdf"]';
+  const pdfKey = (href) => {
+    const p = new URL(href, location.href).searchParams;
+    if (p.get("lang") === "en") p.delete("lang");
+    return [...p.entries()].sort().map(([k, v]) => `${k}=${v}`).join("&");
+  };
+  let pdfIdx = null;
+  const fixPdfLinks = () => {
+    if (!pdfIdx) return;
+    document.querySelectorAll(PDF_LINK).forEach((a) => {
+      const f = pdfIdx[pdfKey(a.href)];
+      if (f) { a.href = f.url; a.download = f.name; }
+    });
+  };
+  getJSON("/static-api/pdf-index.json").then((idx) => { pdfIdx = idx; fixPdfLinks(); }).catch(() => {});
+  new MutationObserver(fixPdfLinks).observe(document.documentElement,
+    { subtree: true, childList: true, attributes: true, attributeFilter: ["href"] });
   document.addEventListener("click", async (e) => {
-    const a = e.target.closest && e.target.closest('a[href*="/api/v1/formulas/pdf"]');
+    const a = e.target.closest && e.target.closest(PDF_LINK);
     if (!a) return;
     e.preventDefault();
-    const u = new URL(a.href, location.href), p = u.searchParams;
-    if (p.get("lang") === "en") p.delete("lang");
-    const key = [...p.entries()].sort().map(([k, v]) => `${k}=${v}`).join("&");
-    const idx = await getJSON("/static-api/pdf-index.json").catch(() => ({}));
+    const key = pdfKey(a.href);
+    const idx = pdfIdx || await getJSON("/static-api/pdf-index.json").catch(() => ({}));
     const f = idx[key];
     if (!f) { toast("PDF not found"); setTimeout(() => toast(""), 2500); return; }
     const dl = document.createElement("a");

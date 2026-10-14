@@ -118,7 +118,10 @@ def build(out: Path) -> Path:
                     continue
                 name = re.search(r'filename="([^"]+)"', r.headers.get("content-disposition", "")).group(1)
                 key = "&".join(f"{k}={v}" for k, v in sorted(params.items()))
-                fname = re.sub(r"[^A-Za-z0-9._-]", "_", key) + ".pdf"
+                # stored under its real name (e.g. algebra_hi.pdf): static hosts send the file name as the download name
+                fname = re.sub(r"[^A-Za-z0-9._-]", "_", name)
+                if (pdf_dir / fname).exists():
+                    fname = re.sub(r"[^A-Za-z0-9._-]", "_", key) + ".pdf"
                 (pdf_dir / fname).write_bytes(r.content)
                 index[key] = {"url": f"/pdf/{fname}", "name": name}
         (sa / "pdf-index.json").write_text(json.dumps(index, ensure_ascii=False), encoding="utf-8")
