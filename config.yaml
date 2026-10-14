@@ -47,6 +47,7 @@ contact:
   smtp_host: smtp.gmail.com
   smtp_port: 587
   inbox_url: http://127.0.0.1:8000/contact/inbox
+  web3forms_key: 4f093b17-69b9-4108-bbf1-86aab96f2dfb   # live static site's contact form (Web3Forms; public by design)
 
 # Social-media links: shown as icons in the footer of every page and as "Follow us" on the Contact page.
 # Paste the full profile link or just the username; leave empty to hide. Changes show after a browser refresh.

@@ -158,13 +158,14 @@ def quantix_call(name, args_json):
     }
     const d = new Date(), ticket = `AVL-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
     const topic = TOPICS[b.topic] || TOPICS.general;
+    // sent as form data, not JSON: a "simple" cross-site request needs no CORS preflight, which Web3Forms' firewall drops
+    const fd = new FormData();
+    Object.entries({ access_key: s.form_key, subject: `[Quantix] ${ticket} · ${topic} · ${String(b.name).slice(0, 60)}`,
+      from_name: "Quantix", replyto: b.email, name: b.name, email: b.email, phone: b.phone || "", topic,
+      subject_line: b.subject || "", message: b.message, page: b.page || location.pathname, ticket, language: b.lang || "en" })
+      .forEach(([k, v]) => fd.append(k, String(v ?? "")));
     try {
-      const r = await realFetch("https://api.web3forms.com/submit", {
-        method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ access_key: s.form_key, subject: `[Quantix] ${ticket} · ${topic} · ${String(b.name).slice(0, 60)}`,
-          from_name: "Quantix", replyto: b.email, name: b.name, email: b.email, phone: b.phone || "", topic,
-          subject_line: b.subject || "", message: b.message, page: b.page || location.pathname, ticket, language: b.lang || "en" }),
-      });
+      const r = await realFetch("https://api.web3forms.com/submit", { method: "POST", body: fd, headers: { Accept: "application/json" } });
       const j = await r.json().catch(() => ({}));
       if (!j.success) throw new Error(j.message || r.status);
     } catch (e) {
