@@ -15,6 +15,7 @@ import json
 import keyword
 import math
 import re
+import sys
 import unicodedata
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
 from functools import lru_cache
@@ -324,7 +325,8 @@ def describe(text: str, *, category: str | None = None, section_vars: dict | Non
 
 
 # ------------------------------------------------------------------ solve
-_pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="formula-solve")
+IN_BROWSER = sys.platform == "emscripten"            # running inside Pyodide on the static site
+_pool = None if IN_BROWSER else ThreadPoolExecutor(max_workers=2, thread_name_prefix="formula-solve")
 
 
 @lru_cache(maxsize=2048)
@@ -337,6 +339,8 @@ def _symbolic(text: str, eq_index: int, target: str):
 
 
 def _run(fn, *a):
+    if IN_BROWSER:                                   # Pyodide (static site): no threads, so no timeout guard
+        return fn(*a)
     try:
         return _pool.submit(fn, *a).result(timeout=SOLVE_TIMEOUT_S)
     except FutureTimeout:

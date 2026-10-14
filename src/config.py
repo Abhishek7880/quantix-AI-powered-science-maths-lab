@@ -85,6 +85,9 @@ class ContactConfig:
     smtp_host: str = "smtp.gmail.com"
     smtp_port: int = 587
     inbox_url: str = "http://127.0.0.1:8000/contact/inbox"
+    # Static "Quantix Lite" site only (tools/build_static.py): Web3Forms access key — the form service that emails
+    # contact messages when there is no server. Public by design (it can only send to your own inbox).
+    web3forms_key: str = ""
 
 
 @dataclass
