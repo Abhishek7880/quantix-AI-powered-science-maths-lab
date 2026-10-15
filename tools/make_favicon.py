@@ -47,7 +47,38 @@ def atom(size: int, tile: bool = False) -> Image.Image:
     return img.resize((size, size), Image.LANCZOS)
 
 
+def share_card() -> Image.Image:
+    """1200x630 link-preview image (WhatsApp, LinkedIn, X…): atom + name + tagline on the site's dark gradient."""
+    from PIL import ImageFont
+    W, H = 1200, 630
+    img = Image.new("RGB", (W, H), BG)
+    px = img.load()
+    for y in range(H):                                              # soft blue -> violet glow across the dark page
+        for x in range(0, W, 2):
+            g = max(0.0, 1 - math.hypot(x - 330, y - 315) / 520) ** 2
+            v = max(0.0, 1 - math.hypot(x - 1050, y - 80) / 600) ** 2
+            c = tuple(int(BG[i] + g * (BLUE[i] - BG[i]) * 0.35 + v * (VIOLET[i] - BG[i]) * 0.25) for i in range(3))
+            px[x, y] = c
+            if x + 1 < W:
+                px[x + 1, y] = c
+    img = img.convert("RGBA")
+    img.alpha_composite(atom(420), (120, 105))
+    d = ImageDraw.Draw(img)
+    fonts = Path("C:/Windows/Fonts")
+    bold = ImageFont.truetype(str(fonts / "segoeuib.ttf"), 112)
+    semi = ImageFont.truetype(str(fonts / "seguisb.ttf"), 38)
+    small = ImageFont.truetype(str(fonts / "segoeui.ttf"), 30)
+    d.text((600, 150), "Quant", font=bold, fill=(230, 240, 255))
+    d.text((600 + d.textlength("Quant", font=bold), 150), "ix", font=bold, fill=BLUE)
+    d.text((604, 290), "AI-powered science & maths lab", font=semi, fill=(186, 230, 253))
+    for i, line in enumerate(("1,022 formulas · step-by-step calculator", "Periodic table · physics simulations",
+                              "Measure from photos · equation solver", "Free · English & Hindi")):
+        d.text((604, 362 + i * 44), line, font=small, fill=(147, 166, 196))
+    return img.convert("RGB")
+
+
 if __name__ == "__main__":
+    share_card().save(WEB / "og-image.png", optimize=True)
     big = atom(256)
     big.save(WEB / "favicon.ico", sizes=[(16, 16), (32, 32), (48, 48)])
     atom(32).save(WEB / "favicon-32.png")
