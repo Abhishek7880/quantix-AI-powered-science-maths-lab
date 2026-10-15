@@ -45,11 +45,12 @@ def ssh(target: str, command: str, check: bool = True, quiet: bool = False) -> s
     return r
 
 
-def env_file(site_host: str) -> str:
+def env_file(site_host: str, also: str | None = None) -> str:
     ADMIN_KEY_FILE.parent.mkdir(exist_ok=True)
     if not ADMIN_KEY_FILE.is_file():
         ADMIN_KEY_FILE.write_text(secrets.token_urlsafe(24), encoding="utf-8")
-    lines = [f"SITE_HOST={site_host}", f"IAV_ADMIN_TOKEN={ADMIN_KEY_FILE.read_text(encoding='utf-8').strip()}",
+    hosts = site_host + (f", {also}" if also and also != site_host else "")   # Caddy serves (and certifies) each
+    lines = [f"SITE_HOST={hosts}", f"IAV_ADMIN_TOKEN={ADMIN_KEY_FILE.read_text(encoding='utf-8').strip()}",
              f"IAV_INBOX_URL=https://{site_host}/contact/inbox"]
     notify = (load_config().contact.notify_to or "").strip()
     if notify:
@@ -71,7 +72,8 @@ def main() -> None:
     if not KEY.is_file():
         sys.exit(f"SSH key {KEY} not found.")
     target = f"{a.user}@{a.host}"
-    site_host = a.domain or f"{a.host.replace('.', '-')}.sslip.io"
+    ip_name = f"{a.host.replace('.', '-')}.sslip.io"
+    site_host = a.domain or ip_name                 # main address (links in emails use this one)
 
     print(f"== 1/5 connecting to {target}")
     ssh(target, "echo connected: $(uname -m) $(. /etc/os-release; echo $PRETTY_NAME)")
@@ -97,7 +99,7 @@ def main() -> None:
                 if p.is_file():
                     tar.add(p, arcname=p.relative_to(folder).as_posix())
         envp = Path(tmp) / "env"
-        envp.write_text(env_file(site_host), encoding="utf-8", newline="\n")
+        envp.write_text(env_file(site_host, also=ip_name), encoding="utf-8", newline="\n")
         subprocess.run(["scp", *SSH_OPTS, str(tgz), str(envp), f"{target}:/tmp/"], check=True)
     ssh(target, f"set -e; mkdir -p ~/{REMOTE}/data; cd ~/{REMOTE}; "
                 "find . -mindepth 1 -maxdepth 1 ! -name data ! -name .env -exec rm -rf {} +; "
