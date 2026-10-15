@@ -70,3 +70,8 @@ author:
   email: abhishekyadav24991@gmail.com
   phone: "+91 7080397264"        # delete this line to hide the number on the public site
   url: https://github.com/Abhishek7880
+
+# Public site settings (sitemap.xml, Google Search Console)
+site:
+  public_url: https://quantix-ai-abhi.duckdns.org
+  google_verification: ""     # file name from Google Search Console, e.g. google1a2b3c4d5e6f7a8b.html

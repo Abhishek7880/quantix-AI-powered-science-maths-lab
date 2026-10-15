@@ -34,6 +34,7 @@ LINK = re.compile(rf"""(["'`(])/({ROUTES})(?=["'`?#)])""")      # "/formulas" ->
 PY_FILES = ["src/__init__.py", "src/errors.py", "src/formula_calc.py", "src/eqsolve.py", "src/chemistry.py",
             "src/knowledge/elements.json", "src/knowledge/formulas/calc_glossary.json"]
 REPO = "https://github.com/Abhishek7880/quantix-AI-powered-science-maths-lab"
+STATIC_URL = "https://abhishek7080-quantix.static.hf.space"
 
 
 def data_name(url: str) -> str:
@@ -139,6 +140,15 @@ def build(out: Path) -> Path:
                                               "contact_email": author_email, "github": REPO, "version": version}),
                                   encoding="utf-8")
     shutil.copy2(ROOT / "deploy" / "static" / "README.md", out / "README.md")
+
+    # favicon at the root + files search engines read (pages here end in .html)
+    shutil.copy2(ROOT / "src" / "web" / "favicon.ico", out / "favicon.ico")
+    base = STATIC_URL.rstrip("/")
+    pages = ["/"] + [f"/{p}.html" for p in PAGES if p != "index"]
+    (out / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /static-api/\nDisallow: /py/\n\nSitemap: {base}/sitemap.xml\n",
+                                    encoding="utf-8")
+    (out / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+                                     + "".join(f"  <url><loc>{base}{p}</loc></url>\n" for p in pages) + "</urlset>\n", encoding="utf-8")
     check(out, cfg)
     return out
 

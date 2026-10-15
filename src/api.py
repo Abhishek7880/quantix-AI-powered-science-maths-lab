@@ -29,6 +29,7 @@ import base64
 import json
 import logging
 import os
+import re
 import subprocess
 import sys
 import threading
@@ -248,6 +249,50 @@ def upload_page():
         raise ResourceNotFoundError("Upload page not found (src/web/index.html).", error_code="PAGE_NOT_FOUND",
                                     error_title="Page not found")
     return FileResponse(page, media_type="text/html")
+
+
+# ---- site files browsers and search engines ask for at the root
+SITEMAP_PAGES = ["/", "/formulas", "/elements", "/physics", "/handwriting", "/measure", "/converter", "/graph", "/contact"]
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return FileResponse(WEB_DIR / "favicon.ico", media_type="image/x-icon", headers={"Cache-Control": "public, max-age=604800"})
+
+
+def _site_url(request: Request) -> str:
+    try:
+        url = load_config().site.public_url.strip()
+    except (OSError, ValueError):
+        url = ""
+    return (url or str(request.base_url)).rstrip("/")
+
+
+@app.get("/robots.txt", include_in_schema=False)
+def robots_txt(request: Request):
+    body = (f"User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /contact/inbox\nDisallow: /docs\n\n"
+            f"Sitemap: {_site_url(request)}/sitemap.xml\n")
+    return Response(body, media_type="text/plain")
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+def sitemap_xml(request: Request):
+    base = _site_url(request)
+    urls = "".join(f"  <url><loc>{base}{p}</loc></url>\n" for p in SITEMAP_PAGES)
+    return Response(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n',
+                    media_type="application/xml")
+
+
+@app.get("/{name}.html", include_in_schema=False)
+def google_verification_file(name: str):
+    """Google Search Console ownership check: serves exactly the file named in config.yaml site.google_verification."""
+    try:
+        wanted = load_config().site.google_verification.strip()
+    except (OSError, ValueError):
+        wanted = ""
+    if not wanted or f"{name}.html" != wanted or not re.fullmatch(r"google[0-9a-f]{8,32}\.html", wanted):
+        raise StarletteHTTPException(status_code=404, detail="Not Found")
+    return Response(f"google-site-verification: {wanted}", media_type="text/html")
 
 
 @app.get("/graph", include_in_schema=False)

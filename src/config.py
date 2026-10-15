@@ -91,6 +91,14 @@ class ContactConfig:
 
 
 @dataclass
+class SiteConfig:
+    # Public address of the hosted site, for sitemap.xml (empty = the address the visitor used).
+    public_url: str = ""
+    # Google Search Console "HTML file" verification: the file name Google gives, e.g. "google1a2b3c4d5e6f7a8b.html".
+    google_verification: str = ""
+
+
+@dataclass
 class AuthorConfig:
     # The signature in every page footer. Empty fields are not shown. Checked in src/social.py.
     name: str = ""
@@ -131,6 +139,7 @@ class AppConfig:
     contact: ContactConfig = field(default_factory=ContactConfig)
     social: SocialConfig = field(default_factory=SocialConfig)
     author: AuthorConfig = field(default_factory=AuthorConfig)
+    site: SiteConfig = field(default_factory=SiteConfig)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
