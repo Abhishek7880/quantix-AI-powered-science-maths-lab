@@ -74,4 +74,4 @@ author:
 # Public site settings (sitemap.xml, Google Search Console)
 site:
   public_url: https://quantix-ai-abhi.duckdns.org
-  google_verification: ""     # file name from Google Search Console, e.g. google1a2b3c4d5e6f7a8b.html
+  google_verification: google2c23f21c9ee9b3d5.html   # Google Search Console (URL prefix, HTML file)
