@@ -11,5 +11,13 @@
 		Referrer-Policy "strict-origin-when-cross-origin"
 		-Server
 	}
-	reverse_proxy app:7860
+	# Learn pages (tools/build_seo_pages.py) and their sitemap: plain files, served without touching the app
+	@learn path /learn /learn/* /hi/learn /hi/learn/* /sitemap.xml
+	handle @learn {
+		root * /srv/seo
+		file_server
+	}
+	handle {
+		reverse_proxy app:7860
+	}
 }

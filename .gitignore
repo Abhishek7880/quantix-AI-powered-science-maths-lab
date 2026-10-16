@@ -39,3 +39,6 @@ secrets/
 # local / generated
 *.log
 .claude/
+
+# generated Learn pages (tools/build_seo_pages.py)
+build/

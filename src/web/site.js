@@ -9,10 +9,13 @@
                 ["/converter", "Converter", "Unit Converter"], ["/graph", "Graphs", "Graph Plotter"]];
   const FOOT = {
     en: { tag: "AI-powered science & maths lab", contact: "Contact us", sub: "Questions, ideas or a bug? We read every message.", top: "↑ Top", skip: "Skip to content",
-          follow: "Follow us", social: "Social media", newTab: "opens in a new tab", by: "Designed & built by" },
+          follow: "Follow us", social: "Social media", newTab: "opens in a new tab", by: "Designed & built by",
+          learn: "📚 Learn:", lf: "Formulas", le: "Elements", lc: "Unit conversions" },
     hi: { tag: "AI-संचालित विज्ञान और गणित लैब", contact: "संपर्क करें", sub: "प्रश्न, सुझाव या गड़बड़ी? हम हर संदेश पढ़ते हैं।", top: "↑ ऊपर", skip: "मुख्य सामग्री पर जाएँ",
-          follow: "हमें फ़ॉलो करें", social: "सोशल मीडिया", newTab: "नए टैब में खुलता है", by: "रचना एवं निर्माण" },
+          follow: "हमें फ़ॉलो करें", social: "सोशल मीडिया", newTab: "नए टैब में खुलता है", by: "रचना एवं निर्माण",
+          learn: "📚 सीखें:", lf: "सूत्र", le: "तत्व", lc: "मात्रक रूपांतरण" },
   };
+  const LEARN_BASE = "";   // Learn pages live on the main site; the static Lite build sets its full address here
   const root = document.documentElement;
   const AUTHOR = { name: "Abhishek Yadav", url: "https://github.com/Abhishek7880" };   // signature in every footer
 
@@ -57,7 +60,8 @@
             <path d="M3 11 C 45 3, 95 14, 140 7 S 190 4, 197 9"/>
             <path class="spark" d="M3 11 C 45 3, 95 14, 140 7 S 190 4, 197 9"/></svg></span></a>
       <span class="sf-role" hidden></span><span class="sf-reach" hidden></span></div>
-    <div class="sf-mid"><span class="sf-sub"></span> <a class="sf-contact" href="/contact">✉ <span></span></a></div>
+    <div class="sf-mid"><span class="sf-sub"></span> <a class="sf-contact" href="/contact">✉ <span></span></a>
+      <nav class="sf-learn" aria-label="Learn"><b></b> <a data-l="lf"></a> · <a data-l="le"></a> · <a data-l="lc"></a></nav></div>
     <div class="sf-end"><nav class="sf-social" hidden></nav><span>© ${new Date().getFullYear()}</span><a class="sf-top" href="#">↑</a></div>`;
   document.body.append(foot);
   foot.querySelector(".sf-top").addEventListener("click", (e) => { e.preventDefault(); scrollTo({ top: 0, behavior: "smooth" }); });
@@ -138,6 +142,10 @@
     foot.querySelector(".sf-contact span").textContent = L.contact;
     foot.querySelector(".sf-top").textContent = L.top;
     foot.querySelector(".sf-by").textContent = L.by;
+    const hi = root.lang === "hi" ? "/hi" : "";       // Hindi Learn pages exist for formulas and elements
+    const learnHref = { lf: `${hi}/learn/formulas/`, le: `${hi}/learn/elements/`, lc: "/learn/convert/" };
+    foot.querySelector(".sf-learn b").textContent = L.learn;
+    foot.querySelectorAll(".sf-learn a").forEach((a) => { a.textContent = L[a.dataset.l]; a.href = LEARN_BASE + learnHref[a.dataset.l]; });
     foot.querySelector(".sf-sign").setAttribute("aria-label", `${L.by} ${AUTHOR.name} — GitHub (${L.newTab})`);
     skip.textContent = L.skip;
   }

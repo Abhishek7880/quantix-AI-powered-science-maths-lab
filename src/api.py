@@ -275,8 +275,13 @@ def robots_txt(request: Request):
     return Response(body, media_type="text/plain")
 
 
+SEO_DIR = PROJECT_ROOT / "build" / "seo"           # Learn pages from tools/build_seo_pages.py (Caddy serves them online)
+
+
 @app.get("/sitemap.xml", include_in_schema=False)
 def sitemap_xml(request: Request):
+    if (SEO_DIR / "sitemap.xml").is_file():          # the full sitemap, including every Learn page
+        return FileResponse(SEO_DIR / "sitemap.xml", media_type="application/xml")
     base = _site_url(request)
     urls = "".join(f"  <url><loc>{base}{p}</loc></url>\n" for p in SITEMAP_PAGES)
     return Response(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n',
@@ -674,6 +679,10 @@ def formulas_category(category: str, lang: str = Query("en", description="langua
 
 
 app.mount("/web", StaticFiles(directory=WEB_DIR), name="web")   # page scripts (3D viewer, vendored three.js)
+# Learn pages, for previewing on this PC (online, Caddy serves build/seo directly and never reaches the app)
+for _prefix, _sub in (("/learn", "learn"), ("/hi/learn", "hi/learn")):
+    if (SEO_DIR / _sub).is_dir():
+        app.mount(_prefix, StaticFiles(directory=SEO_DIR / _sub, html=True), name=f"seo-{_sub.replace('/', '-')}")
 
 
 @app.get(f"{API_PREFIX}/health", tags=["system"])

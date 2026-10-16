@@ -72,7 +72,11 @@ def build(out: Path) -> Path:
         (out / f"{name}.html").write_text(rewrite_links(html), encoding="utf-8")
     for f in (out / "web").glob("*.js"):
         if f.name != "static_api.js":
-            f.write_text(rewrite_links(f.read_text(encoding="utf-8")), encoding="utf-8")
+            text = rewrite_links(f.read_text(encoding="utf-8"))
+            if f.name == "site.js":                     # Learn pages exist only on the main site
+                main_url = (load_config().site.public_url or "").rstrip("/")
+                text = text.replace('const LEARN_BASE = "";', f'const LEARN_BASE = {json.dumps(main_url)};')
+            f.write_text(text, encoding="utf-8")
 
     print("== API answers (from the real app)")
     sa = out / "static-api"

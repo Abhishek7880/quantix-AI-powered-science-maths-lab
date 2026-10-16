@@ -82,6 +82,9 @@ def main() -> None:
     folder = build(DEFAULT_OUT)
     for name in ("docker-compose.yml", "Caddyfile"):
         shutil.copy2(ROOT / "deploy" / "oracle" / name, folder / name)
+    import build_seo_pages                          # fresh Learn pages + full sitemap, served by Caddy from ./seo
+    build_seo_pages.main()
+    shutil.copytree(build_seo_pages.OUT, folder / "seo")
 
     print("== 3/5 preparing the server (first time takes a few minutes)")
     if ssh(target, "command -v docker >/dev/null && docker compose version >/dev/null", check=False, quiet=True).returncode:

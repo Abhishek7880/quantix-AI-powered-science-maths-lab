@@ -19,15 +19,22 @@ def test_favicon_and_icons():
         assert 'href="/web/favicon.svg"' in client.get(page).text, page
 
 
-def test_robots_and_sitemap_use_public_url(monkeypatch):
+def test_robots_and_sitemap_use_public_url(monkeypatch, tmp_path):
     c = AppConfig()
     c.site.public_url = "https://quantix.example.org/"
     monkeypatch.setattr(api, "load_config", lambda: c)
+    monkeypatch.setattr(api, "SEO_DIR", tmp_path)          # no generated Learn sitemap -> the built-in one
     robots = client.get("/robots.txt").text
     assert "Disallow: /api/" in robots and "Sitemap: https://quantix.example.org/sitemap.xml" in robots
     sm = client.get("/sitemap.xml")
     assert sm.headers["content-type"].startswith("application/xml")
     assert "<loc>https://quantix.example.org/formulas</loc>" in sm.text and "/contact/inbox" not in sm.text
+
+
+def test_generated_sitemap_wins_when_present(monkeypatch, tmp_path):
+    (tmp_path / "sitemap.xml").write_text("<urlset><url><loc>https://x/learn/</loc></url></urlset>", encoding="utf-8")
+    monkeypatch.setattr(api, "SEO_DIR", tmp_path)
+    assert "https://x/learn/" in client.get("/sitemap.xml").text
 
 
 def test_google_verification_file_only_when_configured(monkeypatch):

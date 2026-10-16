@@ -132,6 +132,9 @@ input[type=range] { accent-color: var(--accent); }
 .site-foot .sf-contact:hover { transform: translateY(-1px); }
 .site-foot .sf-end { display: flex; gap: 12px; align-items: center; font: 12.5px var(--f-mono); color: var(--muted); }
 .site-foot .sf-top { color: var(--muted); text-decoration: none; }
+.site-foot .sf-learn { flex-basis: 100%; text-align: center; font-size: 13px; color: var(--muted); }
+.site-foot .sf-learn a { color: var(--accent); text-decoration: none; }
+.site-foot .sf-learn a:hover { text-decoration: underline; }
 .site-foot .sf-top:hover { color: var(--accent); }
 /* author signature (site.js): handwriting that "writes itself" + an underline swoosh, once, when first seen */
 .site-foot .sf-sign { display: inline-flex; align-items: baseline; gap: 8px; margin-top: 8px; text-decoration: none; color: var(--muted); }

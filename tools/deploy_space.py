@@ -61,7 +61,7 @@ def build(out: Path) -> Path:
     cfg_text = re.sub(r"(?m)^(\s*inbox_url:)\s*\S+.*$", r'\1 ""                # set by the IAV_INBOX_URL variable', cfg_text)
     cfg_text = re.sub(r"(?m)^device:\s*\S+", "device: cpu", cfg_text)
     (out / "config.yaml").write_text(cfg_text, encoding="utf-8")
-    (out / ".dockerignore").write_text("__pycache__\n*.pyc\n", encoding="utf-8")
+    (out / ".dockerignore").write_text("__pycache__\n*.pyc\nseo\n", encoding="utf-8")   # seo/ is served by Caddy, not the app
     check(out)
     return out
 
