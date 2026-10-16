@@ -37,6 +37,16 @@ def test_generated_sitemap_wins_when_present(monkeypatch, tmp_path):
     assert "https://x/learn/" in client.get("/sitemap.xml").text
 
 
+def test_indexnow_key_file(monkeypatch):
+    c = AppConfig()
+    monkeypatch.setattr(api, "load_config", lambda: c)
+    assert client.get("/3111d8a7466ecc66de5f2eb83f19432f.txt").status_code == 404     # not configured
+    c.site.indexnow_key = "3111d8a7466ecc66de5f2eb83f19432f"
+    r = client.get("/3111d8a7466ecc66de5f2eb83f19432f.txt")
+    assert r.status_code == 200 and r.text == "3111d8a7466ecc66de5f2eb83f19432f"
+    assert client.get("/robots2.txt").status_code == 404 and client.get("/robots.txt").status_code == 200
+
+
 def test_google_verification_file_only_when_configured(monkeypatch):
     c = AppConfig()
     monkeypatch.setattr(api, "load_config", lambda: c)

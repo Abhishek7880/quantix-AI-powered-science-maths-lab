@@ -288,6 +288,18 @@ def sitemap_xml(request: Request):
                     media_type="application/xml")
 
 
+@app.get("/{name}.txt", include_in_schema=False)
+def indexnow_key_file(name: str):
+    """IndexNow ownership check: /<key>.txt answers with the key from config.yaml site.indexnow_key."""
+    try:
+        key = load_config().site.indexnow_key.strip()
+    except (OSError, ValueError):
+        key = ""
+    if not key or name != key or not re.fullmatch(r"[A-Za-z0-9-]{8,128}", key):
+        raise StarletteHTTPException(status_code=404, detail="Not Found")
+    return Response(key, media_type="text/plain")
+
+
 @app.get("/{name}.html", include_in_schema=False)
 def google_verification_file(name: str):
     """Google Search Console ownership check: serves exactly the file named in config.yaml site.google_verification."""

@@ -96,6 +96,8 @@ class SiteConfig:
     public_url: str = ""
     # Google Search Console "HTML file" verification: the file name Google gives, e.g. "google1a2b3c4d5e6f7a8b.html".
     google_verification: str = ""
+    # IndexNow (Bing, Yandex, Seznam, Naver): the key served at /<key>.txt; tools/indexnow_submit.py sends the sitemap.
+    indexnow_key: str = ""
 
 
 @dataclass

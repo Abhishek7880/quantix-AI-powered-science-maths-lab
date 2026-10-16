@@ -104,13 +104,16 @@ def main() -> None:
         envp = Path(tmp) / "env"
         envp.write_text(env_file(site_host, also=ip_name), encoding="utf-8", newline="\n")
         subprocess.run(["scp", *SSH_OPTS, str(tgz), str(envp), f"{target}:/tmp/"], check=True)
-    ssh(target, f"set -e; mkdir -p ~/{REMOTE}/data; cd ~/{REMOTE}; "
-                "find . -mindepth 1 -maxdepth 1 ! -name data ! -name .env -exec rm -rf {} +; "
+    # seo/ is bind-mounted into Caddy: empty it in place instead of deleting it, or Caddy keeps the old (deleted) folder
+    ssh(target, f"set -e; mkdir -p ~/{REMOTE}/data ~/{REMOTE}/seo; cd ~/{REMOTE}; "
+                "find . -mindepth 1 -maxdepth 1 ! -name data ! -name .env ! -name seo -exec rm -rf {} +; "
+                "find seo -mindepth 1 -delete; "
                 "tar -xzf /tmp/quantix.tgz; install -m 600 /tmp/env .env; rm -f /tmp/quantix.tgz /tmp/env; "
                 "sudo chown -R 1000:1000 data")
 
     print("== 5/5 building and starting (first build ~5-10 min on the server)")
-    ssh(target, f"cd ~/{REMOTE} && sudo docker compose up -d --build --remove-orphans && sudo docker image prune -f >/dev/null")
+    ssh(target, f"cd ~/{REMOTE} && sudo docker compose up -d --build --remove-orphans && sudo docker image prune -f >/dev/null "
+                "&& sudo docker compose restart caddy >/dev/null")      # re-read the Caddyfile and the fresh seo/ files
     ssh(target, "for i in $(seq 1 60); do "
                 f"sudo docker compose -f ~/{REMOTE}/docker-compose.yml exec -T app python -c "
                 "\"import urllib.request; urllib.request.urlopen('http://127.0.0.1:7860/api/v1/health')\" "

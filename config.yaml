@@ -75,3 +75,4 @@ author:
 site:
   public_url: https://quantix-ai-abhi.duckdns.org
   google_verification: google2c23f21c9ee9b3d5.html   # Google Search Console (URL prefix, HTML file)
+  indexnow_key: 3111d8a7466ecc66de5f2eb83f19432f      # IndexNow (Bing, Yandex…): served at /<key>.txt; tools/indexnow_submit.py
