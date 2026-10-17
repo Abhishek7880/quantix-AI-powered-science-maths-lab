@@ -76,3 +76,12 @@ def test_photo_never_gets_the_shape_models_guess():
 
 def test_flatness_tells_drawings_from_photos():
     assert everyday.flatness(DRAWING) > 0.95 and everyday.flatness(PHOTO) < 0.2
+
+def test_table_under_the_object_is_ignored():
+    # the user's glass on a table: COCO finds "dining table" but not (surely) the glass -> open vocabulary finds the glass
+    r = run(coco=[det("dining table", 0.46, (0, 40, 80, 80))], extra=[det("drinking glass", 0.3)], img=PHOTO)
+    assert r["stage"] == "extra" and [i["object"] for i in r["infos"]] == ["drinking glass"]
+    r = run(coco=[det("dining table", 0.46, (0, 40, 80, 80)), det("cup", 0.35)], img=PHOTO)
+    assert [i["object"] for i in r["infos"]] == ["cup"]
+    r = run(coco=[det("dining table", 0.6, (0, 40, 80, 80))], img=PHOTO)        # only a table in the photo
+    assert [i["object"] for i in r["infos"]] == ["dining table"]

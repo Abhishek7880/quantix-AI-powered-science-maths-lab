@@ -194,6 +194,9 @@ def shape_of(name: str) -> dict | None:
 
 # ------------------------------------------------------------------ the automatic chain (light models first)
 SHAPES_CONF, COCO_CONF, EXTRA_CONF = 0.5, 0.4, 0.25
+CONTAINER_CONF = 0.3      # cups/glasses are often scored 0.3–0.4 by the COCO model (a glass on a table: cup 0.35)
+CONTAINERS = {"cup", "bottle", "bowl", "wine glass", "vase"}   # ...while "cell phone" at 0.38 on a glass is a mistake
+CONTEXT = {"dining table", "bed", "couch", "bench"}     # big furniture: reported only when nothing else is found
 
 
 def _overlap(a, b) -> float:
@@ -292,12 +295,18 @@ def detect_auto(img, get_model) -> dict:
             dets, infos = objects(run("ft", 0.5), "ft")
             if dets:
                 return result(dets, infos, "ft")
-        dets, infos = objects([d for d in coco_all if d.confidence >= COCO_CONF], "coco")
+        # furniture under/behind the object (a table under a glass) is context, not what was photographed
+        things = [d for d in coco_all if d.class_name not in CONTEXT
+                  and d.confidence >= (CONTAINER_CONF if d.class_name in CONTAINERS else COCO_CONF)]
+        dets, infos = objects(things, "coco")
         if dets:
             return result(dets, infos, "coco")
         dets, infos = objects(run("extra", 0.3), "extra")
         if dets:
             return result(dets, infos, "extra")
+        dets, infos = objects([d for d in coco_all if d.class_name in CONTEXT and d.confidence >= 0.4], "coco")
+        if dets:                                     # only furniture in the photo
+            return result(dets, infos, "coco")
         if flat >= 0.7 and shapes:                   # nearly flat: maybe a drawing after all
             return result(shapes, [None] * len(shapes), "shapes")
         return result([], [], "none")
