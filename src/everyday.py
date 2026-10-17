@@ -218,6 +218,36 @@ def merge_duplicates(dets: list, infos: list) -> tuple[list, list]:
     return [dets[i] for i in keep], [infos[i] for i in keep]
 
 
+KEEP_RATIO = 0.7          # other objects stay only if they score at least 70 % of the main subject
+
+
+def subject_score(d, w: float, h: float) -> float:
+    """confidence × centrality × size: what the photo is *of* (centre of the frame, filling a good part of it)."""
+    cx, cy = (d.x1 + d.x2) / 2, (d.y1 + d.y2) / 2
+    central = max(0.0, 1 - ((cx - w / 2) ** 2 + (cy - h / 2) ** 2) ** 0.5 / ((w / 2) ** 2 + (h / 2) ** 2) ** 0.5)
+    area = (d.x2 - d.x1) * (d.y2 - d.y1) / max(1.0, w * h)
+    return d.confidence * (0.4 + 0.6 * central) * (0.5 + 0.5 * min(1.0, area / 0.15))
+
+
+def main_subjects(dets: list, infos: list, w: float, h: float) -> tuple[list, list]:
+    """Merge both models' boxes (one box per object, the better-scoring name wins), order by subject score and drop
+    background objects that score far below the main one."""
+    if not dets:
+        return [], []
+    scored = sorted(zip(dets, infos), key=lambda p: -subject_score(p[0], w, h))
+    keep: list = []
+    for d, info in scored:
+        if all(_overlap(d, k[0]) <= 0.6 for k in keep):            # same object named by both models
+            keep.append((d, info))
+    best = subject_score(keep[0][0], w, h)
+    keep = [p for p in keep if subject_score(p[0], w, h) >= KEEP_RATIO * best]
+    return [p[0] for p in keep], [p[1] for p in keep]
+
+
+def dets_stage(infos: list) -> str:
+    return infos[0]["source"] if infos and infos[0] else "none"
+
+
 def annotate(img, dets: list, infos: list):
     """Boxes labelled 'mug → cylinder' (or just the shape for drawn shapes)."""
     import cv2
@@ -278,8 +308,9 @@ def detect_auto(img, get_model) -> dict:
                 infos.append(info | {"source": kind})
         return dets, infos
 
-    def result(dets, infos, stage):
-        dets, infos = merge_duplicates(dets, infos)
+    def result(dets, infos, stage, ordered=False):
+        if not ordered:                              # main_subjects() already merged and ordered (main object first)
+            dets, infos = merge_duplicates(dets, infos)
         return {"detections": dets, "infos": infos, "annotated": annotate(img, dets, infos), "latency_ms": total, "stage": stage}
 
     flat = flatness(img)
@@ -295,15 +326,15 @@ def detect_auto(img, get_model) -> dict:
             dets, infos = objects(run("ft", 0.5), "ft")
             if dets:
                 return result(dets, infos, "ft")
-        # furniture under/behind the object (a table under a glass) is context, not what was photographed
+        # Ask both object models, then keep the MAIN subject: big, central and confident (a tiffin in the middle,
+        # not the monitor and keyboard behind it). Furniture under/behind it (a table) only counts if alone.
         things = [d for d in coco_all if d.class_name not in CONTEXT
                   and d.confidence >= (CONTAINER_CONF if d.class_name in CONTAINERS else COCO_CONF)]
-        dets, infos = objects(things, "coco")
+        c_dets, c_infos = objects(things, "coco")
+        e_dets, e_infos = objects(run("extra", 0.3), "extra")
+        dets, infos = main_subjects(c_dets + e_dets, c_infos + e_infos, img.shape[1], img.shape[0])
         if dets:
-            return result(dets, infos, "coco")
-        dets, infos = objects(run("extra", 0.3), "extra")
-        if dets:
-            return result(dets, infos, "extra")
+            return result(dets, infos, dets_stage(infos), ordered=True)
         dets, infos = objects([d for d in coco_all if d.class_name in CONTEXT and d.confidence >= 0.4], "coco")
         if dets:                                     # only furniture in the photo
             return result(dets, infos, "coco")

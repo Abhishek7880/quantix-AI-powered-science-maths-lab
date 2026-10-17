@@ -862,9 +862,10 @@
       el("div", { class: "note" }, d.saved_path ? `Saved on server: ${d.saved_path}` : "", " · ", d.note)];
     card.append(...parts.filter(Boolean));  // native append would render null as the text "null"
     wireZoom(card);
-    // load the most confident recognised shape into the 3D model / calculator
-    const best = d.detections.filter(x => window.ShapeExplorer && window.ShapeExplorer.has(x.class_name))
-      .sort((a, b) => b.confidence - a.confidence)[0];
+    // load a recognised shape into the 3D model / calculator: Auto lists the main object first (big, central,
+    // confident); other models: the most confident box
+    const shown = d.detections.filter(x => window.ShapeExplorer && window.ShapeExplorer.has(x.class_name));
+    const best = d.model === "auto" ? shown[0] : shown.sort((a, b) => b.confidence - a.confidence)[0];
     if (best) window.ShapeExplorer.show(best.class_name);
   }
 

@@ -85,3 +85,12 @@ def test_table_under_the_object_is_ignored():
     assert [i["object"] for i in r["infos"]] == ["cup"]
     r = run(coco=[det("dining table", 0.6, (0, 40, 80, 80))], img=PHOTO)        # only a table in the photo
     assert [i["object"] for i in r["infos"]] == ["dining table"]
+
+def test_main_object_beats_background_things():
+    # the user's tiffin on a desk: COCO sees the monitor (top edge) and keyboard (right), the open vocabulary sees the
+    # container in the middle -> the container is the main (first) object and the background is dropped
+    W, H = 284, 368
+    photo = np.random.default_rng(2).integers(0, 255, (H, W, 3), dtype=np.uint8)
+    r = run(coco=[det("tv", 0.47, (28, 1, 284, 55)), det("keyboard", 0.46, (103, 97, 283, 184))],
+            extra=[det("tin can", 0.62, (39, 104, 250, 285)), det("tablet computer", 0.33, (26, 1, 283, 106))], img=photo)
+    assert [i["object"] for i in r["infos"]] == ["tin can"] and r["detections"][0].class_name == "cylinder"
