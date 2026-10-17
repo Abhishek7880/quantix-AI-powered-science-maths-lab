@@ -619,20 +619,33 @@
     modelImgsz = {};
     (d.registry || []).forEach(e => { if (e.imgsz && e.best) modelImgsz[dirOf(e.best)] = e.imgsz; });
     defaultModel = d.default_model || "";
-    sel.append(el("option", { value: "" }, d.default_model ? `Default — ${d.default_model}` : "Default (none trained yet)"));
+    sel.append(el("option", { value: "auto" }, "✨ Auto — shapes + everyday objects (recommended)"));
+    sel.append(el("option", { value: "" }, d.default_model ? `Shapes only — ${d.default_model}` : "Default (none trained yet)"));
     const trained = d.files.filter(f => f.kind === "trained");
     const pre = d.files.filter(f => f.kind === "pretrained");
     if (trained.length) sel.append(el("optgroup", { label: "Your trained models" },
       trained.map(f => el("option", { value: f.path }, f.path))));
     if (pre.length) sel.append(el("optgroup", { label: "General pretrained (80 everyday objects)" },
       pre.map(f => el("option", { value: f.path }, f.path))));
-    try { const saved = localStorage.getItem("iav-model"); if (saved != null && [...sel.options].some(o => o.value === saved)) sel.value = saved; } catch (_) {}
+    // a saved "" is the old default from before Auto existed -> Auto; any other saved choice is kept
+    try { const saved = localStorage.getItem("iav-model"); if (saved && [...sel.options].some(o => o.value === saved)) sel.value = saved; } catch (_) {}
     updateModelHint();
   }
   let modelImgsz = {}, defaultModel = "";
+  // everyday objects (Auto mode): "mug → cylinder", plus a note when the object only approximates its shape
+  const objLabel = x => x.object ? `${x.object} → ${x.class_name}` : x.class_name;
+  function objectNotes(d) {
+    const notes = [...new Map(d.detections.filter(x => x.object && x.shape_note).map(x => [x.object, x])).values()];
+    return notes.length ? el("div", { class: "msg" }, notes.map(x => el("div", {}, `${x.object} → ${x.class_name}: ${x.shape_note}`))) : null;
+  }
   function dirOf(p) { return String(p).replace(/\\/g, "/").replace(/\/[^/]*$/, ""); }
   function updateModelHint() {
     const v = $("model").value;
+    if (v === "auto") {
+      $("modelHint").textContent = "Finds drawn shapes and everyday objects (cup, bottle, ball, book, dice…) and shows the shape each one is closest to.";
+      try { localStorage.setItem("iav-model", v); } catch (_) {}
+      return;
+    }
     const path = v || defaultModel;
     $("modelHint").textContent = path.includes("pretrained")
       ? "Generic COCO model: detects people, vehicles, bottles, laptops… — not industrial defects."
@@ -769,7 +782,7 @@
     const d = body.data;
     const annotated = "data:image/jpeg;base64," + d.annotated_image_base64;
     const counts = {};
-    d.detections.forEach(x => counts[x.class_name] = (counts[x.class_name] || 0) + 1);
+    d.detections.forEach(x => counts[objLabel(x)] = (counts[objLabel(x)] || 0) + 1);
     const download = el("a", { class: "btn small", href: annotated,
       download: item.file.name.replace(/\.[^.]+$/, "") + "_pred.jpg" }, "Download");
 
@@ -786,12 +799,13 @@
       el("div", { class: "chips" },
         d.count === 0 ? el("span", { class: "chip" }, "No objects above threshold")
           : Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
-              el("span", { class: "chip" }, el("i", { style: `background:${classColor(k)}` }), `${k} × ${v}`))),
+              el("span", { class: "chip" }, el("i", { style: `background:${classColor(k.split(" → ").pop())}` }), `${k} × ${v}`))),
+      objectNotes(d),
       d.count ? el("div", { class: "table-wrap" }, el("table", {},
         el("thead", {}, el("tr", {}, ["#", "Class", "Confidence", "x1", "y1", "x2", "y2", "Width", "Height"].map(h => el("th", { scope: "col" }, h)))),
         el("tbody", {}, d.detections.map((x, i) => el("tr", {},
           el("td", {}, i + 1),
-          el("td", {}, el("span", { class: "chip", style: "border:none;padding:0" }, el("i", { style: `background:${classColor(x.class_name)}` }), x.class_name)),
+          el("td", {}, el("span", { class: "chip", style: "border:none;padding:0" }, el("i", { style: `background:${classColor(x.class_name)}` }), objLabel(x))),
           el("td", {}, x.confidence.toFixed(3), el("span", { class: "bar" }, el("span", { style: `width:${Math.round(x.confidence * 100)}%` }))),
           el("td", {}, x.x1), el("td", {}, x.y1), el("td", {}, x.x2), el("td", {}, x.y2),
           el("td", {}, (x.x2 - x.x1).toFixed(1)), el("td", {}, (x.y2 - x.y1).toFixed(1))))))) : null,

@@ -35,6 +35,10 @@ secrets/
 !models/shapes_mensuration/experiment.json
 !models/handwriting/symbols.pt
 !models/handwriting/symbols.json
+!models/pretrained/yolo11n.pt
+!models/everyday/everyday.pt
+!models/everyday/everyday.json
+datasets/everyday_test/
 
 # local / generated
 *.log

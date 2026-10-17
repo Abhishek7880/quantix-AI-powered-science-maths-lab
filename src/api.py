@@ -979,6 +979,45 @@ class PathPredictRequest(BaseModel):
     imgsz: int = Field(cfg.inference.imgsz, ge=32, le=4096)
 
 
+_auto_models: dict[str, Detector] = {}
+_auto_lock = threading.Lock()
+
+
+def _auto_model(kind: str) -> Detector:
+    """Models for the automatic chain, each loaded on first use and kept (shapes 5 MB, COCO 5 MB, extras 25 MB)."""
+    with _auto_lock:
+        if kind not in _auto_models:
+            models_dir = cfg.paths.resolve("models_dir")
+            if kind == "shapes":
+                path = resolve_model_path(cfg, None)
+                reg = {resolve_path(e["best"]): e.get("imgsz") for e in load_registry(cfg) if e.get("best")}
+                size = reg.get(path) or cfg.inference.imgsz
+            else:
+                path = models_dir / ("pretrained/yolo11n.pt" if kind == "coco" else "everyday/everyday.pt")
+                size = 640
+            _auto_models[kind] = Detector(path, cfg.device, 0.25, cfg.inference.iou, size, cfg.inference.max_det)
+        return _auto_models[kind]
+
+
+def _predict_auto(img: np.ndarray, name: str, return_image: bool) -> dict:
+    from src import everyday
+    r = everyday.detect_auto(img, _auto_model)
+    dets = []
+    for d, info in zip(r["detections"], r["infos"]):
+        x = d.to_dict()
+        if info:
+            x.update(object=info["object"], object_hi=info["object_hi"], shape_note=info["note"], source=info["source"])
+        dets.append(x)
+    data = {"image": name, "width": img.shape[1], "height": img.shape[0], "model": "auto", "stage": r["stage"],
+            "device": resolve_device(cfg.device), "conf": None, "latency_ms": round(r["latency_ms"], 1), "count": len(dets),
+            "detections": dets, "saved_path": None, "generic_pretrained_model": False,
+            "class_info": {d.class_name: CLASS_KNOWLEDGE[d.class_name] for d in r["detections"] if d.class_name in CLASS_KNOWLEDGE},
+            "model_classes": [], "note": "Everyday objects are shown as the shape they are closest to."}
+    if return_image:
+        data["annotated_image_base64"] = _encode_jpeg_b64(r["annotated"])
+    return data
+
+
 @app.post(f"{API_PREFIX}/predict/image", tags=["prediction"])
 async def predict_image_upload(file: UploadFile = File(...), model: str | None = Form(None),
                                conf: float = Form(cfg.inference.conf, ge=0, le=1),
@@ -999,6 +1038,10 @@ async def predict_image_upload(file: UploadFile = File(...), model: str | None =
         raise InputValidationError("The uploaded file is not a readable image.", error_code="INVALID_IMAGE",
                                    error_title="Invalid image")
 
+    if model == "auto":                              # shapes + everyday objects (src/everyday.py)
+        data = _predict_auto(img, name, return_image)
+        found = ", ".join(f"{x['object']} → {x['class_name']}" if x.get("object") else x["class_name"] for x in data["detections"])
+        return ok(data, f"Prediction completed: {found or 'nothing recognised'}")
     if PUBLIC_MODE:
         if model:                                    # only our own models: a .pt file runs code when loaded
             mp, models_dir = resolve_path(model), cfg.paths.resolve("models_dir")

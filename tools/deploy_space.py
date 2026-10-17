@@ -34,7 +34,8 @@ from src.config import load_config  # noqa: E402
 DEFAULT_OUT = Path(r"D:\Abhishek\Deploy\quantix-space")
 DEPLOY_FILES = ROOT / "deploy" / "huggingface"
 MODELS = ["shapes_mensuration/best.pt", "shapes_mensuration/experiment.json",
-          "handwriting/symbols.pt", "handwriting/symbols.json"]
+          "handwriting/symbols.pt", "handwriting/symbols.json",
+          "pretrained/yolo11n.pt", "everyday/everyday.pt", "everyday/everyday.json"]   # Auto mode: everyday objects
 ADMIN_KEY_FILE = ROOT / "secrets" / "space_admin_key.txt"
 NEVER = re.compile(r"(^|/)(__pycache__|\.pytest_cache|secrets|outputs|datasets|dataset|\.venv)(/|$)|\.pyc$")
 
