@@ -32,3 +32,15 @@ main{padding:0 24px 40px}
 .learn .grid a small{display:block;color:var(--muted);font-size:12px}
 .learn .lang-alt{float:right;font-size:14px}
 .brand .bt{font:700 20px/1.15 var(--f-head);letter-spacing:-.01em;white-space:nowrap}
+
+/* formula pages: solved-example steps and the built-in calculator (learn.js) */
+.learn ol.steps{margin:6px 0 10px 18px;padding:0;line-height:1.7}.learn ol.steps .f{font-family:"Cambria Math",Cambria,Georgia,serif}
+.learn h3{font:600 16px var(--f-head);margin:0 0 6px}
+.qc-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px}.qc-lbl{color:var(--muted);font-size:13px;margin-right:4px}
+.qc-chip{border:1px solid var(--line);background:var(--panel);color:var(--ink);font:italic 600 15px "Cambria Math",Cambria,Georgia,serif;padding:5px 12px;border-radius:999px;cursor:pointer}
+.qc-chip[aria-checked="true"]{background:linear-gradient(120deg,var(--btn-a),var(--btn-b));color:#fff;border-color:transparent}
+.qc-fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:12px}
+.qc-field{display:flex;flex-direction:column;gap:4px;font:italic 600 15px "Cambria Math",Cambria,Georgia,serif}
+.qc-field small{font:400 12px system-ui,sans-serif;color:var(--muted);margin-left:6px}
+.qc-field input{font:15px system-ui,sans-serif;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel-solid);color:var(--ink)}
+.qc-go{border:0;cursor:pointer;font-size:15px}.qc-err{color:var(--err)}

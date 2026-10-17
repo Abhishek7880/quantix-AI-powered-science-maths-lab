@@ -39,3 +39,19 @@ def test_temperature_formulas():
     assert seo.TEMPS[("C", "F")][0](100) == 212
     assert abs(seo.TEMPS[("F", "C")][0](98.6) - 37) < 1e-9
     assert seo.TEMPS[("C", "K")][0](0) == 273.15
+
+
+def test_formula_titles_match_what_people_search():
+    assert seo.formula_title("en", "mensuration", "Volume", "Sphere") == "Volume of a Sphere"
+    assert seo.formula_title("en", "mensuration", "Area", "Equilateral Triangle") == "Area of an Equilateral Triangle"
+    assert seo.formula_title("hi", "mensuration", "आयतन", "गोला") == "गोले का आयतन"
+    assert seo.formula_title("hi", "mensuration", "परिधि", "वृत्त") == "वृत्त की परिधि"
+    assert seo.formula_title("en", "physics_formulas", "Kinetic energy", "Work, energy & power") == "Kinetic energy"
+    assert seo.formula_title("en", "physics_formulas", "Momentum", "Laws of motion") == "Momentum (Laws of motion)"
+
+
+def test_worked_example_uses_the_real_calculator():
+    ex = seo.worked_example("V = (4/3) πr³", "mensuration", {"r": "radius"}, "en", None)
+    assert ex["target"] == "V" and ex["values"] == {"r": 7}
+    assert abs(ex["answer"]["value"] - 4 / 3 * 3.141592653589793 * 343) < 1e-6
+    assert [s["label"] for s in ex["solve"]["steps"]][-1] == "Result"

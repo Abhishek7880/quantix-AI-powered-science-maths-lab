@@ -17,6 +17,7 @@ from __future__ import annotations
 import html
 import json
 import math
+import os
 import re
 import shutil
 import subprocess
@@ -179,19 +180,232 @@ def fmt(x: float) -> str:
 
 
 # ------------------------------------------------------------------ formulas
-def build_formulas() -> list[str]:
-    urls = []
-    lib = {"en": formulas.load_library("en"), "hi": formulas.load_library("hi")}
-    calc = formula_calc.calculable_index()
-    seen = set()
-    sec_path = {}
-    for ci, cat in enumerate(lib["en"]):
-        for si, sec in enumerate(cat["sections"]):
+def section_paths(lib_en: list[dict]) -> dict:
+    """(category id, section id) -> /learn/formulas/<cat>/<section-slug>/"""
+    seen, out = set(), {}
+    for cat in lib_en:
+        for sec in cat["sections"]:
             s = slug(sec["title"])
             while (cat["id"], s) in seen:
                 s += "-2"
             seen.add((cat["id"], s))
-            sec_path[(cat["id"], sec["id"])] = f"/learn/formulas/{cat['id']}/{s}/"
+            out[(cat["id"], sec["id"])] = f"/learn/formulas/{cat['id']}/{s}/"
+    return out
+
+
+def formula_paths(lib_en: list[dict], sec_path: dict, calc: dict) -> dict:
+    """(category, section, item index) -> /learn/formulas/<cat>/<section>/<formula-slug>/ for every calculable formula."""
+    out = {}
+    for cat in lib_en:
+        for sec in cat["sections"]:
+            used = set()
+            for i in calc.get(cat["id"], {}).get(sec["id"], []):
+                s = slug(sec["items"][i][0])
+                while s in used:
+                    s += "-2"
+                used.add(s)
+                out[(cat["id"], sec["id"], i)] = sec_path[(cat["id"], sec["id"])] + s + "/"
+    return out
+
+
+SHAPE_CATS = {"mensuration", "geometry"}
+NICE = [7, 5, 10, 4, 3, 8, 6, 2, 12, 9, 11]           # example values tried for the known variables
+FT = {   # per-formula page text
+    "en": {"title": "{t} Formula — Calculator & Solved Example", "h1": "{t}",
+           "desc": "{t}: {f}. What each letter means, a solved example ({ex}) and a free step-by-step calculator.",
+           "formula": "Formula", "means": "Where", "example": "Solved example", "given": "Given",
+           "find": "Find", "steps": "Step-by-step", "answer": "Answer", "calc": "Calculator", "solve_for": "Solve for",
+           "go": "Calculate", "howto": "How to calculate {t}", "faq": "Frequently asked questions",
+           "q_formula": "What is the formula for {t}?", "q_example": "What is {t} when {given}?",
+           "a_formula": "The formula is {f}, where {w}.", "a_example": "{target} = {ans}. Substitute the values into {f} and simplify.",
+           "how1": "Write down the formula: {f}.", "how2": "Note the known values ({vars}).",
+           "how3": "Substitute them and simplify to find {target}.", "how4": "Use the calculator above to solve for any letter.",
+           "topic": "All {s} formulas", "units": "Use the same units for all lengths (e.g. all in cm); areas come out in cm², volumes in cm³.",
+           "fill": "Fill in the known values.", "err": "Could not solve — check the values."},
+    "hi": {"title": "{t} — सूत्र, कैलकुलेटर और हल किया गया उदाहरण", "h1": "{t}",
+           "desc": "{t}: {f}। हर अक्षर का अर्थ, हल किया गया उदाहरण ({ex}) और मुफ़्त चरण-दर-चरण कैलकुलेटर।",
+           "formula": "सूत्र", "means": "जहाँ", "example": "हल किया गया उदाहरण", "given": "दिया है",
+           "find": "ज्ञात करें", "steps": "चरण-दर-चरण", "answer": "उत्तर", "calc": "कैलकुलेटर", "solve_for": "किसका मान निकालें",
+           "go": "गणना करें", "howto": "{t} कैसे निकालें", "faq": "अक्सर पूछे जाने वाले प्रश्न",
+           "q_formula": "{t} का सूत्र क्या है?", "q_example": "जब {given} हो तो {t} क्या होगा?",
+           "a_formula": "सूत्र {f} है, जहाँ {w}।", "a_example": "{target} = {ans}। मानों को {f} में रखकर सरल करें।",
+           "how1": "सूत्र लिखें: {f}।", "how2": "ज्ञात मान लिखें ({vars})।", "how3": "मान रखकर सरल करें और {target} ज्ञात करें।",
+           "how4": "किसी भी अक्षर का मान निकालने के लिए ऊपर दिए कैलकुलेटर का उपयोग करें।",
+           "topic": "{s} के सभी सूत्र", "units": "सभी लंबाइयाँ एक ही मात्रक में लें (जैसे cm); क्षेत्रफल cm² और आयतन cm³ में आएगा।",
+           "fill": "ज्ञात मान भरें।", "err": "हल नहीं हो सका — मान जाँचें।"},
+}
+
+
+def formula_title(lang: str, cat_id: str, item: str, section: str) -> str:
+    """'Volume of a Sphere' / 'गोले का आयतन'; formulas outside geometry keep their own name."""
+    if cat_id not in SHAPE_CATS:
+        return item if lang == "hi" or section.lower() in item.lower() or len(item.split()) > 1 else f"{item} ({section})"
+    if lang == "en":
+        art = "an" if section[:1].lower() in "aeiou" else "a"
+        return f"{item} of {art} {section}"
+    obl = section[:-1] + "े" if section.endswith("ा") else section          # गोला -> गोले (का)
+    return f"{obl} {'की' if item.endswith(('ि', 'ी', 'ई')) else 'का'} {item}"
+
+
+def worked_example(text: str, cat_id: str, sec_vars, lang: str, unit):
+    """Pick friendly values for every letter except the left-hand side and solve with the real calculator."""
+    d = formula_calc.describe(text, category=cat_id, section_vars=sec_vars, lang=lang)
+    eq = d["equations"][0]
+    variables = eq["variables"]
+    target = eq.get("lhs") or variables[0]["symbol"]
+    known = [v for v in variables if v["symbol"] != target]
+    for shift in range(4):
+        vals = {}
+        for k, v in enumerate(known):
+            vals[v["symbol"]] = (30, 45, 60, 37)[(k + shift) % 4] if v.get("angle") else NICE[(k + shift) % len(NICE)]
+        try:
+            r = formula_calc.solve(text, target, vals, lang=lang, unit=unit, angle_unit="deg")
+        except Exception:                                                   # noqa: BLE001 — try other values
+            continue
+        sol = [s for s in r["solutions"] if isinstance(s.get("value"), (int, float)) and math.isfinite(s["value"])]
+        if sol:
+            return {"variables": variables, "target": target, "values": vals, "solve": r, "answer": sol[0]}
+    return {"variables": variables, "target": target, "values": None, "solve": None, "answer": None}
+
+
+EXAMPLE_CACHE = ROOT / "build" / "formula-examples.json"
+EXAMPLE_TIMEOUT_S = 20
+
+
+def _example_worker(args):
+    """Runs in a child process: no thread pool (a stuck SymPy solve then only stalls this process, which is killed)."""
+    formula_calc.IN_BROWSER = True
+    return worked_example(*args)
+
+
+def solve_examples(tasks: dict) -> dict:
+    """{key: (text, cat, sec_vars, lang, unit)} -> {key: example}. Cached in build/formula-examples.json; uncached ones
+    run in parallel processes with a hard per-formula time limit (a formula that takes longer gets no worked example)."""
+    import multiprocessing as mp
+    cache = json.loads(EXAMPLE_CACHE.read_text(encoding="utf-8")) if EXAMPLE_CACHE.is_file() else {}
+    todo = [k for k in tasks if k not in cache]
+    if todo:
+        print(f"  solving {len(todo)} worked examples ({len(tasks) - len(todo)} cached)…", flush=True)
+        pool, done = mp.Pool(max(1, (os.cpu_count() or 2) - 1)), 0
+        jobs = {k: pool.apply_async(_example_worker, (tasks[k],)) for k in todo}
+        for k, job in jobs.items():
+            try:
+                cache[k] = job.get(timeout=EXAMPLE_TIMEOUT_S)
+            except mp.TimeoutError:                                   # stuck: restart the pool, resubmit the rest
+                cache[k] = None
+                pool.terminate()
+                pool = mp.Pool(max(1, (os.cpu_count() or 2) - 1))
+                for k2 in todo:
+                    if k2 not in cache and k2 != k:
+                        jobs[k2] = pool.apply_async(_example_worker, (tasks[k2],))
+            except Exception:                                         # noqa: BLE001 — this formula gets no example
+                cache[k] = None
+            done += 1
+            if done % 50 == 0:
+                print(f"  … {done}/{len(todo)}", flush=True)
+                EXAMPLE_CACHE.parent.mkdir(parents=True, exist_ok=True)
+                EXAMPLE_CACHE.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
+        pool.terminate()
+        EXAMPLE_CACHE.parent.mkdir(parents=True, exist_ok=True)
+        EXAMPLE_CACHE.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
+    return {k: cache.get(k) or None for k in tasks}
+
+
+def build_formula_pages() -> list[str]:
+    urls = []
+    lib = {"en": formulas.load_library("en"), "hi": formulas.load_library("hi")}
+    calc = formula_calc.calculable_index()
+    sec_path = section_paths(lib["en"])
+    fpath = formula_paths(lib["en"], sec_path, calc)
+    tasks = {}
+    for lang in ("en", "hi"):
+        for ci, cat in enumerate(lib[lang]):
+            cat_en = lib["en"][ci]
+            for si, sec in enumerate(cat["sections"]):
+                sec_en = cat_en["sections"][si]
+                for i in calc.get(cat_en["id"], {}).get(sec_en["id"], []):
+                    it = sec_en["items"][i]
+                    unit = formula_calc.item_unit(it[2] if len(it) > 2 else "")
+                    key = f"{lang}|{cat_en['id']}|{sec_en['id']}|{i}|{it[1]}"
+                    tasks[key] = (it[1], cat_en["id"], sec.get("variables"), lang, unit)
+    examples = solve_examples(tasks)
+    for lang in ("en", "hi"):
+        L, F = T[lang], FT[lang]
+        pre = "" if lang == "en" else "/hi"
+        for ci, cat in enumerate(lib[lang]):
+            cat_en = lib["en"][ci]
+            for si, sec in enumerate(cat["sections"]):
+                sec_en = cat_en["sections"][si]
+                for i in calc.get(cat_en["id"], {}).get(sec_en["id"], []):
+                    item, item_en = sec["items"][i], sec_en["items"][i]
+                    path = pre + fpath[(cat_en["id"], sec_en["id"], i)]
+                    alt = ("/hi" if lang == "en" else "") + fpath[(cat_en["id"], sec_en["id"], i)]
+                    unit = formula_calc.item_unit(item_en[2] if len(item_en) > 2 else "")
+                    ex = examples[f"{lang}|{cat_en['id']}|{sec_en['id']}|{i}|{item_en[1]}"]
+                    if not ex:                                            # no example: still describe the letters
+                        try:
+                            d = formula_calc.describe(item_en[1], category=cat_en["id"], section_vars=sec.get("variables"), lang=lang)
+                            eq0 = d["equations"][0]
+                            ex = {"variables": eq0["variables"], "target": eq0.get("lhs") or eq0["variables"][0]["symbol"],
+                                  "values": None, "solve": None, "answer": None}
+                        except Exception:                                 # noqa: BLE001
+                            continue
+                    name = formula_title(lang, cat_en["id"], item[0], sec["title"])
+                    labels = {v["symbol"]: (v.get("label") or "") for v in ex["variables"]}
+                    labels[ex["target"]] = labels.get(ex["target"]) or item[0]
+                    where = ", ".join(f"{v['display']} = {labels[v['symbol']] or v['display']}" for v in ex["variables"])
+                    body = [f'<h1>{e(F["h1"].format(t=name))}</h1>',
+                            f'<div class="card"><p class="big f" style="font-family:Cambria Math,Cambria,Georgia,serif">{e(item[1])}</p>'
+                            f'<p class="lead">{e(F["means"])}: {e(where)}</p>'
+                            + (f'<p class="lead">{e(F["units"])}</p>' if cat_en["id"] in SHAPE_CATS else "") + "</div>"]
+                    given_txt = ""
+                    if ex["answer"]:
+                        given_txt = ", ".join(f"{k} = {fmt(v)}{'°' if any(x['symbol'] == k and x.get('angle') for x in ex['variables']) else ''}"
+                                              for k, v in ex["values"].items())
+                        steps = "".join(f"<li><b>{e(s['label'])}:</b> <span class=\"f\">{e(s['text'])}</span></li>" for s in ex["solve"]["steps"])
+                        body.append(f'<h2>{e(F["example"])}</h2><div class="card"><p><b>{e(F["given"])}:</b> {e(given_txt)}<br>'
+                                    f'<b>{e(F["find"])}:</b> {e(ex["target"])} ({e(labels[ex["target"]])})</p>'
+                                    f'<ol class="steps">{steps}</ol>'
+                                    f'<p class="big">{e(F["answer"])}: {e(ex["target"])} = {e(ex["answer"]["display"])}'
+                                    f'{(" " + e(unit)) if unit else ""}</p></div>')
+                    calc_vars = [{"s": v["symbol"], "d": v["display"], "l": labels[v["symbol"]], "a": bool(v.get("angle"))} for v in ex["variables"]]
+                    body.append(f'<h2>{e(F["calc"])}</h2><div class="card qcalc" data-cat="{e(cat_en["id"])}" data-sec="{e(sec_en["id"])}" '
+                                f'data-idx="{i}" data-lang="{lang}" data-target="{e(ex["target"])}" '
+                                f'data-vars="{e(json.dumps(calc_vars, ensure_ascii=False))}" '
+                                f'data-t="{e(json.dumps({k: F[k] for k in ("solve_for", "go", "fill", "err", "answer")}, ensure_ascii=False))}">'
+                                f'<noscript>{e(F["fill"])}</noscript></div>')
+                    var_list = ", ".join(v["display"] for v in ex["variables"] if v["symbol"] != ex["target"])
+                    how = [F["how1"].format(f=item[1]), F["how2"].format(vars=var_list), F["how3"].format(target=ex["target"]), F["how4"]]
+                    body.append(f'<h2>{e(F["howto"].format(t=name))}</h2><ol class="steps">' + "".join(f"<li>{e(h)}</li>" for h in how) + "</ol>")
+                    faq = [(F["q_formula"].format(t=name), F["a_formula"].format(f=item[1], w=where))]
+                    if ex["answer"]:
+                        faq.append((F["q_example"].format(t=name, given=given_txt),
+                                    F["a_example"].format(target=ex["target"], ans=ex["answer"]["display"] + (f" {unit}" if unit else ""), f=item[1])))
+                    body.append(f'<h2>{e(F["faq"])}</h2>' + "".join(f'<div class="card"><h3>{e(q)}</h3><p>{e(a)}</p></div>' for q, a in faq))
+                    sibs = [f'<a href="{pre}{fpath[(cat_en["id"], sec_en["id"], j)]}">{e(sec["items"][j][0])}</a>'
+                            for j in calc.get(cat_en["id"], {}).get(sec_en["id"], []) if j != i]
+                    topic_name = (sec["title"][:-1] + "े") if lang == "hi" and sec["title"].endswith("ा") else sec["title"]   # गोला -> गोले के
+                    body.append(f'<h2>{e(F["topic"].format(s=topic_name))}</h2><div class="links">'
+                                f'<a href="{pre}{sec_path[(cat_en["id"], sec_en["id"])]}">{e(sec["title"])} →</a>{"".join(sibs)}</div>')
+                    faq_ld = {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+                        {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faq]}
+                    body.append(f'<script type="application/ld+json">{json.dumps(faq_ld, ensure_ascii=False)}</script>')
+                    body.append('<script src="/web/learn.js" defer></script>')
+                    ex_short = f"{given_txt} → {ex['target']} = {ex['answer']['display']}" if ex["answer"] else item[1]
+                    crumbs = [(L["home"], "/"), (L["formulas"], f"{pre}/learn/formulas/"), (sec["title"], pre + sec_path[(cat_en["id"], sec_en["id"])]),
+                              (item[0], path)]
+                    write(path, page(lang, path, F["title"].format(t=name), F["desc"].format(t=name, f=item[1], ex=ex_short)[:300],
+                                     "\n".join(body), crumbs, alt))
+                    urls.append(path)
+    return urls
+
+
+def build_formulas() -> list[str]:
+    urls = []
+    lib = {"en": formulas.load_library("en"), "hi": formulas.load_library("hi")}
+    calc = formula_calc.calculable_index()
+    sec_path = section_paths(lib["en"])
+    fpath = formula_paths(lib["en"], sec_path, calc)
     for lang in ("en", "hi"):
         L = T[lang]
         pre = "" if lang == "en" else "/hi"
@@ -209,7 +423,9 @@ def build_formulas() -> list[str]:
                     solve = (f' <a class="solve" href="/formulas?calc={cat_en["id"]}/{sec_en["id"]}/{i}">{e(L["solve"])}</a>'
                              if i in ok else "")
                     note = f"<td>{e(it[2]) if len(it) > 2 and it[2] else ''}</td>"
-                    rows.append(f"<tr><td>{e(it[0])}</td><td class=\"f\">{e(it[1])}{solve}</td>{note}</tr>")
+                    fp = fpath.get((cat_en["id"], sec_en["id"], i))
+                    name_html = f'<a href="{pre}{fp}">{e(it[0])}</a>' if fp else e(it[0])     # -> the formula's own page
+                    rows.append(f"<tr><td>{name_html}</td><td class=\"f\">{e(it[1])}{solve}</td>{note}</tr>")
                 names = [it[0] for it in sec["items"][:3]]
                 ex = (": " + ", ".join(names) + ("…" if len(sec["items"]) > 3 else "")) if names else ""
                 title = L["sec_title"].format(s=sec["title"], c=cat["title"])
@@ -404,7 +620,7 @@ def main() -> None:
     if OUT.exists():
         shutil.rmtree(OUT)
     OUT.mkdir(parents=True)
-    urls = build_learn_hub() + build_formulas() + build_elements() + build_conversions()
+    urls = build_learn_hub() + build_formulas() + build_formula_pages() + build_elements() + build_conversions()
     all_urls = MAIN_PAGES + urls
     sm = "".join(f"  <url><loc>{e(SITE + u)}</loc></url>\n" for u in all_urls)
     (OUT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
