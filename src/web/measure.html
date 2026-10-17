@@ -241,6 +241,7 @@
           scaleSet: (mmpx, ref) => `1 px = ${mmpx} mm  ·  from ${ref}`, unitLbl: "Units", det: "Auto-measure shapes",
           depthLbl: "Depth of 3D box / prism (optional)", png: "Image", fit: "Fit", undo: "Undo", empty: "Add a photo to start measuring",
           cvHelp: "Arrow keys move the cross-hair (Shift for bigger steps), Enter places a point, Shift+Enter closes an area, Ctrl+arrows pan, + and − zoom, 0 fits, Esc cancels.",
+          cap: "Volume (outside size)",
           tools: { line: "Distance", circle: "Circle", area: "Area", pan: "Pan" },
           p: { scale: (ref) => `Click both ends across the ${ref}`, line: "Click the start and end of the distance",
                circle: "Click the centre, then a point on the edge", area: "Click the corners · click the first point or press Enter to finish",
@@ -265,6 +266,7 @@
           scaleSet: (mmpx, ref) => `1 px = ${mmpx} mm  ·  ${ref} से`, unitLbl: "मात्रक", det: "आकृतियाँ स्वतः मापें",
           depthLbl: "3D डिब्बे / प्रिज़्म की गहराई (वैकल्पिक)", png: "चित्र", fit: "फ़िट", undo: "पूर्ववत्", empty: "मापना शुरू करने के लिए फ़ोटो जोड़ें",
           cvHelp: "तीर कुंजियाँ क्रॉस-हेयर खिसकाती हैं (बड़े कदम के लिए Shift), Enter बिंदु लगाता है, Shift+Enter क्षेत्र बंद करता है, Ctrl+तीर खिसकाते हैं, + और − ज़ूम, 0 फ़िट, Esc रद्द।",
+          cap: "आयतन (बाहरी माप)",
           tools: { line: "दूरी", circle: "वृत्त", area: "क्षेत्रफल", pan: "खिसकाएँ" },
           p: { scale: (ref) => `${ref} के दोनों सिरों पर क्लिक करें`, line: "दूरी का आरंभ और अंत क्लिक करें",
                circle: "पहले केंद्र, फिर किनारे का बिंदु क्लिक करें", area: "कोने क्लिक करें · पहले बिंदु पर क्लिक या Enter से पूरा करें",
@@ -626,6 +628,8 @@
         h("div", { class: "dims" }, h("span", { class: "sub" }, `${t("dims")}:`), Object.entries(sh.dims_mm).map(([k, v]) => h("span", {}, h("i", {}, k), ` = ${fmtMm(v)}`))),
         sh.results.length ? h("table", {}, h("tbody", {}, sh.results.map((r) => h("tr", {}, h("td", {}, r.label), h("td", { class: "f" }, r.formula),
           h("td", { class: "val" }, fmtMm(r.value_mm, r.power)))))) : null,
+        sh.capacity_ml ? h("div", { class: "v" }, `${t("cap")} ≈ ${sh.capacity_ml.toLocaleString()} ml`) : null,
+        sh.shape_note ? h("div", { class: "note" }, "ℹ " + sh.shape_note) : null,
         sh.assumptions.map((a) => h("div", { class: "note" }, "⚠ " + (t("assume")[a] || a)))));
     });
     fill(box, rows.length ? rows : h("p", { class: "hint", style: { margin: 0 } }, S.img ? t("p")[S.tool] || "" : t("empty")));

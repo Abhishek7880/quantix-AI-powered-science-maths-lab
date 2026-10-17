@@ -381,12 +381,24 @@ async def measure_shapes(file: UploadFile = File(...), mm_per_px: float = Form(.
                          conf: float = Form(cfg.inference.conf, ge=0, le=1),
                          imgsz: int = Form(cfg.inference.imgsz, ge=32, le=4096)):
     """Detect shapes and measure them in real units using the scale (mm per pixel) of this exact image."""
-    from src import measure
+    from src import everyday, measure
     img = await _read_upload_image(file)
-    det = get_detector(model, conf, imgsz)
-    dets, _, latency = det.predict(img, conf=conf, annotate=False)
-    shapes = measure.measure_detections(dets, mm_per_px, CLASS_KNOWLEDGE, depth_mm)
-    return ok({"width": img.shape[1], "height": img.shape[0], "mm_per_px": mm_per_px, "model": str(det.model_path),
+    if model in (None, "", "auto"):                  # default: drawn shapes AND real everyday objects
+        r = everyday.detect_auto(img, _auto_model)
+        dets, latency, model_name = r["detections"], r["latency_ms"], "auto"
+        shapes = measure.measure_detections(dets, mm_per_px, CLASS_KNOWLEDGE, depth_mm)
+        for sh, info in zip(shapes, r["infos"]):
+            if info:                                 # "mug → Cylinder", plus how much it holds
+                sh.update(object=info["object"], object_hi=info["object_hi"], shape_note=info["note"],
+                          name=f"{info['object']} → {sh['name']}")
+                vol = next((x["value_mm"] for x in sh["results"] if x.get("power") == 3), None)
+                if vol and info["shape"] in ("cylinder", "hemisphere", "sphere", "cone", "cuboid", "cube"):
+                    sh["capacity_ml"] = round(vol / 1000, 1)          # 1 ml = 1000 mm³ (outside size, so a bit more than it holds)
+    else:
+        det = get_detector(model, conf, imgsz)
+        dets, _, latency = det.predict(img, conf=conf, annotate=False)
+        shapes, model_name = measure.measure_detections(dets, mm_per_px, CLASS_KNOWLEDGE, depth_mm), str(det.model_path)
+    return ok({"width": img.shape[1], "height": img.shape[0], "mm_per_px": mm_per_px, "model": model_name,
                "latency_ms": round(latency, 1), "shapes": shapes,
                "note": "Real sizes assume the camera faces the object squarely and the reference is at the same distance."},
               f"{len(shapes)} shape(s) measured")
@@ -983,9 +995,17 @@ _auto_models: dict[str, Detector] = {}
 _auto_lock = threading.Lock()
 
 
-def _auto_model(kind: str) -> Detector:
-    """Models for the automatic chain, each loaded on first use and kept (shapes 5 MB, COCO 5 MB, extras 25 MB)."""
+def _auto_model(kind: str) -> Detector | None:
+    """Models for the automatic chain, each loaded on first use and kept (shapes 5 MB, COCO 5 MB, extras 25 MB).
+    "ft" = the optional fine-tuned model (models/everyday_ft/best.pt); None while it hasn't been trained."""
     with _auto_lock:
+        if kind == "ft":
+            path = cfg.paths.resolve("models_dir") / "everyday_ft" / "best.pt"
+            if not path.is_file():
+                return None
+            if "ft" not in _auto_models:
+                _auto_models["ft"] = Detector(path, cfg.device, 0.25, cfg.inference.iou, 640, cfg.inference.max_det)
+            return _auto_models["ft"]
         if kind not in _auto_models:
             models_dir = cfg.paths.resolve("models_dir")
             if kind == "shapes":
@@ -1012,10 +1032,28 @@ def _predict_auto(img: np.ndarray, name: str, return_image: bool) -> dict:
             "device": resolve_device(cfg.device), "conf": None, "latency_ms": round(r["latency_ms"], 1), "count": len(dets),
             "detections": dets, "saved_path": None, "generic_pretrained_model": False,
             "class_info": {d.class_name: CLASS_KNOWLEDGE[d.class_name] for d in r["detections"] if d.class_name in CLASS_KNOWLEDGE},
-            "model_classes": [], "note": "Everyday objects are shown as the shape they are closest to."}
+            "model_classes": [], "note": "Everyday objects are shown as the shape they are closest to.",
+            "object_names": sorted(set(everyday.OBJECTS) | set(everyday.COCO_OBJECTS))}
     if return_image:
         data["annotated_image_base64"] = _encode_jpeg_b64(r["annotated"])
     return data
+
+
+@app.post(f"{API_PREFIX}/feedback/everyday", tags=["prediction"])
+async def feedback_everyday(request: Request, file: UploadFile = File(...), items: str = Form("[]"),
+                            extra: str = Form("[]"), lang: str = Form("en"), consent: bool = Form(False)):
+    """Share a corrected Auto-mode photo for fine-tuning (stored only with consent; see src/feedback.py)."""
+    from src import feedback
+    raw = await file.read()
+    if not raw or len(raw) > MAX_UPLOAD_MB * 1024 * 1024:
+        raise InputValidationError(f"Photo missing or larger than {MAX_UPLOAD_MB} MB.", error_code="FILE_TOO_LARGE")
+    try:
+        it, ex = json.loads(items), json.loads(extra)
+        assert isinstance(it, list) and isinstance(ex, list)
+    except (ValueError, AssertionError):
+        raise InputValidationError("items / extra must be JSON lists.", error_code="FEEDBACK_INVALID") from None
+    r = feedback.save(raw, it, [str(x) for x in ex], lang, consent, request.client.host if request.client else None)
+    return ok(r, "Thank you! Your correction will help Quantix recognise objects better.", 201)
 
 
 @app.post(f"{API_PREFIX}/predict/image", tags=["prediction"])

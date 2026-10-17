@@ -38,6 +38,8 @@ secrets/
 !models/pretrained/yolo11n.pt
 !models/everyday/everyday.pt
 !models/everyday/everyday.json
+!models/everyday_ft/best.pt
+!models/everyday_ft/classes.json
 datasets/everyday_test/
 
 # local / generated

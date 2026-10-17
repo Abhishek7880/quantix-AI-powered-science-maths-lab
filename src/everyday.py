@@ -234,7 +234,19 @@ def annotate(img, dets: list, infos: list):
 
 
 PHOTO_CONF = 0.5          # the COCO model is this sure about *anything* -> it's a real photo, not a drawing
-SURE_SHAPE_CONF = 0.85    # the shapes model scores 0.88–0.98 on drawings but guesses (up to 0.9+) on real photos
+CLEAR_PHOTO = 0.55        # colour flatness below this -> certainly a real photo (user photos 0.38–0.45)
+FLAT_PHOTO = 0.80         # below this -> a photo unless the shapes model is very sure (noisy drawings sit at 0.63–0.73)
+SURE_SHAPE_CONF = 0.85    # shapes model on drawings: 0.88–0.98
+
+
+def flatness(img) -> float:
+    """Share of a 64×64 thumbnail covered by its 4 most common colours (8 levels per channel).
+    Drawings are flat (median 0.96), photos have shading and texture (median 0.41)."""
+    import cv2
+    import numpy as np
+    small = cv2.resize(img, (64, 64), interpolation=cv2.INTER_AREA)
+    _, counts = np.unique((small // 32).reshape(-1, 3), axis=0, return_counts=True)
+    return float(np.sort(counts)[-4:].sum() / counts.sum())
 
 
 def detect_auto(img, get_model) -> dict:
@@ -267,19 +279,29 @@ def detect_auto(img, get_model) -> dict:
         dets, infos = merge_duplicates(dets, infos)
         return {"detections": dets, "infos": infos, "annotated": annotate(img, dets, infos), "latency_ms": total, "stage": stage}
 
+    flat = flatness(img)
     coco_all = run("coco", 0.25)
     shapes = run("shapes", SHAPES_CONF)
-    if max((d.confidence for d in coco_all), default=0) >= PHOTO_CONF:                       # a real photo
+    coco_sure = max((d.confidence for d in coco_all), default=0) >= PHOTO_CONF
+    shape_sure = max((d.confidence for d in shapes), default=0) >= SURE_SHAPE_CONF
+    # clearly textured -> photo; in-between (noisy drawings 0.63–0.73) -> photo unless the shapes model is very sure
+    is_photo = flat < CLEAR_PHOTO or coco_sure or (flat < FLAT_PHOTO and not shape_sure)
+    if is_photo:                                                                               # a real photo
+        # never the shapes model's guess here: it was trained on drawings and calls a glass "cuboid 0.88"
+        if get_model("ft") is not None:              # fine-tuned on visitors' corrections (tools/train_everyday.py)
+            dets, infos = objects(run("ft", 0.5), "ft")
+            if dets:
+                return result(dets, infos, "ft")
         dets, infos = objects([d for d in coco_all if d.confidence >= COCO_CONF], "coco")
         if dets:
             return result(dets, infos, "coco")
-        dets, infos = objects(run("extra", 0.35), "extra")
-        return result(dets, infos, "extra" if dets else "none")
-    if shapes and max(d.confidence for d in shapes) >= SURE_SHAPE_CONF:                      # clearly a drawing
+        dets, infos = objects(run("extra", 0.3), "extra")
+        if dets:
+            return result(dets, infos, "extra")
+        if flat >= 0.7 and shapes:                   # nearly flat: maybe a drawing after all
+            return result(shapes, [None] * len(shapes), "shapes")
+        return result([], [], "none")
+    if shapes:                                                                                  # a drawing
         return result(shapes, [None] * len(shapes), "shapes")
     dets, infos = objects(run("extra", 0.35), "extra")
-    if dets:
-        return result(dets, infos, "extra")
-    if shapes:
-        return result(shapes, [None] * len(shapes), "shapes")
-    return result([], [], "none")
+    return result(dets, infos, "extra" if dets else "none")

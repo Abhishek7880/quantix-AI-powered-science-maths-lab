@@ -115,6 +115,14 @@
              border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .note { color: var(--muted); font-size: 12px; margin-top: 10px; }
+  details.corr { margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; background: var(--panel); }
+  details.corr summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+  .corr-form { display: grid; gap: 10px; margin-top: 10px; }
+  .corr-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 8px; align-items: center; font-size: 13.5px; }
+  .corr-row input { padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-solid); color: var(--ink); font: inherit; }
+  .corr-consent { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
+  .corr-form .btn { justify-self: start; }
+  @media (max-width: 600px) { .corr-row { grid-template-columns: minmax(0, 1fr); } }
   .headline { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 14px 0 4px; }
   .headline .big { font-size: 22px; font-weight: 700; }
   .badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; letter-spacing: .03em;
@@ -634,6 +642,45 @@
   let modelImgsz = {}, defaultModel = "";
   // everyday objects (Auto mode): "mug → cylinder", plus a note when the object only approximates its shape
   const objLabel = x => x.object ? `${x.object} → ${x.class_name}` : x.class_name;
+  // "Wrong? Help Quantix learn": confirm / correct each box, name missed objects, share the photo (only with consent).
+  // Saved photos become training data for tools/train_everyday.py.
+  let corrN = 0;
+  function correctionPanel(item, d) {
+    const n = ++corrN, listId = `objnames${n}`;
+    const datalist = el("datalist", { id: listId }, (d.object_names || []).map(o => el("option", { value: o })));
+    const rows = d.detections.map((x, i) => {
+      const id = `corr${n}-${i}`;
+      const inp = el("input", { id, list: listId, value: x.object || x.class_name, autocomplete: "off", spellcheck: "false",
+                                "aria-describedby": `corrhelp${n}` });
+      return { x, inp, row: el("div", { class: "corr-row" }, el("label", { for: id }, `${i + 1}. ${objLabel(x)} — this is:`), inp) };
+    });
+    const missed = el("input", { id: `corrmiss${n}`, list: listId, placeholder: "e.g. steel tumbler, dice", autocomplete: "off" });
+    const consent = el("input", { type: "checkbox", id: `corrok${n}` });
+    const status = el("p", { class: "hint", role: "status", "aria-live": "polite" });
+    const send = el("button", { class: "btn primary", type: "submit" }, "Send correction");
+    const form = el("form", { class: "corr-form", novalidate: "" },
+      el("p", { class: "hint", id: `corrhelp${n}` }, "Type the correct name, or \"none\" if it isn't an object. Leave it as it is if it's right."),
+      rows.map(r => r.row), datalist,
+      el("div", { class: "corr-row" }, el("label", { for: `corrmiss${n}` }, "Objects it missed (optional, comma-separated):"), missed),
+      el("label", { class: "corr-consent", for: `corrok${n}` }, consent,
+        " I agree to share this photo with Quantix to improve object recognition. It will be stored (location data removed)."),
+      send, status);
+    form.addEventListener("submit", async ev => {
+      ev.preventDefault();
+      if (!consent.checked) { status.textContent = "Please tick the box first — nothing is stored without it."; consent.focus(); return; }
+      const fd = new FormData();
+      fd.append("file", item.file, item.file.name);
+      fd.append("items", JSON.stringify(rows.map(r => ({ box: [r.x.x1, r.x.y1, r.x.x2, r.x.y2], predicted: r.x.object || r.x.class_name, label: r.inp.value }))));
+      fd.append("extra", JSON.stringify(missed.value.split(",").map(s => s.trim()).filter(Boolean)));
+      fd.append("lang", document.documentElement.lang || "en");
+      fd.append("consent", "true");
+      send.disabled = true; status.textContent = "Sending…";
+      const b = await api("/feedback/everyday", { method: "POST", body: fd });
+      status.textContent = b.success ? "✅ " + b.message : "⚠ " + ((b.error && b.error.errorContent) || b.message);
+      send.disabled = b.success;
+    });
+    return el("details", { class: "corr" }, el("summary", {}, "✏️ Wrong? Help Quantix learn"), form);
+  }
   function objectNotes(d) {
     const notes = [...new Map(d.detections.filter(x => x.object && x.shape_note).map(x => [x.object, x])).values()];
     return notes.length ? el("div", { class: "msg" }, notes.map(x => el("div", {}, `${x.object} → ${x.class_name}: ${x.shape_note}`))) : null;
@@ -789,7 +836,7 @@
     const parts = [
       el("div", { class: "result-head" },
         el("h2", {}, item.file.name),
-        el("span", { class: "meta" }, `${d.width}×${d.height} · ${d.latency_ms} ms on ${d.device.toUpperCase()} · conf ≥ ${Number(d.conf).toFixed(2)}`),
+        el("span", { class: "meta" }, `${d.width}×${d.height} · ${d.latency_ms} ms on ${d.device.toUpperCase()}` + (d.conf != null ? ` · conf ≥ ${Number(d.conf).toFixed(2)}` : " · Auto")),
         el("span", { class: "spacer" }), download),
       el("div", { class: "pair" },
         el("figure", {}, el("img", { src: item.url, alt: "Uploaded image" }), el("figcaption", {}, "Original")),
@@ -801,6 +848,7 @@
           : Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
               el("span", { class: "chip" }, el("i", { style: `background:${classColor(k.split(" → ").pop())}` }), `${k} × ${v}`))),
       objectNotes(d),
+      d.model === "auto" ? correctionPanel(item, d) : null,
       d.count ? el("div", { class: "table-wrap" }, el("table", {},
         el("thead", {}, el("tr", {}, ["#", "Class", "Confidence", "x1", "y1", "x2", "y2", "Width", "Height"].map(h => el("th", { scope: "col" }, h)))),
         el("tbody", {}, d.detections.map((x, i) => el("tr", {},

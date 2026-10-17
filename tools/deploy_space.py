@@ -49,7 +49,8 @@ def build(out: Path) -> Path:
     for name in ("Dockerfile", "requirements-deploy.txt", "README.md"):
         shutil.copy2(DEPLOY_FILES / name, out / name)
     shutil.copytree(ROOT / "src", out / "src", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-    for rel in MODELS:
+    optional = [f"everyday_ft/{n}" for n in ("best.pt", "classes.json") if (ROOT / "models" / "everyday_ft" / n).is_file()]
+    for rel in MODELS + optional:                  # + the fine-tuned everyday model once tools/train_everyday.py made one
         (out / "models" / rel).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / "models" / rel, out / "models" / rel)
     reg = json.loads((ROOT / "models" / "registry.json").read_text(encoding="utf-8"))
