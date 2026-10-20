@@ -37,7 +37,9 @@ UI_TEXT = {   # PDF labels
            "generated": "निर्मित", "library": "सूत्र संग्रह",
            "library_sub": "गणित (अंकगणित से कलन तक), चित्र सहित क्षेत्रमिति, भौतिकी के मात्रक एवं सूत्र"},
 }
-WATERMARK_OPACITY = 0.07   # PDF watermark (logo + author): visible when looked for, never in the way of the formulas
+AUTHOR = "Abhishek Yadav"                    # PDF brand card
+TAGLINE = "AI-powered science & maths lab"
+WATERMARK_OPACITY = 0.16   # the logo + text in the page background
 SHAPE_ORDER_2D = ["square", "rectangle", "triangle", "right_triangle", "equilateral_triangle", "parallelogram",
                   "rhombus", "trapezium", "kite", "pentagon", "hexagon", "circle", "semicircle", "sector",
                   "annulus", "ellipse"]
@@ -161,24 +163,65 @@ def build_pdf(category: str = "all", section: str | None = None, lang: str = "en
     fd = _fonts_dir()
 
     class PDF(FPDF):
+        def atom(self, cx, cy, k):
+            # the Quantix logo (favicon.svg) drawn as vectors; k = mm per svg unit (atom is 100 k wide)
+            self.set_line_width(5 * k)
+            for angle, rgb in ((0, (56, 189, 248)), (60, (167, 139, 250)), (120, (56, 189, 248))):
+                self.set_draw_color(*rgb)
+                with self.rotation(angle, x=cx, y=cy):
+                    self.ellipse(cx - 44 * k, cy - 15 * k, 88 * k, 30 * k, style="D")
+            self.set_fill_color(56, 189, 248)
+            self.circle(cx, cy, 11 * k, style="F")              # fpdf2 2.8: circle(x, y, radius) about its centre
+            self.set_fill_color(224, 242, 254)
+            self.circle(cx, cy, 6 * k, style="F")
+
+        def header(self):
+            # brand card on every page: soft light gradient card, atom + Quantix + tagline on the left,
+            # "crafted by" + author on the right, a blue -> violet line along its bottom
+            from fpdf.pattern import LinearGradient
+            x, y, w, h = self.l_margin, 7, self.w - self.l_margin - self.r_margin, 13
+            with self.use_pattern(LinearGradient(x, 0, x + w, 0, [(236, 248, 255), (243, 240, 255)])):
+                self.rect(x, y, w, h, style="F", round_corners=True, corner_radius=3.5)
+            with self.use_pattern(LinearGradient(x, 0, x + w, 0, [(56, 189, 248), (99, 102, 241), (167, 139, 250)])):
+                self.rect(x, y + h - 0.8, w, 0.8, style="F")
+            cy = y + h / 2 - 0.3
+            self.atom(x + 8, cy, 0.085)
+            self.set_font("Sans", "B", 12)
+            self.set_text_color(15, 23, 42)
+            self.set_xy(x + 14, cy - 4.6)
+            self.cell(40, 5.6, "Quantix")
+            self.set_font("Sans", "", 5.8)
+            self.set_text_color(14, 116, 144)
+            self.set_xy(x + 14, cy + 1.1)
+            self.cell(80, 3, TAGLINE.upper())
+            self.set_font("Sans", "B", 10.5)
+            aw = self.get_string_width(AUTHOR)
+            self.set_text_color(109, 40, 217)
+            self.set_xy(x + w - 5 - aw, cy - 1.6)
+            self.cell(aw, 5, AUTHOR, align="R")
+            self.set_font("Sans", "", 6.2)
+            self.set_text_color(100, 116, 139)
+            self.set_xy(x + w - 5 - aw, cy - 4.6)
+            self.cell(aw, 3, "CRAFTED BY", align="R")
+            self.set_xy(self.l_margin, self.t_margin)
         def watermark(self):
-            # light watermark over the finished page (table fills would hide one drawn underneath):
-            # the Quantix atom (favicon.svg, drawn as vectors) + the author
-            cx, cy, k = self.w / 2, self.h / 2 - 12, 1.1         # k: mm per favicon.svg unit (atom ~ 100 mm wide)
+            # the brand card's logo and text, large and faint in the middle of the page; drawn last (from footer)
+            # so table fills don't hide it
+            cx, cy = self.w / 2, self.h / 2 - 14
             with self.local_context(fill_opacity=WATERMARK_OPACITY, stroke_opacity=WATERMARK_OPACITY):
-                self.set_line_width(5 * k)
-                for angle, rgb in ((0, (56, 189, 248)), (60, (167, 139, 250)), (120, (56, 189, 248))):
-                    self.set_draw_color(*rgb)
-                    with self.rotation(angle, x=cx, y=cy):
-                        self.ellipse(cx - 44 * k, cy - 15 * k, 88 * k, 30 * k, style="D")
-                self.set_fill_color(56, 189, 248)
-                self.circle(cx, cy, 13 * k, style="F")          # fpdf2 2.8: circle(x, y, radius) about its centre
+                self.atom(cx, cy, 1.0)
+                self.set_text_color(15, 23, 42)
                 self.set_font("Sans", "B", 40)
-                self.set_text_color(31, 111, 235)
-                self.set_xy(0, cy + 52 * k)
-                self.cell(self.w, 16, "Quantix", align="C", new_x="LMARGIN", new_y="NEXT")
-                self.set_font("Sans", "", 16)
-                self.cell(self.w - 2 * self.l_margin, 9, "Abhishek Yadav", align="C")
+                self.set_xy(0, cy + 50)
+                self.cell(self.w, 16, "Quantix", align="C")
+                self.set_text_color(14, 116, 144)
+                self.set_font("Sans", "", 12)
+                self.set_xy(0, cy + 66)
+                self.cell(self.w, 7, TAGLINE.upper(), align="C")
+                self.set_text_color(109, 40, 217)
+                self.set_font("Sans", "B", 14)
+                self.set_xy(0, cy + 75)
+                self.cell(self.w, 8, f"Crafted by {AUTHOR}", align="C")
 
         def footer(self):
             self.watermark()
@@ -186,7 +229,6 @@ def build_pdf(category: str = "all", section: str | None = None, lang: str = "en
             self.set_font(TXT, "", 8)
             self.set_text_color(120, 120, 120)
             self.cell(0, 8, f"{ui['page']} {self.page_no()}", align="C")
-
     pdf = PDF(format="A4")
     pdf.set_auto_page_break(True, margin=16)
     pdf.add_font("Sans", "", str(fd / "DejaVuSans.ttf"))
@@ -204,7 +246,7 @@ def build_pdf(category: str = "all", section: str | None = None, lang: str = "en
         TXT = "Hi"
     # ∮ is missing from DejaVu Serif and maths symbols from Noto Devanagari: fall back to DejaVu Sans
     pdf.set_fallback_fonts(["Sans", "Hi"] if hi else ["Sans"], exact_match=False)
-    pdf.set_margins(14, 14, 14)
+    pdf.set_margins(14, 26, 14)                      # top 26 mm: room for the brand card
     pdf.add_page()
 
     # title block
