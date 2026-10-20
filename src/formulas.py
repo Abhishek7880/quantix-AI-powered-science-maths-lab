@@ -37,6 +37,7 @@ UI_TEXT = {   # PDF labels
            "generated": "निर्मित", "library": "सूत्र संग्रह",
            "library_sub": "गणित (अंकगणित से कलन तक), चित्र सहित क्षेत्रमिति, भौतिकी के मात्रक एवं सूत्र"},
 }
+WATERMARK_OPACITY = 0.07   # PDF watermark (logo + author): visible when looked for, never in the way of the formulas
 SHAPE_ORDER_2D = ["square", "rectangle", "triangle", "right_triangle", "equilateral_triangle", "parallelogram",
                   "rhombus", "trapezium", "kite", "pentagon", "hexagon", "circle", "semicircle", "sector",
                   "annulus", "ellipse"]
@@ -160,7 +161,27 @@ def build_pdf(category: str = "all", section: str | None = None, lang: str = "en
     fd = _fonts_dir()
 
     class PDF(FPDF):
+        def watermark(self):
+            # light watermark over the finished page (table fills would hide one drawn underneath):
+            # the Quantix atom (favicon.svg, drawn as vectors) + the author
+            cx, cy, k = self.w / 2, self.h / 2 - 12, 1.1         # k: mm per favicon.svg unit (atom ~ 100 mm wide)
+            with self.local_context(fill_opacity=WATERMARK_OPACITY, stroke_opacity=WATERMARK_OPACITY):
+                self.set_line_width(5 * k)
+                for angle, rgb in ((0, (56, 189, 248)), (60, (167, 139, 250)), (120, (56, 189, 248))):
+                    self.set_draw_color(*rgb)
+                    with self.rotation(angle, x=cx, y=cy):
+                        self.ellipse(cx - 44 * k, cy - 15 * k, 88 * k, 30 * k, style="D")
+                self.set_fill_color(56, 189, 248)
+                self.circle(cx, cy, 13 * k, style="F")          # fpdf2 2.8: circle(x, y, radius) about its centre
+                self.set_font("Sans", "B", 40)
+                self.set_text_color(31, 111, 235)
+                self.set_xy(0, cy + 52 * k)
+                self.cell(self.w, 16, "Quantix", align="C", new_x="LMARGIN", new_y="NEXT")
+                self.set_font("Sans", "", 16)
+                self.cell(self.w - 2 * self.l_margin, 9, "Abhishek Yadav", align="C")
+
         def footer(self):
+            self.watermark()
             self.set_y(-12)
             self.set_font(TXT, "", 8)
             self.set_text_color(120, 120, 120)
