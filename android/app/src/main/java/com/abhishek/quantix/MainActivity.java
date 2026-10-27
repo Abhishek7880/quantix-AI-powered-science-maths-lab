@@ -84,6 +84,54 @@ public class MainActivity extends Activity {
         setUpWebView();
         if (saved != null) web.restoreState(saved);
         else web.loadUrl(startUrl(getIntent()));
+        checkForUpdate();
+    }
+
+    @SuppressWarnings("deprecation")
+    private void applyBars(boolean dark, String bg) {
+        int c;
+        try { c = Color.parseColor(bg.trim()); } catch (Exception e) { c = Color.parseColor(dark ? "#050a16" : "#eef3fb"); }
+        Window w = getWindow();
+        w.setStatusBarColor(c);
+        w.setNavigationBarColor(c);
+        View d = w.getDecorView();
+        int f = d.getSystemUiVisibility();
+        if (dark) f &= ~(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | (Build.VERSION.SDK_INT >= 26 ? View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR : 0));
+        else f |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | (Build.VERSION.SDK_INT >= 26 ? View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR : 0);
+        d.setSystemUiVisibility(f);
+    }
+
+    /** Once per start: if the site offers a newer APK, offer it (the app is not on a store, so this is how updates reach people). */
+    private void checkForUpdate() {
+        new Thread(() -> {
+            try {
+                java.net.HttpURLConnection c = (java.net.HttpURLConnection) new java.net.URL(SITE + "/web/app/version.json").openConnection();
+                c.setConnectTimeout(6000); c.setReadTimeout(6000);
+                java.io.InputStream in = c.getInputStream();
+                java.io.ByteArrayOutputStream b = new java.io.ByteArrayOutputStream();
+                byte[] buf = new byte[4096]; int n;
+                while ((n = in.read(buf)) > 0) b.write(buf, 0, n);
+                in.close();
+                org.json.JSONObject j = new org.json.JSONObject(b.toString("UTF-8"));
+                int code = j.optInt("versionCode", 0);
+                if (code <= BuildConfig.VERSION_CODE) return;
+                String name = j.optString("versionName", "");
+                boolean hi = "hi".equals(getResources().getConfiguration().locale.getLanguage());
+                org.json.JSONObject notes = j.optJSONObject("notes");
+                String text = notes != null ? notes.optString(hi ? "hi" : "en", "") : "";
+                String url = j.optString("url", "/web/app/Quantix.apk");
+                String full = url.startsWith("http") ? url : SITE + url;
+                runOnUiThread(() -> {
+                    if (isFinishing()) return;
+                    new android.app.AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.update_title) + " " + name)
+                        .setMessage(text.isEmpty() ? getString(R.string.update_text) : text)
+                        .setPositiveButton(R.string.update_now, (dlg, w) -> openOutside(Uri.parse(full)))
+                        .setNegativeButton(R.string.later, null)
+                        .show();
+                });
+            } catch (Exception ignored) { /* offline or no file: nothing to do */ }
+        }).start();
     }
 
     private int dp(int v) { return Math.round(v * getResources().getDisplayMetrics().density); }
@@ -142,6 +190,11 @@ public class MainActivity extends Activity {
             public void onPageFinished(WebView view, String url) {
                 progress.setVisibility(View.GONE);
                 if (!url.startsWith("file:")) { showingOffline = false; injectDownloadHook(); }
+                // labs: keep the screen awake while an experiment runs
+                String path = Uri.parse(url).getPath();
+                boolean lab = path != null && path.matches("^/(circuit|plc|chemlab|physics|graph)/?$");
+                if (lab) getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                 CookieManager.getInstance().flush();
             }
 
@@ -222,6 +275,21 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void retry(String url) { runOnUiThread(() -> MainActivity.this.retry(url)); }
+
+        /** The page reports its theme so the status and navigation bars match it (dark or light). */
+        @JavascriptInterface
+        public void theme(boolean dark, String bg) { runOnUiThread(() -> applyBars(dark, bg)); }
+
+        @JavascriptInterface
+        public void share(String title, String url) {
+            runOnUiThread(() -> {
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType("text/plain");
+                i.putExtra(Intent.EXTRA_SUBJECT, title);
+                i.putExtra(Intent.EXTRA_TEXT, title + "\n" + url);
+                try { startActivity(Intent.createChooser(i, getString(R.string.share))); } catch (ActivityNotFoundException ignored) { }
+            });
+        }
     }
 
     private void saveDataUrl(String dataUrl, String name) {

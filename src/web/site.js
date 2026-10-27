@@ -49,6 +49,49 @@
     });
   }
 
+  // installable web app + offline labs (sw.js); the Lite static site has no /sw.js and simply skips this
+  if (!document.querySelector('link[rel="manifest"]')) {
+    const m = document.createElement("link"); m.rel = "manifest"; m.href = "/web/manifest.webmanifest"; document.head.append(m);
+  }
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || /^(localhost|127\.0\.0\.1)$/.test(location.hostname))) {
+    addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => { /* not available on this host */ }));
+  }
+
+  // phones: a ☰ button opens the tabs as a drawer (plus Share / Reload in the Android app)
+  const header = document.querySelector("header");
+  if (nav && header) {
+    const mb = document.createElement("button");
+    mb.type = "button"; mb.className = "menu-btn"; mb.textContent = "☰";
+    mb.setAttribute("aria-expanded", "false"); mb.setAttribute("aria-label", "Menu");
+    header.append(mb);
+    const setOpen = (open) => {
+      header.classList.toggle("nav-open", open); document.body.classList.toggle("nav-open", open);
+      mb.setAttribute("aria-expanded", String(open)); mb.textContent = open ? "✕" : "☰";
+      if (open) { const a = nav.querySelector("a.on") || nav.querySelector("a"); if (a) a.focus(); }
+    };
+    mb.addEventListener("click", () => setOpen(!header.classList.contains("nav-open")));
+    nav.addEventListener("click", (e) => { if (e.target.closest("a, .nav-extra")) setOpen(false); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && header.classList.contains("nav-open")) { setOpen(false); mb.focus(); } });
+    document.addEventListener("click", (e) => { if (header.classList.contains("nav-open") && !header.contains(e.target)) setOpen(false); });
+    const extra = (label, fn) => { const b = document.createElement("button"); b.type = "button"; b.className = "nav-extra"; b.textContent = label; b.addEventListener("click", fn); nav.append(b); return b; };
+    if (navigator.share || window.QuantixAndroid) extra("📤 Share", () => share({ title: document.title, url: location.href }));
+    if (window.QuantixAndroid) extra("⟳ Reload", () => location.reload());
+  }
+  function share(d) {
+    if (window.QuantixAndroid && QuantixAndroid.share) QuantixAndroid.share(d.title || "Quantix", d.url || location.href);
+    else if (navigator.share) navigator.share(d).catch(() => {});
+  }
+  window.QuantixShare = share;
+  // the Android app follows the page theme for its status bar
+  function reportTheme() {
+    if (!window.QuantixAndroid || !QuantixAndroid.theme) return;
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    QuantixAndroid.theme(dark, getComputedStyle(root).getPropertyValue("--bg").trim() || (dark ? "#050a16" : "#eef3fb"));
+  }
+  new MutationObserver(reportTheme).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", reportTheme);
+  addEventListener("load", reportTheme);
+
   // footer
   const foot = document.createElement("footer");
   foot.className = "site-foot";

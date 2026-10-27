@@ -635,7 +635,7 @@
   $("openBtn").onclick = () => $("fileIn").click();
   $("fileIn").onchange = (e) => { const f = e.target.files[0]; if (f) f.text().then((x) => load(JSON.parse(x))).catch(() => say("✗ JSON")); e.target.value = ""; };
   const enc = (o) => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  $("shareBtn").onclick = () => { const hsh = "#p=" + enc(S.prog); history.replaceState(null, "", hsh); (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).then(() => say(t("copied")), () => {}); };
+  $("shareBtn").onclick = () => { const hsh = "#p=" + enc(S.prog); history.replaceState(null, "", hsh); if (window.QuantixShare && (navigator.share || window.QuantixAndroid)) { window.QuantixShare({ title: "PLC Lab · Quantix", url: location.href }); return; } (navigator.clipboard ? navigator.clipboard.writeText(location.href) : Promise.reject()).then(() => say(t("copied")), () => {}); };
   document.addEventListener("keydown", (e) => {
     const inLadder = $("ladder").contains(document.activeElement);
     const ctrl = e.ctrlKey || e.metaKey;

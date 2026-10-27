@@ -268,6 +268,13 @@ def _site_url(request: Request) -> str:
     return (url or str(request.base_url)).rstrip("/")
 
 
+@app.get("/sw.js", include_in_schema=False)
+def service_worker():
+    """Offline support for the labs (src/web/sw.js). Served from the root so it may cache every page."""
+    return FileResponse(WEB_DIR / "sw.js", media_type="text/javascript",
+                        headers={"Cache-Control": "no-cache", "Service-Worker-Allowed": "/"})
+
+
 @app.get("/robots.txt", include_in_schema=False)
 def robots_txt(request: Request):
     body = (f"User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /contact/inbox\nDisallow: /docs\n\n"

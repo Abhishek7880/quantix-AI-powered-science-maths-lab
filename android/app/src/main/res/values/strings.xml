@@ -13,4 +13,9 @@
     <string name="sc_chem">Chemistry Lab</string>
     <string name="sc_plc">PLC Lab</string>
     <string name="sc_photo">Photo AI</string>
+    <string name="share">Share</string>
+    <string name="update_title">Update available:</string>
+    <string name="update_text">A newer version of Quantix is ready. Download and install it now?</string>
+    <string name="update_now">Update</string>
+    <string name="later">Later</string>
 </resources>

@@ -96,6 +96,19 @@
   .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; border: 1px solid rgba(0,0,0,.3); vertical-align: middle; }
   #safety ul { margin: 0; padding-left: 4px; list-style: none; font-size: 13px; color: var(--warn); }
   #safety li { margin: 3px 0; }
+  /* phones: the bench first, shelf below it, observations last */
+  @media (max-width: 760px) {
+    main { display: flex !important; flex-direction: column; padding-top: 8px; }
+    main > section.card { order: 1; padding: 8px; }
+    main > section:first-child { order: 2; }
+    .side-r { order: 3; display: flex !important; }
+    .stage { height: 56vh; min-height: 340px; }
+    .ptable { grid-template-columns: repeat(18, 34px); width: max-content; }
+    .el { min-height: 34px; font-size: 11px; }
+    #shelf { max-height: 60vh; }
+    .chem { min-height: 44px; }
+    .meters { gap: 4px; } .meter { min-width: 96px; padding: 4px 8px; } .meter .v { font-size: 15px; }
+  }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -172,8 +185,8 @@
 <div id="say" class="sr-only" aria-live="polite"></div>
 
 <script src="/web/vendor/three.min.js"></script>
-<script src="/web/chem_engine.js?v=20261028d"></script>
-<script src="/web/chem_ui.js?v=20261028d"></script>
+<script src="/web/chem_engine.js?v=20261029a"></script>
+<script src="/web/chem_ui.js?v=20261029a"></script>
 <script src="/web/sci_bg.js"></script>
 <script src="/web/site.js"></script>
 </body>

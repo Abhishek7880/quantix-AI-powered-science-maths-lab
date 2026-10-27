@@ -1,0 +1,19 @@
+{
+  "name": "Quantix — AI-powered science & maths lab",
+  "short_name": "Quantix",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050a16",
+  "theme_color": "#050a16",
+  "description": "Photo AI for shapes, formulas, periodic table, and circuit, PLC, chemistry and physics labs.",
+  "icons": [
+    { "src": "/web/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/web/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ],
+  "shortcuts": [
+    { "name": "Circuit Lab", "url": "/circuit" },
+    { "name": "Chemistry Lab", "url": "/chemlab" },
+    { "name": "PLC Lab", "url": "/plc" }
+  ]
+}

@@ -140,6 +140,20 @@
   .ctxmenu .mh { font: 600 11px var(--f-mono); color: var(--muted); padding: 4px 8px; }
   .ctxmenu button { text-align: left; padding: 7px 10px; border: 0; border-radius: 8px; background: none; color: var(--ink); font: inherit; font-size: 13.5px; cursor: pointer; }
   .ctxmenu button:hover, .ctxmenu button:focus-visible { background: var(--soft); }
+  /* phones: the board first, parts list below it, properties last */
+  @media (max-width: 760px) {
+    main { display: flex !important; flex-direction: column; padding-top: 8px; }
+    main > section.card { order: 1; padding: 8px; }
+    .palette-card { order: 2; position: static; max-height: none; }
+    #palette { max-height: none; }
+    .side-r { order: 3; display: flex !important; }
+    .stage { height: 64vh; min-height: 360px; }
+    .toolbar { gap: 4px; } .toolbar .sep { display: none; } .toolbar select { max-width: 46vw; }
+    #scope { height: 160px; }
+    .pgrid { grid-template-columns: repeat(4, 1fr); }
+    .pgrid .pitem { font-size: 11px; padding: 6px 2px; }
+    .pitem { min-height: 44px; }
+  }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -239,9 +253,9 @@
 </main>
 <div id="say" class="sr-only" aria-live="polite"></div>
 
-<script src="/web/circuit_sim.js?v=20261028d"></script>
-<script src="/web/circuit_examples.js?v=20261028d"></script>
-<script src="/web/circuit_ui.js?v=20261028d"></script>
+<script src="/web/circuit_sim.js?v=20261029a"></script>
+<script src="/web/circuit_examples.js?v=20261029a"></script>
+<script src="/web/circuit_ui.js?v=20261029a"></script>
 <script src="/web/sci_bg.js"></script>
 <script src="/web/site.js"></script>
 </body>

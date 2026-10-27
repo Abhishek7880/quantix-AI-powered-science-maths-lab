@@ -141,6 +141,18 @@
   .cfggrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 6px 16px; margin-top: 8px; }
   .cfgrow { display: grid; grid-template-columns: 1fr 1.2fr auto; gap: 8px; align-items: center; font-size: 13px; }
   .cfgrow output { font: 600 12px var(--f-mono); color: var(--accent); min-width: 64px; text-align: right; }
+  /* phones: the machine and the ladder first, examples and tag names after */
+  @media (max-width: 760px) {
+    main { display: flex !important; flex-direction: column; padding-top: 8px; }
+    main > section:nth-child(2) { order: 1; }
+    .side-l { order: 2; }
+    .side-r { order: 3; display: flex !important; }
+    #scene { height: 240px; }
+    .inbtn { min-height: 44px; padding: 8px 14px; }
+    .el { min-width: 64px; } .tool { min-width: 48px; min-height: 44px; }
+    .plus { width: 36px; height: 36px; }
+    .exbtn { min-height: 44px; }
+  }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -233,8 +245,8 @@
 </main>
 <div id="say" class="sr-only" aria-live="polite"></div>
 
-<script src="/web/plc_engine.js?v=20261028d"></script>
-<script src="/web/plc_ui.js?v=20261028d"></script>
+<script src="/web/plc_engine.js?v=20261029a"></script>
+<script src="/web/plc_ui.js?v=20261029a"></script>
 <script src="/web/sci_bg.js"></script>
 <script src="/web/site.js"></script>
 </body>

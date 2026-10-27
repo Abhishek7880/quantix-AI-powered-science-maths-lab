@@ -598,6 +598,7 @@
   // ------------------------------------------------------------------ pointer
   let drag = null;
   const local = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  const capture = (e) => { try { cv.setPointerCapture(e.pointerId); } catch (_) { /* pointer already gone */ } };
   // nearest connection point (pin or wire end) within `max` grid units — wires snap to it
   function nearestPoint(g, max, skipWire) {
     let best = null, bd = max;
@@ -626,6 +627,55 @@
     announce("⟋ " + a.join(",") + " → " + b.join(","));
     return true;
   }
+  // ---- touch: two fingers pinch-zoom and pan; a long press opens the part / wire menu (registered first, capture phase)
+  const touches = new Map();
+  let pinch = null, lpTimer = null;
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  cv.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "touch") return;
+    const [px, py] = local(e);
+    touches.set(e.pointerId, { p: [px, py], start: [px, py] });
+    clearTimeout(lpTimer);
+    if (touches.size === 2) {
+      if (drag && drag.kind === "part" && drag.moved) { S.circuit.wires = JSON.parse(drag.wires); drag.part.x = drag.orig[0]; drag.part.y = drag.orig[1]; S.sim.update(S.circuit); }
+      drag = null; S.wireDrag = null;
+      const [a, b] = [...touches.values()].map((t) => t.p);
+      pinch = { d: dist(a, b), mid: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], scale: S.view.scale, ox: S.view.ox, oy: S.view.oy };
+      e.stopImmediatePropagation();
+      return;
+    }
+    lpTimer = setTimeout(() => {
+      if (touches.size !== 1 || (drag && drag.moved)) return;
+      const g = toGrid(px, py), p = hitPart(g);
+      if (drag && drag.kind === "part" && drag.part.type === "button" && S.pressing) { S.pressing.p.on = false; S.pressing = null; }
+      drag = null; S.wireDrag = null;
+      if (navigator.vibrate) navigator.vibrate(18);
+      if (p) { S.sel = { kind: "part", id: p.id }; renderPanels(true); showMenu(p, px, py); return; }
+      const wk = hitWire(g);
+      if (wk >= 0) { S.sel = { kind: "wire", k: wk }; renderPanels(true); showWireMenu(wk, g, px, py); }
+    }, 550);
+  }, true);
+  cv.addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "touch" || !touches.has(e.pointerId)) return;
+    const t = touches.get(e.pointerId), [px, py] = local(e);
+    t.p = [px, py];
+    if (dist(t.p, t.start) > 8) clearTimeout(lpTimer);
+    if (pinch && touches.size >= 2) {
+      const [a, b] = [...touches.values()].map((x) => x.p), d = dist(a, b), mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      const sc = Math.max(6, Math.min(70, pinch.scale * d / Math.max(10, pinch.d)));
+      const gx = (pinch.mid[0] - pinch.ox) / pinch.scale, gy = (pinch.mid[1] - pinch.oy) / pinch.scale;   // grid point under the fingers stays put
+      S.view.scale = sc; S.view.ox = mid[0] - gx * sc; S.view.oy = mid[1] - gy * sc;
+      e.stopImmediatePropagation();
+    }
+  }, true);
+  const touchEnd = (e) => {
+    if (e.pointerType !== "touch") return;
+    touches.delete(e.pointerId); clearTimeout(lpTimer);
+    if (pinch) { if (touches.size < 2) { pinch = null; if (!touches.size) e.stopImmediatePropagation(); } }
+  };
+  cv.addEventListener("pointerup", touchEnd, true);
+  cv.addEventListener("pointercancel", touchEnd, true);
+
   cv.addEventListener("pointerdown", (e) => {
     cv.focus({ preventScroll: true }); hideMenu();
     const [px, py] = local(e), g = toGrid(px, py), sp = snapPt(g);
@@ -633,7 +683,7 @@
       const p = hitPart(g); if (p) { S.sel = { kind: "part", id: p.id }; renderPanels(true); showMenu(p, px, py); return; }
       const wk = hitWire(g); if (wk >= 0) { S.sel = { kind: "wire", k: wk }; renderPanels(true); showWireMenu(wk, g, px, py); return; }
     }
-    if (e.button === 1 || e.button === 2) { drag = { kind: "pan", sx: px, sy: py, ox: S.view.ox, oy: S.view.oy }; cv.setPointerCapture(e.pointerId); return; }
+    if (e.button === 1 || e.button === 2) { drag = { kind: "pan", sx: px, sy: py, ox: S.view.ox, oy: S.view.oy }; capture(e); return; }
     if (S.mode === "place" && S.placing) { placePart(S.placing, sp); return; }
     if (S.mode === "cut") { const wk = hitWire(g); if (wk >= 0) cutWire(wk, g); return; }
     if (S.mode === "wire") {
@@ -647,28 +697,28 @@
       return;
     }
     // select mode. A part is grabbed by its body; only a press right on a pin dot starts a wire.
-    const p = hitPart(g);
-    const pin = nearestPin(g, p ? 0.3 : 0.5);
-    if (pin) { S.wireDrag = { a: pin }; drag = { kind: "wire" }; cv.setPointerCapture(e.pointerId); return; }
+    const p = hitPart(g), touch = e.pointerType === "touch";
+    const pin = nearestPin(g, p ? (touch ? 0.5 : 0.3) : (touch ? 0.85 : 0.5));   // fingers get bigger pin targets
+    if (pin) { S.wireDrag = { a: pin }; drag = { kind: "wire" }; capture(e); return; }
     const fe = !p && freeEnd(g);
-    if (fe) { S.sel = { kind: "wire", k: fe.k }; drag = { kind: "wireEnd", k: fe.k, end: fe.end, wires: JSON.stringify(S.circuit.wires) }; cv.setPointerCapture(e.pointerId); return; }
+    if (fe) { S.sel = { kind: "wire", k: fe.k }; drag = { kind: "wireEnd", k: fe.k, end: fe.end, wires: JSON.stringify(S.circuit.wires) }; capture(e); return; }
     if (p) {
       S.sel = { kind: "part", id: p.id }; renderPanels(true);
       if (p.type === "button") { p.p.on = true; S.pressing = p; }
       drag = { kind: "part", part: p, start: sp, orig: [p.x, p.y], att: attachments(p), moved: false, before: snapshot(), wires: JSON.stringify(S.circuit.wires) };
-      cv.setPointerCapture(e.pointerId);
+      capture(e);
       return;
     }
     const wk = hitWire(g);
     if (wk >= 0) {   // pressing on a wire: select it, and dragging from it starts a branch wire
       S.sel = { kind: "wire", k: wk }; renderPanels(true);
       const w = S.circuit.wires[wk];
-      if (CS.onSegment(sp[0], sp[1], w)) { S.wireDrag = { a: sp, fromWire: true }; drag = { kind: "wire", sx: px, sy: py }; cv.setPointerCapture(e.pointerId); }
+      if (CS.onSegment(sp[0], sp[1], w)) { S.wireDrag = { a: sp, fromWire: true }; drag = { kind: "wire", sx: px, sy: py }; capture(e); }
       return;
     }
     S.sel = null; renderPanels(true);
     drag = { kind: "pan", sx: px, sy: py, ox: S.view.ox, oy: S.view.oy };
-    cv.setPointerCapture(e.pointerId);
+    capture(e);
   });
   cv.addEventListener("pointermove", (e) => {
     const [px, py] = local(e), g = toGrid(px, py);
@@ -1145,6 +1195,9 @@
       onclick: (e) => {
         if (palDrag.done) { palDrag.done = false; return; }
         if (S.insertAt) { const at = S.insertAt; S.insertAt = null; placePart(d.type, at); cv.focus(); return; }
+        if (matchMedia("(max-width: 760px)").matches) {   // phones: the list is below the board, so place at once and show it
+          placePart(d.type, freeSpot(d.type)); $("stage").scrollIntoView({ behavior: "smooth", block: "center" }); return;
+        }
         if (e.detail === 0) { const at = freeSpot(d.type); placePart(d.type, at); cv.focus(); return; }   // keyboard: place at once
         S.placing = d.type; setMode("place"); renderPalette(); announce(t("place"));
       } }, h("span", { class: "pic", "aria-hidden": "true" }, d.icon), h("span", {}, tr(d.name)));
@@ -1411,7 +1464,7 @@
   function setView(three) {
     if (three && !window.CircuitPCB3D) {
       $("v3d").disabled = true;
-      (window.THREE ? Promise.resolve() : loadScript("/web/vendor/three.min.js")).then(() => loadScript("/web/circuit_3d.js?v=20261028c"))
+      (window.THREE ? Promise.resolve() : loadScript("/web/vendor/three.min.js")).then(() => loadScript("/web/circuit_3d.js?v=20261029a"))
         .then(() => { $("v3d").disabled = false; setView(true); }, () => { $("v3d").disabled = false; announce("3D could not load."); });
       return;
     }
@@ -1473,6 +1526,7 @@
   $("shareBtn").onclick = () => {
     const url = location.origin + location.pathname + "#c=" + encode(S.circuit);
     history.replaceState(null, "", "#c=" + encode(S.circuit));
+    if (window.QuantixShare && (navigator.share || window.QuantixAndroid)) { window.QuantixShare({ title: t("title") + " · Quantix", url: url }); return; }
     (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => announce(t("copied")), () => announce(t("copyFail")));
     $("say").textContent = navigator.clipboard ? t("copied") : t("copyFail");
   };
