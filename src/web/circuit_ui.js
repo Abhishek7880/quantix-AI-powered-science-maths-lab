@@ -20,7 +20,7 @@
       slowed: "Your computer can't keep up — running slower than the chosen speed.", t: "t", nodes: "nodes", empty: "Empty board — add parts or load an example.",
       placed: "placed", deleted: "deleted", copied: "Share link copied", copyFail: "Could not copy — the link is in the address bar.",
       bad: "Not a number. Examples: 4.7k, 10u, 2M2, 100n", col: ["Part", "Value", "V", "I", "P", ""], volts: "V", amps: "A", watts: "W",
-      keys: "Keys: Arrows move · R rotate · Del delete · W wire · Esc select · Space run/pause (or press a selected switch) · Ctrl+Z / Ctrl+Y · +/− zoom · [ ] next part",
+      keys: "Mouse: drag parts from the list · drag from a pin to wire · double-click to edit · right-click for options.  Keys: [ ] pick part · Enter edit · Arrows move · R rotate · Del delete · W wire · Space run/pause or press a switch · Ctrl+Z / Ctrl+Y",
       tip3d: "Drag to rotate · wheel to zoom · double-click to reset. Live: LEDs, lamps and the motor follow the simulation.",
       rt: "real time", min: "Vmin", max: "Vmax", pp: "p-p", avg: "avg", rms: "RMS", freq: "f", place: "Click the board to place", wiring: "Click to finish the wire (Shift: vertical first) · Esc to stop",
       events: { burnt: "burnt out", reversed: "burst (reversed polarity)", overvoltage: "burst (over-voltage)", breakdown: "broke down (reverse voltage)", blown: "fuse blown" },
@@ -37,15 +37,56 @@
       slowed: "कंप्यूटर साथ नहीं दे पा रहा — चुनी गति से धीमा चल रहा है।", t: "t", nodes: "नोड", empty: "बोर्ड खाली है — घटक जोड़ें या उदाहरण खोलें।",
       placed: "रखा गया", deleted: "हटाया गया", copied: "शेयर लिंक कॉपी हुआ", copyFail: "कॉपी नहीं हुआ — लिंक पता-पट्टी में है।",
       bad: "संख्या नहीं है। उदाहरण: 4.7k, 10u, 2M2, 100n", col: ["घटक", "मान", "V", "I", "P", ""], volts: "V", amps: "A", watts: "W",
-      keys: "कुंजियाँ: तीर खिसकाएँ · R घुमाएँ · Del हटाएँ · W तार · Esc चुनें · Space चलाएँ/रोकें (या चुना स्विच दबाएँ) · Ctrl+Z / Ctrl+Y · +/− ज़ूम · [ ] अगला घटक",
+      keys: "माउस: सूची से घटक खींचें · तार के लिए पिन से खींचें · बदलने के लिए डबल-क्लिक · विकल्पों के लिए राइट-क्लिक।  कुंजियाँ: [ ] घटक चुनें · Enter बदलें · तीर खिसकाएँ · R घुमाएँ · Del हटाएँ · W तार · Space चलाएँ/रोकें या स्विच दबाएँ · Ctrl+Z / Ctrl+Y",
       tip3d: "घुमाने के लिए खींचें · ज़ूम के लिए व्हील · रीसेट के लिए डबल-क्लिक। एलईडी, बल्ब और मोटर सिमुलेशन के साथ चलते हैं।",
       rt: "वास्तविक समय", min: "Vmin", max: "Vmax", pp: "p-p", avg: "औसत", rms: "RMS", freq: "f", place: "रखने के लिए बोर्ड पर क्लिक करें", wiring: "तार पूरा करने के लिए क्लिक करें (Shift: पहले खड़ा) · रोकने के लिए Esc",
       events: { burnt: "जल गया", reversed: "फट गया (उल्टी ध्रुवता)", overvoltage: "फट गया (अधिक वोल्टेज)", breakdown: "टूट गया (पश्च वोल्टेज)", blown: "फ़्यूज़ उड़ गया" },
       speeds: [[1, "1 s / s (वास्तविक समय)"], [0.1, "100 ms / s"], [0.01, "10 ms / s"], [0.001, "1 ms / s"], [1e-4, "100 µs / s"], [1e-5, "10 µs / s"], [1e-6, "1 µs / s"], [0.05, "50 ms / s"]],
     },
   };
+  // ease-of-use + customisation texts
+  Object.assign(TX.en, { common: "Most used", quick: "Quick values", settings: "⚙ Settings", style: "Symbols", iec: "IEC / Indian (box resistor)", ansi: "US / ANSI (zig-zag)",
+    grid: "Grid dots", vcol: "Colour wires by voltage", dots: "Moving current dots", vals: "Show values on parts", board: "3D board colour",
+    boards: [["green", "Green"], ["blue", "Blue"], ["black", "Black"], ["red", "Red"], ["white", "White"], ["purple", "Purple"]],
+    bands: "Colour bands", smd: "SMD code", edit: "✎ Edit value", toggle: "⇄ Switch on / off", dragPin: "drag to connect",
+    tip: ["Drag a part from the left onto the board.", "Drag from a pin (small dot) to another pin to connect a wire.", "Press ▶ Run, click switches, double-click a part to change its value."], gotIt: "Got it",
+    auto: "auto" });
+  Object.assign(TX.hi, { common: "सबसे ज़्यादा उपयोग", quick: "त्वरित मान", settings: "⚙ सेटिंग्स", style: "चिह्न", iec: "IEC / भारतीय (डिब्बा प्रतिरोधक)", ansi: "US / ANSI (ज़िग-ज़ैग)",
+    grid: "ग्रिड बिंदु", vcol: "वोल्टेज से तारों का रंग", dots: "चलते धारा बिंदु", vals: "घटकों पर मान दिखाएँ", board: "3D बोर्ड का रंग",
+    boards: [["green", "हरा"], ["blue", "नीला"], ["black", "काला"], ["red", "लाल"], ["white", "सफ़ेद"], ["purple", "बैंगनी"]],
+    bands: "रंग पट्टियाँ", smd: "SMD कोड", edit: "✎ मान बदलें", toggle: "⇄ चालू / बंद", dragPin: "जोड़ने के लिए खींचें",
+    tip: ["बाईं ओर से घटक खींचकर बोर्ड पर छोड़ें।", "किसी पिन (छोटा बिंदु) से दूसरे पिन तक खींचकर तार जोड़ें।", "▶ चलाएँ दबाएँ, स्विच क्लिक करें, मान बदलने के लिए घटक पर डबल-क्लिक करें।"], gotIt: "समझ गया",
+    auto: "स्वतः" });
+  const COMMON = ["battery", "resistor", "led", "switch", "capacitor", "button", "ground", "voltmeter"];
+  // one-click values for each part (the field still takes any value)
+  const PRESETS = {
+    resistor: { R: [10, 100, 220, 330, 470, 1e3, 2.2e3, 4.7e3, 10e3, 22e3, 47e3, 100e3, 1e6], Pmax: [0.125, 0.25, 0.5, 1, 2, 5] },
+    pot: { R: [1e3, 5e3, 10e3, 50e3, 100e3, 1e6], pos: [0, 25, 50, 75, 100] },
+    capacitor: { C: [10e-12, 100e-12, 1e-9, 10e-9, 100e-9, 1e-6, 10e-6], Vmax: [16, 50, 100, 250, 630] },
+    electrolytic: { C: [1e-6, 10e-6, 47e-6, 100e-6, 220e-6, 470e-6, 1000e-6, 2200e-6], Vmax: [6.3, 10, 16, 25, 35, 50, 63, 100, 400] },
+    inductor: { L: [1e-6, 10e-6, 100e-6, 1e-3, 10e-3, 100e-3, 1], R: [0, 0.1, 1, 10] },
+    battery: { V: [1.5, 3, 3.7, 4.5, 5, 6, 9, 12, 24], r: [0.01, 0.1, 0.5, 1] },
+    dcsupply: { V: [1.8, 3.3, 5, 9, 12, 15, 24, 30], Ilim: [0.05, 0.1, 0.5, 1, 2, 5] },
+    acsource: { Vp: [1, 5, 10, 12, 17, 170, 325], f: [1, 10, 50, 60, 100, 1e3, 10e3] },
+    isource: { I: [1e-3, 10e-3, 20e-3, 100e-3, 1] },
+    zener: { Vz: [2.7, 3.3, 4.7, 5.1, 5.6, 6.2, 9.1, 12, 15], Pmax: [0.5, 1, 5] },
+    led: { Vf: [0, 1.8, 2.0, 2.2, 3.0, 3.3], Imax: [0.02, 0.03, 0.05, 0.35] },
+    npn: { beta: [50, 100, 200, 400] }, pnp: { beta: [50, 100, 200, 400] },
+    nmos: { Vth: [1, 2, 3, 4] }, pmos: { Vth: [1, 2, 3, 4] },
+    opamp: { Vhi: [3.3, 5, 9, 12, 15], Vlo: [0, -5, -9, -12, -15] },
+    relay: { Vcoil: [5, 12, 24], Rcoil: [70, 280, 1100] }, fuse: { Ir: [0.1, 0.5, 1, 2, 5, 10] },
+    lamp: { Vr: [3, 6, 12, 24, 230], Wr: [0.5, 1, 5, 21, 60, 100] }, motor: { load: [0, 1e-3, 5e-3, 0.01] },
+    transformer: { n: [1, 2, 10, 19, 1 / 2, 1 / 10] }, buzzer: { Von: [1.5, 3, 5] },
+    ldr: { lux: [1, 10, 100, 1000, 10000] }, ntc: { T: [-20, 0, 25, 50, 100] },
+  };
+  const LOG_SLIDER = { resistor: "R", capacitor: "C", electrolytic: "C", inductor: "L", pot: "R" };
+  const SETTINGS = "quantix-circuit-settings";
+  const SET = { style: "iec", grid: true, vcol: true, dots: true, values: true, board: "green" };
+  try { Object.assign(SET, JSON.parse(localStorage.getItem(SETTINGS) || "{}")); } catch (_) { /* private mode */ }
+  const saveSet = () => { try { localStorage.setItem(SETTINGS, JSON.stringify(SET)); } catch (_) { /* private mode */ } };
+
   const S = {
-    lang: "en", circuit: { parts: [], wires: [] }, sel: null, mode: "select", placing: null, wireStart: null, vFirst: false,
+    lang: "en", circuit: { parts: [], wires: [] }, sel: null, mode: "select", placing: null, wireStart: null, vFirst: false, wireDrag: null,
     hover: null, mouse: null, view: { scale: 22, ox: 0, oy: 0 }, running: true, speed: 1, sim: null, undo: [], redo: [], snap: "",
     view3d: false, sound: false, damage: true, slow: false, scopeHold: false, scope: { ch: [null, null], tdiv: 0, buf: [], last: -1 },
     flows: null, flowAt: 0, dotPhase: new Map(), colors: null, events: [], lastPanel: 0, pressing: null, exampleId: null,
@@ -192,12 +233,14 @@
     const n = 4, w = (x2 - x1) / n;
     for (let k = 0; k < n; k++) g.arc(x1 + w * (k + 0.5), y, w / 2, Math.PI, 0, !!up);
   }
+  // resistor body in the chosen standard: IEC box (India, Europe) or ANSI zig-zag (US)
+  function resBody(g) { if (SET.style === "ansi") zigzag(g, -1.2, 1.2, 0.38); else g.poly([-1.2, -0.4, 1.2, -0.4, 1.2, 0.4, -1.2, 0.4]); }
   const SYM = {
     resistor(g, p, info) {
       if (info && info.heat > 0.6) g.glow(0, 0, 1.6, "rgba(255,90,40,.9)", (info.heat - 0.6) * 1.5);
-      g.line(-2, 0, -1.2, 0); g.line(1.2, 0, 2, 0); zigzag(g, -1.2, 1.2, 0.38);
+      g.line(-2, 0, -1.2, 0); g.line(1.2, 0, 2, 0); resBody(g);
     },
-    pot(g, p) { g.line(-2, 0, -1.2, 0); g.line(1.2, 0, 2, 0); zigzag(g, -1.2, 1.2, 0.38); const x = -1.2 + 2.4 * Math.min(1, Math.max(0, p.p.pos / 100)); g.line(0, -2, 0, -1.3, x, -1.3); arrow(g, x, -1.3, x, -0.45, 0.28); },
+    pot(g, p) { g.line(-2, 0, -1.2, 0); g.line(1.2, 0, 2, 0); resBody(g); const x = -1.2 + 2.4 * Math.min(1, Math.max(0, p.p.pos / 100)); g.line(0, -2, 0, -1.3, x, -1.3); arrow(g, x, -1.3, x, -0.45, 0.28); },
     ldr(g) { g.line(-2, 0, -1.2, 0); g.line(1.2, 0, 2, 0); g.poly([-1.2, -0.42, 1.2, -0.42, 1.2, 0.42, -1.2, 0.42]); arrow(g, -1.1, -1.5, -0.45, -0.75, 0.24); arrow(g, -0.3, -1.6, 0.35, -0.85, 0.24); },
     ntc(g) { g.line(-2, 0, -1.2, 0); g.line(1.2, 0, 2, 0); g.poly([-1.2, -0.42, 1.2, -0.42, 1.2, 0.42, -1.2, 0.42]); g.line(-1.2, 0.8, -0.7, 0.8, 0.9, -0.8); g.text(1.3, -0.95, "−t°", 0.42); },
     capacitor(g) { g.line(-2, 0, -0.22, 0); g.line(0.22, 0, 2, 0); g.ctx.lineWidth *= 1.6; g.line(-0.22, -0.85, -0.22, 0.85); g.line(0.22, -0.85, 0.22, 0.85); },
@@ -510,21 +553,40 @@
   // ------------------------------------------------------------------ pointer
   let drag = null;
   const local = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  // nearest connection point (pin or wire end) within `max` grid units — wires snap to it
+  function nearestPoint(g, max) {
+    let best = null, bd = max;
+    const pts = allPins().map((q) => [q.x, q.y]).concat(S.circuit.wires.flatMap((w) => [[w.x1, w.y1], [w.x2, w.y2]]));
+    pts.forEach((q) => { const d = Math.hypot(q[0] - g[0], q[1] - g[1]); if (d < bd) { bd = d; best = q; } });
+    return best;
+  }
+  const nearestPin = (g, max) => { let best = null, bd = max; allPins().forEach((q) => { const d = Math.hypot(q.x - g[0], q.y - g[1]); if (d < bd) { bd = d; best = [q.x, q.y]; } }); return best; };
+  const magnet = (g) => nearestPoint(g, 0.7) || snapPt(g);
+  function finishWire(a, b, shift) {
+    if (!b || (a[0] === b[0] && a[1] === b[1])) return false;
+    addWire(a, b, shift !== S.vFirst); commit();
+    announce("⟋ " + a.join(",") + " → " + b.join(","));
+    return true;
+  }
   cv.addEventListener("pointerdown", (e) => {
-    cv.focus({ preventScroll: true });
+    cv.focus({ preventScroll: true }); hideMenu();
     const [px, py] = local(e), g = toGrid(px, py), sp = snapPt(g);
+    if (e.button === 2) { const p = hitPart(g); if (p) { S.sel = { kind: "part", id: p.id }; renderPanels(true); showMenu(p, px, py); return; } }
     if (e.button === 1 || e.button === 2) { drag = { kind: "pan", sx: px, sy: py, ox: S.view.ox, oy: S.view.oy }; cv.setPointerCapture(e.pointerId); return; }
     if (S.mode === "place" && S.placing) { placePart(S.placing, sp); return; }
     if (S.mode === "wire") {
-      if (!S.wireStart) { S.wireStart = sp; return; }
-      if (sp[0] === S.wireStart[0] && sp[1] === S.wireStart[1]) { S.wireStart = null; return; }
+      const m = magnet(g);
+      if (!S.wireStart) { S.wireStart = m; return; }
+      if (m[0] === S.wireStart[0] && m[1] === S.wireStart[1]) { S.wireStart = null; return; }
       const before = S.circuit.wires.length;
-      addWire(S.wireStart, sp, e.shiftKey !== S.vFirst);
-      commit();
-      const ends = pointConnected(sp[0], sp[1], S.circuit.wires.length - 1) && S.circuit.wires.length > before;
-      S.wireStart = ends ? null : sp;
+      finishWire(S.wireStart, m, e.shiftKey);
+      const ends = pointConnected(m[0], m[1], S.circuit.wires.length - 1) && S.circuit.wires.length > before;
+      S.wireStart = ends ? null : m;
       return;
     }
+    // select mode: pressing on a pin starts a wire straight away (no tool switch needed)
+    const pin = nearestPin(g, 0.45);
+    if (pin) { S.wireDrag = { a: pin }; drag = { kind: "wire" }; cv.setPointerCapture(e.pointerId); return; }
     const p = hitPart(g);
     if (p) {
       S.sel = { kind: "part", id: p.id }; renderPanels(true);
@@ -534,17 +596,24 @@
       return;
     }
     const wk = hitWire(g);
-    if (wk >= 0) { S.sel = { kind: "wire", k: wk }; renderPanels(true); drag = null; return; }
+    if (wk >= 0) {   // pressing on a wire: select it, and dragging from it starts a branch wire
+      S.sel = { kind: "wire", k: wk }; renderPanels(true);
+      const w = S.circuit.wires[wk];
+      if (CS.onSegment(sp[0], sp[1], w)) { S.wireDrag = { a: sp, fromWire: true }; drag = { kind: "wire", sx: px, sy: py }; cv.setPointerCapture(e.pointerId); }
+      return;
+    }
     S.sel = null; renderPanels(true);
     drag = { kind: "pan", sx: px, sy: py, ox: S.view.ox, oy: S.view.oy };
     cv.setPointerCapture(e.pointerId);
   });
   cv.addEventListener("pointermove", (e) => {
     const [px, py] = local(e), g = toGrid(px, py);
-    S.mouse = [px, py]; S.hover = snapPt(g);
-    if (!drag) return;
+    S.mouse = [px, py];
+    S.hover = S.mode === "wire" || S.wireDrag ? magnet(g) : snapPt(g);
+    if (!drag) { cv.style.cursor = S.mode === "select" ? (nearestPin(g, 0.45) ? "crosshair" : hitPart(g) ? "grab" : "default") : cv.style.cursor; return; }
     if (drag.kind === "pan") { S.view.ox = drag.ox + px - drag.sx; S.view.oy = drag.oy + py - drag.sy; return; }
     if (drag.kind === "part") {
+      cv.style.cursor = "grabbing";
       const sp = snapPt(g), nx = drag.orig[0] + sp[0] - drag.start[0], ny = drag.orig[1] + sp[1] - drag.start[1];
       if (nx !== drag.part.x || ny !== drag.part.y) {
         drag.part.x = nx; drag.part.y = ny; drag.moved = true;
@@ -553,10 +622,14 @@
       }
     }
   });
-  function endDrag() {
+  function endDrag(e) {
     if (S.pressing) { S.pressing.p.on = false; S.pressing = null; renderPanels(true); }
     if (!drag) return;
-    if (drag.kind === "part") {
+    if (drag.kind === "wire" && S.wireDrag) {
+      const b = S.hover;
+      finishWire(S.wireDrag.a, b, e && e.shiftKey);
+      S.wireDrag = null;
+    } else if (drag.kind === "part") {
       if (drag.moved) { straighten(); commit(); }
       else if (drag.part.type === "switch") { drag.part.p.on = !(drag.part.p.on === true); save(); renderPanels(true); announce(drag.part.label + ": " + (drag.part.p.on ? "ON" : "OFF")); }
       else if (drag.part.type === "spdt") { drag.part.p.pos = drag.part.p.pos === "B" ? "A" : "B"; save(); renderPanels(true); }
@@ -564,12 +637,43 @@
     drag = null;
   }
   cv.addEventListener("pointerup", endDrag);
-  cv.addEventListener("pointercancel", endDrag);
+  cv.addEventListener("pointercancel", () => { S.wireDrag = null; endDrag(); });
   cv.addEventListener("pointerleave", () => { S.mouse = null; });
   cv.addEventListener("wheel", (e) => { e.preventDefault(); const [px, py] = local(e); zoomAt(e.deltaY > 0 ? 0.9 : 1.1, px, py); }, { passive: false });
   cv.addEventListener("contextmenu", (e) => e.preventDefault());
-  cv.addEventListener("dblclick", () => { if (S.mode === "wire") setMode("select"); });
+  // double-click a part: jump to its main value
+  function editPart(p) {
+    S.sel = { kind: "part", id: p.id }; renderPanels(true);
+    const first = PARTS[p.type].params.find((q) => !q.bool);
+    const el = first && document.getElementById("pp-" + first.k);
+    if (el) { el.scrollIntoView({ block: "center", behavior: "smooth" }); el.focus(); if (el.select) el.select(); }
+  }
+  cv.addEventListener("dblclick", (e) => {
+    if (S.mode === "wire") { setMode("select"); return; }
+    const [px, py] = local(e), p = hitPart(toGrid(px, py));
+    if (p) editPart(p);
+  });
 
+  // right-click menu on a part
+  const menu = $("ctxMenu");
+  function hideMenu() { menu.hidden = true; }
+  function showMenu(p, px, py) {
+    const items = [[t("edit"), () => editPart(p)]];
+    if (/^(switch|spdt)$/.test(p.type)) items.push([t("toggle"), () => { if (p.type === "switch") p.p.on = !(p.p.on === true); else p.p.pos = p.p.pos === "B" ? "A" : "B"; save(); renderPanels(true); }]);
+    items.push([t("rotate"), () => rotatePart(p)], [t("dup"), duplicateSel], [t("del"), deleteSel]);
+    fill(menu, h("div", { class: "mh" }, p.label + " · " + tr(PARTS[p.type].name)),
+      items.map(([lab, fn]) => h("button", { type: "button", role: "menuitem", onclick: () => { hideMenu(); fn(); } }, lab)));
+    menu.hidden = false;
+    menu.style.left = Math.min(px, W - 200) + "px"; menu.style.top = Math.min(py, H - 40 * items.length - 40) + "px";
+    menu.querySelector("button").focus();
+  }
+  menu.addEventListener("keydown", (e) => {
+    const bs = [...menu.querySelectorAll("button")], i = bs.indexOf(document.activeElement);
+    if (e.key === "Escape") { hideMenu(); cv.focus(); }
+    else if (e.key === "ArrowDown") { e.preventDefault(); bs[(i + 1) % bs.length].focus(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); bs[(i - 1 + bs.length) % bs.length].focus(); }
+  });
+  document.addEventListener("pointerdown", (e) => { if (!menu.contains(e.target) && e.target !== cv) hideMenu(); });
   // ------------------------------------------------------------------ keyboard
   function selectNext(dir) {
     const ps = S.circuit.parts;
@@ -586,7 +690,21 @@
     if (arrows[k]) {
       e.preventDefault();
       const d = arrows[k];
-      if (S.mode === "wire" && S.hover) { S.hover = [S.hover[0] + d[0], S.hover[1] + d[1]]; S.mouse = [S.view.ox + S.hover[0] * S.view.scale, S.view.oy + S.hover[1] * S.view.scale]; return; }
+      // pin under the mouse: a ring, so it is obvious where a wire can start or end
+    if (S.mouse && (S.mode === "select" || S.wireDrag) && !(drag && drag.kind === "part")) {
+      const pin = S.wireDrag ? nearestPoint(toGrid(S.mouse[0], S.mouse[1]), 0.7) : nearestPin(toGrid(S.mouse[0], S.mouse[1]), 0.45);
+      if (pin) {
+        const qx = S.view.ox + pin[0] * sc, qy = S.view.oy + pin[1] * sc;
+        ctx.strokeStyle = C.accent; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(qx, qy, Math.max(7, sc * 0.38), 0, Math.PI * 2); ctx.stroke();
+        if (!S.wireDrag) { ctx.font = "600 11px system-ui"; ctx.fillStyle = C.accent; ctx.textAlign = "left"; ctx.fillText(t("dragPin"), qx + 12, qy - 12); }
+      }
+    }
+    if (S.wireDrag && S.hover) {
+      const a = S.wireDrag.a, b = S.hover, corner = S.vFirst ? [a[0], b[1]] : [b[0], a[1]];
+      ctx.strokeStyle = C.accent; ctx.setLineDash([6, 4]); ctx.lineWidth = 2.5; ctx.beginPath();
+      ctx.moveTo(S.view.ox + a[0] * sc, S.view.oy + a[1] * sc); ctx.lineTo(S.view.ox + corner[0] * sc, S.view.oy + corner[1] * sc); ctx.lineTo(S.view.ox + b[0] * sc, S.view.oy + b[1] * sc); ctx.stroke(); ctx.setLineDash([]);
+    }
+    if (S.mode === "wire" && S.hover) { S.hover = [S.hover[0] + d[0], S.hover[1] + d[1]]; S.mouse = [S.view.ox + S.hover[0] * S.view.scale, S.view.oy + S.hover[1] * S.view.scale]; return; }
       if (p) movePart(p, d[0] * (e.shiftKey ? 4 : 1), d[1] * (e.shiftKey ? 4 : 1));
       else { S.view.ox -= d[0] * 40; S.view.oy -= d[1] * 40; }
       return;
@@ -609,6 +727,8 @@
     if (k === "Escape") { if (S.wireStart) S.wireStart = null; else { setMode("select"); S.sel = null; renderPanels(true); } return; }
     if (k === "+" || k === "=") { zoomAt(1.15, W / 2, H / 2); return; }
     if (k === "-" || k === "_") { zoomAt(1 / 1.15, W / 2, H / 2); return; }
+    if ((k === "ContextMenu" || (k === "F10" && e.shiftKey)) && p) { e.preventDefault(); const b = partBox(p); showMenu(p, S.view.ox + b[2] * S.view.scale, S.view.oy + b[1] * S.view.scale); return; }
+    if (k === "Enter" && p) { e.preventDefault(); editPart(p); return; }
     if (k === "]") { selectNext(1); return; }
     if (k === "[") { selectNext(-1); return; }
     if (k === " ") {
@@ -674,12 +794,12 @@
     const x0 = Math.floor(-S.view.ox / sc), y0 = Math.floor(-S.view.oy / sc), x1 = x0 + Math.ceil(W / sc) + 1, y1 = y0 + Math.ceil(H / sc) + 1;
     ctx.fillStyle = C.grid;
     const step = sc < 12 ? 2 : 1;
-    for (let x = x0; x <= x1; x++) { if (x % step) continue; for (let y = y0; y <= y1; y++) { if (y % step) continue; ctx.fillRect(S.view.ox + x * sc - 1, S.view.oy + y * sc - 1, 2, 2); } }
+    if (SET.grid) for (let x = x0; x <= x1; x++) { if (x % step) continue; for (let y = y0; y <= y1; y++) { if (y % step) continue; ctx.fillRect(S.view.ox + x * sc - 1, S.view.oy + y * sc - 1, 2, 2); } }
     // node voltage colouring range
     let vmax = 1;
     S.circuit.wires.forEach((w) => { const v = S.sim.pointVoltage(w.x1, w.y1); if (v != null) vmax = Math.max(vmax, Math.abs(v)); });
     const vcol = (v) => {
-      if (v == null || !S.ran) return C.wire;
+      if (v == null || !S.ran || !SET.vcol) return C.wire;
       const f = Math.min(1, Math.abs(v) / vmax);
       if (f < 0.04) return C.wire;
       return v > 0 ? mix(C.wire, C.pos, 0.35 + 0.65 * f) : mix(C.wire, C.neg, 0.35 + 0.65 * f);
@@ -699,7 +819,7 @@
     allPins().forEach((q) => bump(q.x, q.y, 1));
     deg.forEach((d, key) => { if (d < 3) return; const q = key.split(",").map(Number); ctx.fillStyle = vcol(S.sim.pointVoltage(q[0], q[1])); ctx.beginPath(); ctx.arc(S.view.ox + q[0] * sc, S.view.oy + q[1] * sc, Math.max(3, sc * 0.17), 0, Math.PI * 2); ctx.fill(); });
     // current dots
-    if (S.ran && S.flows) {
+    if (S.ran && S.flows && SET.dots) {
       const dtReal = lastFrame ? Math.min(0.05, (now - lastFrame) / 1000) : 0;
       ctx.fillStyle = C.dark ? "#ffe066" : "#e8a100";
       S.flows.edges.forEach((e, k) => {
@@ -734,7 +854,7 @@
       ctx.textBaseline = "middle";
       if (p.type !== "ground") ctx.fillText(p.label, lx, vertical ? ly : ly - fs * 0.55);
       const vt = valueText(p);
-      if (vt) { ctx.fillStyle = C.muted; ctx.font = "500 " + (fs * 0.92) + "px JetBrains Mono, ui-monospace, monospace"; ctx.fillText(vt, lx, vertical ? ly + fs * 1.1 : ly + fs * 0.5); }
+      if (vt && SET.values) { ctx.fillStyle = C.muted; ctx.font = "500 " + (fs * 0.92) + "px JetBrains Mono, ui-monospace, monospace"; ctx.fillText(vt, lx, vertical ? ly + fs * 1.1 : ly + fs * 0.5); }
       if (info && info.reading != null) {
         const txt = fmt(info.reading, info.unit, 4), x = vertical ? lx : S.view.ox + p.x * sc, y = vertical ? ly + fs * 2.3 : S.view.oy + (b[3] + 0.8) * sc;
         ctx.font = "700 " + (fs * 1.05) + "px JetBrains Mono, ui-monospace, monospace";
@@ -747,6 +867,20 @@
     // ghost of the part being placed / wire being drawn
     if (S.mode === "place" && S.placing && S.hover) {
       ctx.save(); ctx.globalAlpha = 0.5; drawSymbol(ctx, { id: "_ghost", type: S.placing, x: S.hover[0], y: S.hover[1], rot: 0, p: Object.fromEntries(PARTS[S.placing].params.map((q) => [q.k, q.v])) }, null); ctx.restore();
+    }
+    // pin under the mouse: a ring, so it is obvious where a wire can start or end
+    if (S.mouse && (S.mode === "select" || S.wireDrag) && !(drag && drag.kind === "part")) {
+      const pin = S.wireDrag ? nearestPoint(toGrid(S.mouse[0], S.mouse[1]), 0.7) : nearestPin(toGrid(S.mouse[0], S.mouse[1]), 0.45);
+      if (pin) {
+        const qx = S.view.ox + pin[0] * sc, qy = S.view.oy + pin[1] * sc;
+        ctx.strokeStyle = C.accent; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(qx, qy, Math.max(7, sc * 0.38), 0, Math.PI * 2); ctx.stroke();
+        if (!S.wireDrag) { ctx.font = "600 11px system-ui"; ctx.fillStyle = C.accent; ctx.textAlign = "left"; ctx.fillText(t("dragPin"), qx + 12, qy - 12); }
+      }
+    }
+    if (S.wireDrag && S.hover) {
+      const a = S.wireDrag.a, b = S.hover, corner = S.vFirst ? [a[0], b[1]] : [b[0], a[1]];
+      ctx.strokeStyle = C.accent; ctx.setLineDash([6, 4]); ctx.lineWidth = 2.5; ctx.beginPath();
+      ctx.moveTo(S.view.ox + a[0] * sc, S.view.oy + a[1] * sc); ctx.lineTo(S.view.ox + corner[0] * sc, S.view.oy + corner[1] * sc); ctx.lineTo(S.view.ox + b[0] * sc, S.view.oy + b[1] * sc); ctx.stroke(); ctx.setLineDash([]);
     }
     if (S.mode === "wire" && S.hover) {
       const hx = S.view.ox + S.hover[0] * sc, hy = S.view.oy + S.hover[1] * sc;
@@ -898,19 +1032,45 @@
   // ------------------------------------------------------------------ panels
   function renderPalette() {
     const q = $("psearch").value.trim().toLowerCase();
-    const groups = CS.CATS.map(([cat, label]) => {
-      const items = Object.values(PARTS).filter((d) => d.cat === cat && (!q || tr(d.name).toLowerCase().includes(q) || d.name.en.toLowerCase().includes(q) || d.type.includes(q)));
-      if (!items.length) return null;
-      return h("div", { class: "pgroup" }, h("div", { class: "lbl" }, tr(label)),
-        items.map((d) => h("button", { type: "button", class: "pitem" + (S.placing === d.type ? " on" : ""), title: tr(d.blurb), "aria-pressed": String(S.placing === d.type),
-          onclick: (e) => {
-            if (e.detail === 0) { const at = freeSpot(d.type); placePart(d.type, at); cv.focus(); return; }   // keyboard: place at once
-            S.placing = d.type; setMode("place"); renderPalette(); announce(t("place"));
-          } }, h("span", { class: "pic", "aria-hidden": "true" }, d.icon), h("span", {}, tr(d.name)))));
+    const match = (d) => !q || tr(d.name).toLowerCase().includes(q) || d.name.en.toLowerCase().includes(q) || d.type.includes(q);
+    const item = (d) => h("button", { type: "button", class: "pitem" + (S.placing === d.type ? " on" : ""), title: tr(d.blurb), "aria-pressed": String(S.placing === d.type), "data-type": d.type,
+      onclick: (e) => {
+        if (palDrag.done) { palDrag.done = false; return; }
+        if (e.detail === 0) { const at = freeSpot(d.type); placePart(d.type, at); cv.focus(); return; }   // keyboard: place at once
+        S.placing = d.type; setMode("place"); renderPalette(); announce(t("place"));
+      } }, h("span", { class: "pic", "aria-hidden": "true" }, d.icon), h("span", {}, tr(d.name)));
+    const groups = [];
+    if (!q) groups.push(h("details", { class: "pgroup", open: true }, h("summary", { class: "lbl" }, "★ " + t("common")), h("div", { class: "pgrid" }, COMMON.map((k) => item(PARTS[k])))));
+    CS.CATS.forEach(([cat, label]) => {
+      const items = Object.values(PARTS).filter((d) => d.cat === cat && match(d));
+      if (items.length) groups.push(h("details", { class: "pgroup", open: q ? true : null }, h("summary", { class: "lbl" }, tr(label) + " (" + items.length + ")"), items.map(item)));
     });
     fill($("palette"), groups);
   }
-  function renderTools() {
+  // drag a part from the list straight onto the board
+  const palDrag = { type: null, x: 0, y: 0, moving: false, done: false };
+  $("palette").addEventListener("pointerdown", (e) => {
+    const b = e.target.closest(".pitem"); if (!b || e.button !== 0) return;
+    Object.assign(palDrag, { type: b.dataset.type, x: e.clientX, y: e.clientY, moving: false, done: false });
+  });
+  document.addEventListener("pointermove", (e) => {
+    if (!palDrag.type) return;
+    if (!palDrag.moving && Math.hypot(e.clientX - palDrag.x, e.clientY - palDrag.y) > 6) { palDrag.moving = true; S.placing = palDrag.type; S.mode = "place"; document.body.classList.add("dragging"); }
+    if (!palDrag.moving) return;
+    const r = cv.getBoundingClientRect();
+    if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) { S.mouse = [e.clientX - r.left, e.clientY - r.top]; S.hover = snapPt(toGrid(S.mouse[0], S.mouse[1])); }
+    else S.hover = null;
+  });
+  document.addEventListener("pointerup", (e) => {
+    if (!palDrag.type) return;
+    const type = palDrag.type; palDrag.type = null;
+    if (!palDrag.moving) return;
+    palDrag.done = true; document.body.classList.remove("dragging");
+    const r = cv.getBoundingClientRect();
+    if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom && !S.view3d) { placePart(type, snapPt(toGrid(e.clientX - r.left, e.clientY - r.top))); cv.focus(); }
+    else setMode("select");
+    setTimeout(() => { palDrag.done = false; }, 400);
+  });  function renderTools() {
     $("selBtn").setAttribute("aria-pressed", String(S.mode === "select" || S.mode === "place"));
     $("wireBtn").setAttribute("aria-pressed", String(S.mode === "wire"));
     $("hint").textContent = S.mode === "wire" ? t("wiring") : S.mode === "place" ? t("place") : t("keys");
@@ -919,31 +1079,49 @@
   function paramInput(p, q) {
     const id = "pp-" + q.k, val = p.p[q.k];
     const apply = () => { save(); renderPanels(true); if (S.view3d && S.pcb) S.pcb.setCircuit(S.circuit); };
+    const setVal = (v) => { p.p[q.k] = v; commit(false); apply(); announce(tr(q.label) + " = " + (typeof v === "number" ? fmt(v, q.unit) : v)); };
+    const extra = [];
     let control;
     if (q.choices) {
-      control = h("select", { id: id, onchange: (e) => { const v = q.choices.find((c) => String(c[0]) === e.target.value); p.p[q.k] = v ? v[0] : q.v; commit(false); apply(); } },
+      control = h("select", { id: id, onchange: (e) => { const v = q.choices.find((c) => String(c[0]) === e.target.value); setVal(v ? v[0] : q.v); } },
         q.choices.map((c) => { const o = h("option", { value: String(c[0]) }, tr(c[1])); if (String(c[0]) === String(val)) o.selected = true; return o; }));
+      if (p.type === "led" && q.k === "color") {   // colour swatches
+        extra.push(h("div", { class: "chips" }, q.choices.map((c) => h("button", { type: "button", class: "swatch" + (c[0] === val ? " on" : ""), style: "--sw:" + (CS.LED_RGB[c[0]] || "#888"),
+          "aria-label": tr(c[1]), title: tr(c[1]), "aria-pressed": String(c[0] === val), onclick: () => setVal(c[0]) }))));
+      }
     } else if (q.bool) {
       control = h("input", { id: id, type: "checkbox", onchange: (e) => { p.p[q.k] = e.target.checked; apply(); } });
       control.checked = val === true;
     } else {
-      const txt = h("input", { id: id, type: "text", inputmode: "decimal", value: q.unit === "%" || q.unit === "°C" || q.unit === "" || q.unit === ":1" ? String(val) : fmt(val, "").trim().replace(/\s/g, ""), "aria-describedby": id + "-u",
+      const plain = q.unit === "%" || q.unit === "°C" || q.unit === "" || q.unit === ":1";
+      const txt = h("input", { id: id, type: "text", inputmode: "decimal", value: plain ? String(val) : fmt(val, "").trim().replace(/\s/g, ""), "aria-describedby": id + "-u",
         onchange: (e) => {
           const v = CS.parseValue(e.target.value);
           if (!isFinite(v) || (q.min != null && v < q.min) || (q.max != null && v > q.max)) { e.target.setAttribute("aria-invalid", "true"); e.target.title = t("bad"); announce(t("bad")); return; }
-          e.target.removeAttribute("aria-invalid"); p.p[q.k] = v; commit(false); apply();
+          e.target.removeAttribute("aria-invalid"); setVal(v);
         } });
       control = h("span", { class: "numrow" }, txt, h("span", { class: "unit", id: id + "-u" }, q.unit));
-      if (q.slider) {
-        const rng = h("input", { type: "range", min: q.log ? Math.log10(q.min) : q.min, max: q.log ? Math.log10(q.max) : q.max, step: q.log ? 0.01 : (q.max - q.min) / 200, "aria-label": tr(q.label),
-          oninput: (e) => { const v = q.log ? Math.pow(10, +e.target.value) : +e.target.value; p.p[q.k] = Number(v.toPrecision(3)); txt.value = String(p.p[q.k]); save(); } });
-        rng.value = String(q.log ? Math.log10(val) : val);
-        control = h("span", { class: "sliderrow" }, rng, control);
+      const logMain = LOG_SLIDER[p.type] === q.k;
+      if (q.slider || logMain) {
+        const lo = logMain ? Math.max(q.min, { R: 1, C: 1e-12, L: 1e-7 }[q.k] || q.min) : q.min, hi = logMain ? Math.min(q.max, { R: 1e7, C: 0.1, L: 10 }[q.k] || q.max) : q.max;
+        const isLog = q.log || logMain;
+        const rng = h("input", { type: "range", min: isLog ? Math.log10(lo) : lo, max: isLog ? Math.log10(hi) : hi, step: isLog ? 0.01 : (hi - lo) / 200, "aria-label": tr(q.label),
+          oninput: (e) => { const v = isLog ? Math.pow(10, +e.target.value) : +e.target.value; p.p[q.k] = Number(v.toPrecision(isLog ? 2 : 3)); txt.value = plain ? String(p.p[q.k]) : fmt(p.p[q.k], "").trim().replace(/\s/g, ""); save(); },
+          onchange: () => { commit(false); apply(); } });
+        rng.value = String(isLog ? Math.log10(Math.max(lo, val || lo)) : val);
+        control = h("span", { class: "sliderrow" }, control, rng);
+      }
+      const pre = (PRESETS[p.type] || {})[q.k];
+      if (pre) extra.push(h("div", { class: "chips", role: "group", "aria-label": t("quick") }, pre.map((v) => h("button", { type: "button", class: "chip" + (Math.abs(v - val) < 1e-15 + Math.abs(v) * 1e-9 ? " on" : ""),
+        onclick: () => setVal(v) }, p.type === "led" && q.k === "Vf" && v === 0 ? t("auto") : plain ? String(Number(v.toPrecision(3))) + (q.unit && q.unit !== ":1" ? " " + q.unit : "") : fmt(v, q.unit)))));
+      if (p.type === "resistor" && q.k === "R") {   // what the real part looks like
+        if (p.p.pkg === "smd") extra.push(h("div", { class: "bands" }, t("smd") + ": ", h("b", { class: "smd" }, CS.smdCode(+val))));
+        else extra.push(h("div", { class: "bands" }, t("bands") + ": ", CS.bands(+val, +p.p.tol).map(([c, n]) => h("span", { class: "band", style: "background:" + c, title: n, "aria-label": n })),
+          h("span", { class: "bnames" }, CS.bands(+val, +p.p.tol).map((b) => b[1]).join(" · "))));
       }
     }
-    return h("div", { class: "param" }, h("label", { for: id }, tr(q.label)), control);
-  }
-  function infoRows(info) {
+    return h("div", { class: "param" }, h("label", { for: id }, tr(q.label)), control, extra);
+  }  function infoRows(info) {
     if (!info) return [];
     const rows = [];
     if (!info.source || true) { rows.push(["V", fmt(info.v, "V")]); rows.push(["I", fmt(info.i, "A")]); rows.push(["P", fmt(info.p, "W")]); }
@@ -1053,8 +1231,23 @@
     const td = [0, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 0.01, 0.05, 0.1, 0.5, 1];
     fill($("tdiv"), td.map((v) => { const o = h("option", { value: String(v) }, v ? fmt(v, "s") : t("auto")); if (v === S.scope.tdiv) o.selected = true; return o; }));
     $("holdBtn").textContent = S.scopeHold ? t("go") : t("hold");
-    renderRun(); renderTools(); renderPanels(true); renderExampleNote();
+    renderRun(); renderTools(); renderPanels(true); renderExampleNote(); renderSettings(); renderTip();
     document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === S.lang)));
+  }
+  function renderSettings() {
+    const chk = (k, lab) => { const id = "set-" + k, c = h("input", { type: "checkbox", id: id, onchange: (e) => { SET[k] = e.target.checked; saveSet(); } }); c.checked = !!SET[k]; return h("label", { for: id, class: "setrow" }, c, " " + lab); };
+    const style = h("select", { id: "set-style", onchange: (e) => { SET.style = e.target.value; saveSet(); } }, [["iec", t("iec")], ["ansi", t("ansi")]].map(([v, l]) => { const o = h("option", { value: v }, l); if (SET.style === v) o.selected = true; return o; }));
+    const board = h("div", { class: "chips", role: "group", "aria-label": t("board") }, t("boards").map(([v, l]) => h("button", { type: "button", class: "swatch board" + (SET.board === v ? " on" : ""), "data-board": v, title: l, "aria-label": l, "aria-pressed": String(SET.board === v),
+      onclick: () => { SET.board = v; saveSet(); if (S.pcb && S.pcb.setBoard) S.pcb.setBoard(v); renderSettings(); } })));
+    fill($("settings"), h("summary", {}, t("settings")), h("div", { class: "setgrid" },
+      h("label", { for: "set-style", class: "setrow" }, t("style") + " "), style, chk("grid", t("grid")), chk("vcol", t("vcol")), chk("dots", t("dots")), chk("values", t("vals")),
+      h("div", { class: "setrow" }, t("board")), board));
+  }
+  function renderTip() {
+    let seen = false; try { seen = localStorage.getItem("quantix-circuit-tip") === "1"; } catch (_) { /* private mode */ }
+    $("tip").hidden = seen;
+    if (seen) return;
+    fill($("tip"), h("ol", {}, t("tip").map((x) => h("li", {}, x))), h("button", { type: "button", class: "btn small", onclick: () => { $("tip").hidden = true; try { localStorage.setItem("quantix-circuit-tip", "1"); } catch (_) { /* private mode */ } cv.focus(); } }, t("gotIt")));
   }
   function renderRun() { $("runBtn").textContent = S.running ? t("pause") : t("run"); $("runBtn").setAttribute("aria-pressed", String(S.running)); }
   function renderExampleNote() {
@@ -1117,6 +1310,7 @@
     $("cv").hidden = three; $("pcb").hidden = !three; $("tip3d").hidden = !three;
     if (three) {
       if (!S.pcb) S.pcb = window.CircuitPCB3D.create($("pcb"));
+      if (S.pcb.setBoard) S.pcb.setBoard(SET.board);
       S.pcb.setCircuit(S.circuit); S.pcb.resize();
     }
   }

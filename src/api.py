@@ -79,7 +79,7 @@ app = FastAPI(title="Quantix API", version=__version__, lifespan=lifespan,
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:8501", "http://127.0.0.1:8501"],
                    allow_methods=["*"], allow_headers=["*"])
 
-PAGE_PATHS = {"/", "/formulas", "/converter", "/graph", "/elements", "/measure", "/physics", "/circuit", "/handwriting", "/contact", "/contact/inbox"}
+PAGE_PATHS = {"/", "/formulas", "/converter", "/graph", "/elements", "/measure", "/physics", "/circuit", "/plc", "/handwriting", "/contact", "/contact/inbox"}
 
 
 @app.middleware("http")
@@ -252,7 +252,7 @@ def upload_page():
 
 
 # ---- site files browsers and search engines ask for at the root
-SITEMAP_PAGES = ["/", "/formulas", "/elements", "/physics", "/circuit", "/handwriting", "/measure", "/converter", "/graph", "/contact"]
+SITEMAP_PAGES = ["/", "/formulas", "/elements", "/physics", "/circuit", "/plc", "/handwriting", "/measure", "/converter", "/graph", "/contact"]
 
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -576,6 +576,16 @@ def circuit_page():
     page = WEB_DIR / "circuit.html"
     if not page.is_file():
         raise ResourceNotFoundError("Circuit page not found (src/web/circuit.html).", error_code="PAGE_NOT_FOUND",
+                                    error_title="Page not found")
+    return FileResponse(page, media_type="text/html")
+
+
+@app.get("/plc", include_in_schema=False)
+def plc_page():
+    """PLC Lab: ladder logic simulator with animated machines (client-side, src/web/plc_*.js)."""
+    page = WEB_DIR / "plc.html"
+    if not page.is_file():
+        raise ResourceNotFoundError("PLC page not found (src/web/plc.html).", error_code="PAGE_NOT_FOUND",
                                     error_title="Page not found")
     return FileResponse(page, media_type="text/html")
 

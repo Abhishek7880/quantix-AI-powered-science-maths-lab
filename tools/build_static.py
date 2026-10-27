@@ -28,8 +28,8 @@ sys.path.insert(0, str(ROOT))
 
 DEFAULT_OUT = Path(r"D:\Abhishek\Deploy\quantix-static")
 MARKER = ".quantix-static"
-PAGES = ["index", "formulas", "converter", "graph", "elements", "measure", "physics", "circuit", "handwriting", "contact"]
-ROUTES = "formulas|converter|graph|elements|measure|physics|circuit|handwriting|contact"
+PAGES = ["index", "formulas", "converter", "graph", "elements", "measure", "physics", "circuit", "plc", "handwriting", "contact"]
+ROUTES = "formulas|converter|graph|elements|measure|physics|circuit|plc|handwriting|contact"
 LINK = re.compile(rf"""(["'`(])/({ROUTES})(?=["'`?#)])""")      # "/formulas" -> "/formulas.html" (not /api/v1/formulas)
 PY_FILES = ["src/__init__.py", "src/errors.py", "src/formula_calc.py", "src/eqsolve.py", "src/chemistry.py",
             "src/knowledge/elements.json", "src/knowledge/formulas/calc_glossary.json"]

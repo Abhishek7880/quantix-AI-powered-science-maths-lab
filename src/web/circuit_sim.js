@@ -58,7 +58,8 @@
 
     resistor: { cat: "passive", icon: "▭", prefix: "R", name: T("Resistor", "प्रतिरोधक"), pins: TWO, pinNames: ["1", "2"],
       params: [P("R", "Resistance", "प्रतिरोध", "Ω", 1000, { min: 1e-3, max: 1e12, live: true }), P("Pmax", "Power rating", "शक्ति रेटिंग", "W", 0.25, { min: 0.01, max: 1000, live: true }),
-        P("tol", "Tolerance", "सहनशीलता", "%", 5, { choices: [[1, T("1 % (brown)", "1 % (भूरा)")], [2, T("2 % (red)", "2 % (लाल)")], [5, T("5 % (gold)", "5 % (सुनहरा)")], [10, T("10 % (silver)", "10 % (चाँदी)")]] })],
+        P("tol", "Tolerance", "सहनशीलता", "%", 5, { choices: [[1, T("1 % (brown)", "1 % (भूरा)")], [2, T("2 % (red)", "2 % (लाल)")], [5, T("5 % (gold)", "5 % (सुनहरा)")], [10, T("10 % (silver)", "10 % (चाँदी)")]] }),
+        P("pkg", "Package", "पैकेज", "", "tht", { choices: [["tht", T("Through-hole (colour bands)", "थ्रू-होल (रंग पट्टियाँ)")], ["smd", T("SMD chip (number code)", "SMD चिप (संख्या कोड)")]] })],
       blurb: T("V = I × R. Burns if the power I²R goes above its rating.", "V = I × R. शक्ति I²R रेटिंग से ऊपर जाए तो जल जाता है।") },
     capacitor: { cat: "passive", icon: "⊣⊢", prefix: "C", name: T("Capacitor (ceramic / film)", "संधारित्र (सिरेमिक/फ़िल्म)"), pins: TWO, pinNames: ["1", "2"],
       params: [P("C", "Capacitance", "धारिता", "F", 1e-6, { min: 1e-15, max: 100, live: true }), P("Vmax", "Voltage rating", "वोल्टेज रेटिंग", "V", 50, { min: 1, max: 1e5, live: true }),
@@ -92,7 +93,8 @@
       params: [P("Vz", "Zener voltage", "ज़ेनर वोल्टेज", "V", 5.1, { min: 1, max: 400 }), P("Pmax", "Power rating", "शक्ति रेटिंग", "W", 0.5, { min: 0.05, max: 100 })],
       blurb: T("Conducts backwards at Vz: a simple voltage regulator.", "Vz पर उल्टी दिशा में चालन करता है: सरल वोल्टेज नियामक।") },
     led: { cat: "semi", icon: "💡", prefix: "LED", name: T("LED", "एलईडी"), pins: TWO, pinNames: ["A (+)", "K (−)"],
-      params: [P("color", "Colour", "रंग", "", "red", { choices: LED_COLOURS }), P("Imax", "Max current", "अधिकतम धारा", "A", 0.03, { min: 0.001, max: 10 })],
+      params: [P("color", "Colour", "रंग", "", "red", { choices: LED_COLOURS }), P("Vf", "Forward voltage at 20 mA (0 = from colour)", "20 mA पर अग्र वोल्टेज (0 = रंग से)", "V", 0, { min: 0, max: 6 }),
+        P("Imax", "Max current", "अधिकतम धारा", "A", 0.03, { min: 0.001, max: 10 }), P("size", "Size", "आकार", "", 5, { choices: [[3, T("3 mm", "3 mm")], [5, T("5 mm", "5 mm")], [10, T("10 mm", "10 mm")]] })],
       blurb: T("Lights up when current flows A → K. Always use a series resistor: R = (Vs − Vf) / I.", "A → K धारा बहने पर जलती है। हमेशा श्रेणी प्रतिरोधक लगाएँ: R = (Vs − Vf) / I।") },
     npn: { cat: "semi", icon: "Ⓝ", prefix: "Q", name: T("NPN transistor (BC547)", "एनपीएन ट्रांज़िस्टर (BC547)"), pins: [[-2, 0], [1, -2], [1, 2]], pinNames: ["B", "C", "E"],
       params: [P("beta", "Gain β (hFE)", "लाभ β (hFE)", "", 200, { min: 1, max: 2000 }), P("Icmax", "Max collector current", "अधिकतम कलेक्टर धारा", "A", 0.1, { min: 0.001, max: 100 }),
@@ -295,8 +297,8 @@
     }
     return num(p.off, 0) + num(p.Vp, 10) * w;
   }
-  function ledParams(colour) {
-    const vf = LED_VF[colour] || 2, n = 2.0;
+  function ledParams(colour, vfSet) {
+    const vf = isFinite(+vfSet) && +vfSet > 0 ? +vfSet : LED_VF[colour] || 2, n = 2.0;
     return { n: n, Is: 0.02 / Math.exp(vf / (n * VT)), vf: vf };
   }
 
@@ -460,7 +462,7 @@
     diode(e, kind) {
       const st = e.st;
       const prm = () => {
-        if (kind === "led") { const lp = ledParams(e.p.color); return { Is: lp.Is, nvt: lp.n * VT, bv: 5, isz: 1e-12 }; }
+        if (kind === "led") { const lp = ledParams(e.p.color, e.p.Vf); return { Is: lp.Is, nvt: lp.n * VT, bv: 5, isz: 1e-12 }; }
         if (kind === "zener") return { Is: 1e-12, nvt: 1.2 * VT, bv: num(e.p.Vz, 5.1), isz: 5e-3, zener: true };   // 5 mA at exactly Vz
         return { Is: num(e.p.Is, 7e-9), nvt: num(e.p.n, 1.9) * VT, bv: kind === "schottky" ? num(e.p.PIV, 40) * 1.2 : num(e.p.PIV, 1000) * 1.2, isz: 1e-12 };
       };
@@ -979,7 +981,26 @@
     };
   }
 
-  const api = { PARTS: PARTS, CATS: CATS, LED_RGB: LED_RGB, create: create, parseValue: parseValue, fmt: fmt, rotate: rotate,
+  // resistor colour code: 4 bands (digit, digit, multiplier, tolerance) as CSS colours + names; SMD 3-digit code
+  const BAND = [["#111111", "black"], ["#7a4a1d", "brown"], ["#d42020", "red"], ["#f08a10", "orange"], ["#f5d90a", "yellow"], ["#1e9e3a", "green"],
+    ["#1f5fd6", "blue"], ["#8a3fd1", "violet"], ["#8d8d8d", "grey"], ["#f4f4f4", "white"]];
+  function bands(R, tol) {
+    if (!(R > 0)) return [BAND[0], BAND[0], BAND[0], ["#d4af37", "gold"]];
+    let e = Math.floor(Math.log10(R)) - 1, sig = Math.round(R / Math.pow(10, e));
+    if (sig >= 100) { sig = Math.round(sig / 10); e += 1; }
+    const mult = e >= 0 && e <= 9 ? BAND[e] : e === -1 ? ["#d4af37", "gold"] : e === -2 ? ["#c0c0c0", "silver"] : BAND[0];
+    const tc = { 1: BAND[1], 2: BAND[2], 5: ["#d4af37", "gold"], 10: ["#c0c0c0", "silver"] }[tol] || ["#d4af37", "gold"];
+    return [BAND[Math.floor(sig / 10)], BAND[sig % 10], mult, tc];
+  }
+  function smdCode(R) {
+    if (!(R > 0)) return "000";
+    if (R < 10) return String(Number(R.toPrecision(2))).replace(".", "R");
+    let e = Math.floor(Math.log10(R)) - 1, sig = Math.round(R / Math.pow(10, e));
+    if (sig >= 100) { sig = Math.round(sig / 10); e += 1; }
+    return String(sig) + String(e);
+  }
+
+  const api = { PARTS: PARTS, bands: bands, smdCode: smdCode, LED_VF: LED_VF, CATS: CATS, LED_RGB: LED_RGB, create: create, parseValue: parseValue, fmt: fmt, rotate: rotate,
     pinPositions: pinPositions, connectivity: connectivity, onSegment: onSegment, waveValue: waveValue };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.CircuitSim = api;

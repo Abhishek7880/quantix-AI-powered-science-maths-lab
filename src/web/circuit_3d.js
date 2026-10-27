@@ -64,19 +64,6 @@
     return s;
   }
 
-  // resistor colour code
-  const BAND = ["#111111", "#7a4a1d", "#d42020", "#f08a10", "#f5d90a", "#1e9e3a", "#1f5fd6", "#8a3fd1", "#8d8d8d", "#f4f4f4"];
-  function bands(R, tol) {
-    if (!(R > 0)) return [BAND[0], BAND[0], BAND[0], "#d4af37"];
-    let e = Math.floor(Math.log10(R)) - 1;
-    let sig = Math.round(R / Math.pow(10, e));
-    if (sig >= 100) { sig = Math.round(sig / 10); e += 1; }
-    const d1 = Math.floor(sig / 10), d2 = sig % 10;
-    const mult = e >= 0 && e <= 9 ? BAND[e] : e === -1 ? "#d4af37" : e === -2 ? "#c0c0c0" : BAND[0];
-    const tc = { 1: "#7a4a1d", 2: "#d42020", 5: "#d4af37", 10: "#c0c0c0" }[tol] || "#d4af37";
-    return [BAND[d1], BAND[d2], mult, tc];
-  }
-
   // ------------------------------------------------------------------ component models (local frame: rotation 0)
   // Each returns a THREE.Group; g.userData holds live bits (glow material, halo, rotor, segments, screen).
   function axial(g, color, len, r, h) {   // body lying along x between pins at (±2, 0)
@@ -86,10 +73,17 @@
   }
   const BUILD = {
     resistor(g, p) {
+      if (p.p.pkg === "smd") {   // 0805-style chip with its 3-digit code
+        g.add(box(1.0, 0.22, 0.6, mat(0x161616), 0, 0.13, 0));
+        [-0.55, 0.55].forEach((x) => g.add(box(0.14, 0.24, 0.62, M.pad, x, 0.13, 0)));
+        const code = printed([CS.smdCode(+p.p.R)], 0.32, { color: "#f0f0f0" }); code.position.set(0, 0.245, 0); g.add(code);
+        leg(g, [[-2, 0.02, 0], [-0.6, 0.02, 0]], 0.09); leg(g, [[2, 0.02, 0], [0.6, 0.02, 0]], 0.09);
+        return;
+      }
       const h = 0.42, body = axial(g, 0xd8bf8a, 1.6, 0.3, h);
       const caps = [-0.72, 0.72].map((x) => { const s = new THREE.Mesh(new THREE.SphereGeometry(0.34, 16, 12), body.material); s.scale.set(0.6, 1, 1); s.position.set(x, h, 0); return s; });
       caps.forEach((c) => g.add(c));
-      bands(+p.p.R, +p.p.tol).forEach((col, k) => {
+      CS.bands(+p.p.R, +p.p.tol).forEach(([col], k) => {
         const b = cyl(0.312, 0.312, 0.12, mat(col, { roughness: 0.4 }), 24); b.rotation.z = Math.PI / 2; b.position.set(-0.55 + k * 0.32 + (k === 3 ? 0.15 : 0), h, 0); g.add(b);
       });
       g.userData.body = body.material;
@@ -138,16 +132,15 @@
       const band = cyl(0.25, 0.25, 0.16, glass ? M.black : M.steel, 24); band.rotation.z = Math.PI / 2; band.position.set(0.38, 0.35, 0); g.add(band);
     },
     led(g, p) {
-      const col = new THREE.Color(CS.LED_RGB[p.p.color] || "#ff3030");
+      const col = new THREE.Color(CS.LED_RGB[p.p.color] || "#ff3030"), k = (+p.p.size || 5) / 5;   // 3, 5 or 10 mm
       const m = new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 0.05, transparent: true, opacity: 0.88, roughness: 0.15 });
-      const base = cyl(0.36, 0.36, 0.12, m); base.position.set(0, 0.86, 0); g.add(base);
-      const body = cyl(0.3, 0.3, 0.55, m); body.position.set(0, 1.18, 0); g.add(body);
-      const dome = new THREE.Mesh(new THREE.SphereGeometry(0.3, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2), m); dome.position.set(0, 1.45, 0); g.add(dome);
+      const base = cyl(0.36 * k, 0.36 * k, 0.12, m); base.position.set(0, 0.86, 0); g.add(base);
+      const body = cyl(0.3 * k, 0.3 * k, 0.55 * k, m); body.position.set(0, 0.92 + 0.275 * k, 0); g.add(body);
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(0.3 * k, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2), m); dome.position.set(0, 0.92 + 0.55 * k, 0); g.add(dome);
       pinLeg(g, -2, 0, -0.12, 0.8, 0, 0.05); pinLeg(g, 2, 0, 0.12, 0.8, 0, 0.05);
-      const s = halo(col); s.position.set(0, 1.3, 0); g.add(s);
-      g.userData.glow = m; g.userData.halo = s; g.userData.haloSize = 3.2;
-    },
-    to92(g, p, pins, mark) {
+      const s = halo(col); s.position.set(0, 0.92 + 0.4 * k, 0); g.add(s);
+      g.userData.glow = m; g.userData.halo = s; g.userData.haloSize = 3.2 * k;
+    },    to92(g, p, pins, mark) {
       const b = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.48, 1.0, 24, 1, false, -Math.PI / 2, Math.PI), M.black); b.position.set(-0.2, 0.95, 0); g.add(b);
       g.add(box(0.02, 1.0, 0.96, M.black, -0.2, 0.95, 0));
       const lab = printed([mark], 0.18, { color: "#d0d0d0" }); lab.rotation.set(0, -Math.PI / 2, 0); lab.position.set(-0.225, 1.0, 0); g.add(lab);
@@ -412,8 +405,10 @@
     });
     new ResizeObserver(resize).observe(el);
     resize();
-    return { setCircuit: setCircuit, update: update, resize: resize, theme() {} };
+    const BOARD = { green: 0x0b6b37, blue: 0x1d4ed8, black: 0x14161a, red: 0xa61b1b, white: 0xe9edf2, purple: 0x5b21b6 };
+    function setBoard(name) { M.board.color.setHex(BOARD[name] || BOARD.green); }
+    return { setCircuit: setCircuit, update: update, resize: resize, theme() {}, setBoard: setBoard };
   }
 
-  window.CircuitPCB3D = { create: create, bands: bands };
+  window.CircuitPCB3D = { create: create };
 })();
