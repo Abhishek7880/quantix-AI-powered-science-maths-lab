@@ -32,7 +32,7 @@ from src.config import load_config  # noqa: E402
 OUT = ROOT / "build" / "seo"
 SITE = (load_config().site.public_url or "https://quantix-ai-abhi.duckdns.org").rstrip("/")
 OG_IMAGE = f"{SITE}/web/og-image.png"
-MAIN_PAGES = ["/", "/formulas", "/elements", "/physics", "/handwriting", "/measure", "/converter", "/graph", "/contact"]
+MAIN_PAGES = ["/", "/formulas", "/elements", "/physics", "/circuit", "/handwriting", "/measure", "/converter", "/graph", "/contact"]
 UNITS_PER_QUANTITY = 99         # conversion pages between every pair of units within a quantity
 e = lambda s: html.escape(str(s), quote=True)
 

@@ -5,7 +5,7 @@
   "use strict";
   const TABS = [["/", "Home", "Image Inspection — home"], ["/measure", "Measure", "Measure real objects in a photo"],
                 ["/formulas", "Formulas", "Formula Library"], ["/elements", "Elements", "Periodic Table"],
-                ["/physics", "Physics", "Physics Lab"], ["/handwriting", "Solver", "Equation Solver (handwriting)"],
+                ["/physics", "Physics", "Physics Lab"], ["/circuit", "Circuits", "Circuit Lab"], ["/handwriting", "Solver", "Equation Solver (handwriting)"],
                 ["/converter", "Converter", "Unit Converter"], ["/graph", "Graphs", "Graph Plotter"]];
   const FOOT = {
     en: { tag: "AI-powered science & maths lab", contact: "Contact us", sub: "Questions, ideas or a bug? We read every message.", top: "↑ Top", skip: "Skip to content",
