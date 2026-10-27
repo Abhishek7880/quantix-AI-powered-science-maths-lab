@@ -4,7 +4,7 @@
 (function () {
   "use strict";
   const TABS = [["/", "Home", "Image Inspection — home"], ["/measure", "Measure", "Measure real objects in a photo"],
-                ["/formulas", "Formulas", "Formula Library"], ["/elements", "Elements", "Periodic Table"],
+                ["/formulas", "Formulas", "Formula Library"], ["/elements", "Elements", "Periodic Table"], ["/chemlab", "Chem Lab", "Chemistry Lab"],
                 ["/physics", "Physics", "Physics Lab"], ["/circuit", "Circuits", "Circuit Lab"], ["/plc", "PLC", "PLC Lab"], ["/handwriting", "Solver", "Equation Solver (handwriting)"],
                 ["/converter", "Converter", "Unit Converter"], ["/graph", "Graphs", "Graph Plotter"]];
   const FOOT = {

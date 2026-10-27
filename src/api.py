@@ -79,7 +79,7 @@ app = FastAPI(title="Quantix API", version=__version__, lifespan=lifespan,
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:8501", "http://127.0.0.1:8501"],
                    allow_methods=["*"], allow_headers=["*"])
 
-PAGE_PATHS = {"/", "/formulas", "/converter", "/graph", "/elements", "/measure", "/physics", "/circuit", "/plc", "/handwriting", "/contact", "/contact/inbox"}
+PAGE_PATHS = {"/", "/formulas", "/converter", "/graph", "/elements", "/measure", "/physics", "/circuit", "/plc", "/chemlab", "/handwriting", "/contact", "/contact/inbox"}
 
 
 @app.middleware("http")
@@ -252,7 +252,7 @@ def upload_page():
 
 
 # ---- site files browsers and search engines ask for at the root
-SITEMAP_PAGES = ["/", "/formulas", "/elements", "/physics", "/circuit", "/plc", "/handwriting", "/measure", "/converter", "/graph", "/contact"]
+SITEMAP_PAGES = ["/", "/formulas", "/elements", "/physics", "/circuit", "/plc", "/chemlab", "/handwriting", "/measure", "/converter", "/graph", "/contact"]
 
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -586,6 +586,16 @@ def plc_page():
     page = WEB_DIR / "plc.html"
     if not page.is_file():
         raise ResourceNotFoundError("PLC page not found (src/web/plc.html).", error_code="PAGE_NOT_FOUND",
+                                    error_title="Page not found")
+    return FileResponse(page, media_type="text/html")
+
+
+@app.get("/chemlab", include_in_schema=False)
+def chemlab_page():
+    """Chemistry Lab: 3D beaker with rule-based reactions (client-side, src/web/chem_*.js)."""
+    page = WEB_DIR / "chemlab.html"
+    if not page.is_file():
+        raise ResourceNotFoundError("Chemistry Lab page not found (src/web/chemlab.html).", error_code="PAGE_NOT_FOUND",
                                     error_title="Page not found")
     return FileResponse(page, media_type="text/html")
 
