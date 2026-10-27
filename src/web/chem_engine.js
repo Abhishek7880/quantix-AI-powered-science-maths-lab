@@ -39,11 +39,13 @@
     Mn: -1.18, Zn: -0.76, Cr: -0.74, Fe: -0.44, Cd: -0.40, Co: -0.28, Ni: -0.25, Sn: -0.14, Pb: -0.13, H: 0, Cu: 0.34, Ag: 0.80, Hg: 0.85,
     Pd: 0.95, Pt: 1.18, Au: 1.50, Sc: -2.03, Y: -2.37, La: -2.38, Fr: -2.9, Ra: -2.8 };
   const METAL_CHARGE = { Fe: "Fe2", Cu: "Cu", Cr: "Cr3", Au: "Au" };   // ion formed when the metal dissolves
-  const PRECIP_COLOUR = { "AgCl": "#f4f4f4", "AgBr": "#efe3b0", "AgI": "#f2df6a", "PbI2": "#ffd200", "PbCl2": "#f6f6f6", "PbSO4": "#f8f8f8", "BaSO4": "#fbfbfb",
+  const PRECIP_COLOUR = { "S": "#efe6a2", "Cu2O": "#b5401f", "Cr2O3": "#3e7a3a", "Mn2O3": "#4a2a1a", "K2MnO4": "#1f5f33", "C": "#141414", "ZnO": "#f4f4f4", "P4O10": "#fbfbfb",
+    "KCl": "#fafafa", "MgO": "#fbfbfb", "Al2O3": "#f2f2f2", "AlI3": "#e9e2c9", "ZnI2": "#f4f1e3", "PbO": "#e8c34a", "K2CO3": "#fafafa", "CuO": "#151515", "Fe2O3": "#8b3a1a", "Na2CO3": "#fafafa", "CaO": "#f4f4f4", "AgCl": "#f4f4f4", "AgBr": "#efe3b0", "AgI": "#f2df6a", "PbI2": "#ffd200", "PbCl2": "#f6f6f6", "PbSO4": "#f8f8f8", "BaSO4": "#fbfbfb",
     "CaSO4": "#f5f5f5", "CaCO3": "#fafafa", "BaCO3": "#fafafa", "Cu(OH)2": "#69a6ff", "Fe(OH)2": "#6f9d68", "Fe(OH)3": "#9c4f22", "Mg(OH)2": "#f5f5f5",
     "Zn(OH)2": "#f5f5f5", "Al(OH)3": "#eef3f7", "Ni(OH)2": "#59b36b", "Co(OH)2": "#c76b98", "Mn(OH)2": "#e9e1d5", "CuCO3": "#3fae9e", "Ag2CrO4": "#a3342a",
     "PbCrO4": "#f5c400", "BaCrO4": "#f2d02a", "CuS": "#151515", "PbS": "#181818", "Ag2S": "#191919", "ZnS": "#f7f7f2", "FeS": "#202020", "Ag2O": "#5a3a22",
     "Ag2CO3": "#f1eccf", "Pb(OH)2": "#f5f5f5", "Ca(OH)2": "#f4f4f4", "MgCO3": "#fafafa", "ZnCO3": "#fafafa", "FeCO3": "#c9c3a6", "Cr(OH)3": "#4e7f52" };
+  const FLAME_EXTRA = { Li: "#ff2a6a", Sr: "#ff1f3d", B: "#3fe06a", Pb: "#a7c7ff", Zn: "#cfe8ff", Mn: "#c8e04a", Fe: "#ffc24a", Se: "#7aa0ff", Cl: "#d8f05a", I: "#b06cff" };
   const FLAME = { Li: "#e3132b", Na: "#ffb000", K: "#c58bff", Rb: "#d36bff", Cs: "#7d5cff", Ca: "#ff6a2a", Sr: "#ff2a2a", Ba: "#9bdc4a", Cu: "#2ad1a5", H: "#a9c8ff", Mg: "#ffffff" };
   const METAL_COLOUR = { Cu: "#c8743b", Au: "#d4af37", Ag: "#dcdcdc", Fe: "#7d7f84", Zn: "#a8b3bd", Mg: "#d4d8dc", Al: "#cfd2d6", Pb: "#6d727a", Na: "#cfcfcf",
     K: "#cfcac2", Li: "#d2d2d2", Ca: "#d6d6ca", Sn: "#bdbdbd", Ni: "#b7ae9c", Hg: "#c7c7c7", Pt: "#e5e4e2", Cr: "#c9ccd2", Mn: "#a9a39b", Co: "#8c95a1",
@@ -135,6 +137,21 @@
     C("C6H12O6", "C6H12O6", "Glucose (sugar)", "ग्लूकोज़ (शर्करा)", "organic", { state: "s", ignite: 500, group: "other" }),
     C("CH4", "CH4", "Methane (natural gas)", "मीथेन (प्राकृतिक गैस)", "organic", { state: "g", hazard: "flammable", ignite: 580, group: "other" }),
     C("CO2", "CO2", "Carbon dioxide", "कार्बन डाइऑक्साइड", "gas", { state: "g", group: "other" }),
+    C("H2SO4c", "H2SO4", "Sulfuric acid (concentrated, 18 M)", "सल्फ़्यूरिक अम्ल (सांद्र, 18 M)", "acid", { cat: "H", an: "SO4", state: "aq", conc: 18, hazard: "corrosive", dH: -48, dHalways: true, group: "acid" }),
+    C("P4", "P4", "White phosphorus", "सफ़ेद फ़ॉस्फ़ोरस", "fuel", { state: "s", ignite: 30, colour: "#f1ecc8", hazard: "toxic, flammable", group: "other" }),
+    C("C3H8O3", "C3H8O3", "Glycerol", "ग्लिसरॉल", "organic", { state: "l", density: 1.26, ignite: 370, group: "other" }),
+    C("C12H22O11", "C12H22O11", "Sucrose (table sugar)", "सुक्रोज़ (चीनी)", "organic", { state: "s", ignite: 400, group: "other" }),
+    C("C25H52", "C25H52", "Paraffin wax (candle)", "पैराफ़िन मोम (मोमबत्ती)", "organic", { state: "s", ignite: 240, colour: "#f3efe2", group: "other" }),
+    C("KClO3", "KClO3", "Potassium chlorate", "पोटैशियम क्लोरेट", "salt", { state: "s", hazard: "oxidiser", colour: "#fbfbfb", group: "salt" }),
+    C("(NH4)2Cr2O7", "(NH4)2Cr2O7", "Ammonium dichromate (volcano)", "अमोनियम डाइक्रोमेट (ज्वालामुखी)", "salt", { cat: "NH4", an: "Cr2O7", state: "s", colour: "#f07a1c", hazard: "toxic, oxidiser", group: "salt" }),
+    C("CuCO3", "CuCO3", "Copper(II) carbonate", "कॉपर(II) कार्बोनेट", "salt", { cat: "Cu", an: "CO3", state: "s", colour: "#3fae9e", group: "salt" }),
+    C("CuSO4.5H2O", "CuSO4(H2O)5", "Blue vitriol (CuSO4·5H2O crystals)", "नीला थोथा क्रिस्टल (CuSO4·5H2O)", "hydrate", { state: "s", colour: "#2f7de1", group: "salt" }),
+    C("KSCN", "KSCN", "Potassium thiocyanate", "पोटैशियम थायोसायनेट", "salt", { state: "aq", conc: 0.1, group: "salt" }),
+    C("Na2S2O3", "Na2S2O3", "Sodium thiosulfate", "सोडियम थायोसल्फ़ेट", "salt", { state: "aq", conc: 0.15, group: "salt" }),
+    C("LiCl", "LiCl", "Lithium chloride (flame test)", "लिथियम क्लोराइड (ज्वाला परीक्षण)", "salt", { cat: "Li", an: "Cl", state: "s", group: "salt" }),
+    C("SrCl2", "SrCl2", "Strontium chloride (flame test)", "स्ट्रॉन्शियम क्लोराइड (ज्वाला परीक्षण)", "salt", { cat: "Sr", an: "Cl", state: "s", group: "salt" }),
+    C("CuCl2", "CuCl2", "Copper(II) chloride", "कॉपर(II) क्लोराइड", "salt", { cat: "Cu", an: "Cl", state: "s", group: "salt" }),
+    C("starch", "C6H10O5", "Starch solution (iodine test)", "स्टार्च विलयन (आयोडीन परीक्षण)", "indicator", { state: "aq", ind: "starch", group: "ind" }),
     C("phenolphthalein", "C20H14O4", "Phenolphthalein (indicator)", "फ़िनॉल्फ़्थेलिन (सूचक)", "indicator", { state: "aq", ind: "php", group: "ind" }),
     C("litmus", "litmus", "Litmus (indicator)", "लिटमस (सूचक)", "indicator", { state: "aq", ind: "litmus", group: "ind" }),
     C("methylorange", "C14H14N3NaO3S", "Methyl orange (indicator)", "मेथिल ऑरेंज (सूचक)", "indicator", { state: "aq", ind: "mo", group: "ind" }),
@@ -228,7 +245,7 @@
 
   function lab(opts) {
     opts = opts || {};
-    const L = { capacity: opts.capacity || 250, T: ROOM, items: [], events: [], active: [], gas: {}, flame: null, light: 0, smoke: 0, time: 0, ind: null, stir: false, log: [] };
+    const L = { contact: {}, snake: 0, mirror: 0, smokeHex: null, flameHex: null, sparks: 0, capacity: opts.capacity || 250, T: ROOM, items: [], events: [], active: [], gas: {}, flame: null, light: 0, smoke: 0, time: 0, ind: null, stir: false, log: [] };
     const find = (f, state) => L.items.find((x) => x.f === f && (!state || x.state === state));
     function put(f, mol, state, meta) {
       if (mol <= 0) return;
@@ -249,7 +266,7 @@
       amount = Math.max(0, +amount || 0);
       const M = molarMass(sub.f);
       let mol = 0, waterMol = 0;
-      if (sub.kind === "indicator") { L.ind = sub.ind; put(sub.f, 1e-5, "aq", meta(sub)); waterMol = (unit === "mL" ? amount : 0.25) / 18.015; put("H2O", waterMol, "l", { kind: "water" }); log(sub, amount, unit); return sub; }
+      if (sub.kind === "indicator") { if (sub.ind !== "starch") L.ind = sub.ind; put(sub.f, 1e-5, "aq", meta(sub)); waterMol = (unit === "mL" ? amount : 0.25) / 18.015; put("H2O", waterMol, "l", { kind: "water" }); log(sub, amount, unit); return sub; }
       if (sub.f === "H2O") { put("H2O", (unit === "g" || unit === "mL" ? amount : unit === "mol" ? amount * 18.015 : amount) / 18.015, "l", { kind: "water" }); log(sub, amount, unit); return sub; }
       if (unit === "mol") mol = amount;
       else if (unit === "mg") mol = amount / 1000 / M;
@@ -261,10 +278,12 @@
         else mol = mL * (sub.density || (sub.el && sub.el.density) || 1) / M;
       }
       if (waterMol) put("H2O", waterMol, "l", { kind: "water" });
-      const state = sub.state === "aq" ? "aq" : sub.state;
+      // salts and solid bases added by mass go in as crystals (they dissolve if there is water); acids and NH3 are solutions
+      const state = sub.state === "aq" && /^(g|mg|mol)$/.test(unit) && /^(salt|base)$/.test(sub.kind) && sub.f !== "NH3" ? "s" : sub.state;
       put(sub.f, mol, state, meta(sub));
       dissolveAll();
-      if (sub.dH && water() > 0 && sub.state === "s" || sub.dH && water() > 0 && unit !== "mL" && unit !== "drops") heat(-sub.dH * mol * 1000);    // dissolving solid NaOH warms, NH4NO3 cools
+      if (sub.dHalways && water() > 0) heat(-sub.dH * mol * 1000);   // concentrated acid into water: lots of heat
+      else if (sub.dH && water() > 0 && sub.state === "s" || sub.dH && water() > 0 && unit !== "mL" && unit !== "drops") heat(-sub.dH * mol * 1000);    // dissolving solid NaOH warms, NH4NO3 cools
       log(sub, amount, unit, conc);
       return sub;
     }
@@ -272,6 +291,8 @@
     // soluble solids dissolve when there is water; insoluble ones stay as solids
     function dissolveAll() {
       if (water() <= 0) return;
+      const hyd = L.items.find((i) => i.kind === "hydrate" && i.f === "CuSO4(H2O)5");   // blue crystals dissolve into copper sulfate solution
+      if (hyd) { const n = hyd.mol; L.items.splice(L.items.indexOf(hyd), 1); put("CuSO4", n, "aq", { kind: "salt", cat: "Cu", an: "SO4" }); put("H2O", 5 * n, "l", { kind: "water" }); }
       L.items.forEach((it) => {
         if (it.state !== "s" || !it.cat || !it.an) return;
         if (it.kind === "salt" || it.kind === "base") {
@@ -296,6 +317,8 @@
     function ruleFor(a, b, wet) {
       const pick = (fn) => fn(a, b) || fn(b, a);
       return pick((x, y) => {
+        const sp = special(x, y, wet);
+        if (sp) return sp;
         const X = x.kind, Y = y.kind;
         // 1. neutralisation: acid + hydroxide / ammonia
         if (X === "acid" && wet && Y === "base" && y.an === "OH") return dbl(x, y, [[saltFormula(y.cat, x.an), y.cat, x.an], ["H2O", "l"]], { type: "neutral", rate: 6, dH: -57, perWater: true });
@@ -386,15 +409,98 @@
       return Object.assign({ key: [x.f, y.f].sort().join("|") + "|" + (o.type || ""), reac: [[x.f, x.state], [y.f, y.state]], prod: prods }, o);
     }
 
+    // ---- reactions that need no burner, colour tests, and three-chemical reactions
+    const has = (f, st) => L.items.find((i) => i.f === f && (!st || i.state === st));
+    const concOf = (it) => (it ? it.mol / volL() : 0);
+    function mkN(list, prods, o) {   // several reactants: list of items
+      return Object.assign({ key: list.map((i) => i.f).sort().join("|") + "|" + (o.type || ""), reac: list.map((i) => [i.f, i.state]), prod: prods }, o);
+    }
+    function special(x, y, wet) {
+      const fx = x.f, fy = y.f, ex = elSym(x), ey = elSym(y);
+      // limewater turns milky: CO2 + hydroxide -> carbonate (+ water)
+      if (fx === "CO2" && y.an === "OH" && wet) return mk(x, y, [[saltFormula(y.cat, "CO3"), insoluble(y.cat, "CO3") ? "s" : "aq", { kind: "salt", cat: y.cat, an: "CO3" }], ["H2O", "l"]], { type: "limewater", rate: 3, dH: -50 });
+      // potassium permanganate crystals + glycerol: bursts into flame on its own after a few seconds
+      if (fx === "KMnO4" && x.state === "s" && fy === "C3H8O3") return mk(x, y, [["K2CO3", "s"], ["Mn2O3", "s", { kind: "oxide" }], ["CO2", "g"], ["H2O", "g"]], { type: "selfignite", rate: 1.2, delay: 6, dH: -1000, flameHex: "#d9a2ff", light: 0.7, smokeHex: "#bdbdbd" });
+      // aluminium (or zinc) + iodine + a drop of water: violet iodine smoke and flame
+      if ((ex === "Al" || ex === "Zn") && x.kind === "element" && fy === "I2" && wet) return mk(x, y, [[ex === "Al" ? "AlI3" : "ZnI2", "s", { kind: "salt" }]], { type: "iodinesmoke", rate: ex === "Al" ? 1.5 : 0.5, delay: ex === "Al" ? 4 : 2, dH: ex === "Al" ? -300 : -210, flameHex: "#ff9a3c", light: 0.4, smokeHex: "#8e3fd0", purple: true });
+      // alkali metals and aluminium burn in chlorine / bromine without heating
+      if (x.kind === "element" && /^(Li|Na|K|Rb|Cs|Al|Fe|Cu|Sb)$/.test(ex) && /^(Cl2|Br2)$/.test(fy)) {
+        const hal = fy[0] === "C" ? "Cl" : "Br", ion = ex === "Fe" ? "Fe3" : METAL_CHARGE[ex] || ex;
+        return mk(x, y, [[saltFormula(ion, hal), "s", { kind: "salt", cat: ion, an: hal }]], { type: "burnhalogen", rate: /^(Li|Na|K|Rb|Cs)$/.test(ex) ? 2 : 0.6, dH: -350, flameHex: FLAME[ex] || "#ffd27a", light: 0.6, smokeHex: hal === "Cl" ? "#f2f2f2" : "#c06a3a" });
+      }
+      // fluorine attacks almost everything
+      if (fx === "F2") {
+        if (fy === "H2O") return mk(x, y, [["HF", "aq", { kind: "acid", cat: "H", an: "F", weak: true, Ka: 6.8e-4 }], ["O2", "g"]], { type: "fluorine", rate: 4, dH: -260, flameHex: "#fff3a0", light: 0.4 });
+        if (y.kind === "element" && isMetal(ey)) return mk(x, y, [[saltFormula(METAL_CHARGE[ey] || ey, "F"), "s", { kind: "salt" }]], { type: "fluorine", rate: 3, dH: -500, flameHex: "#fff3a0", light: 0.8 });
+        if (fy === "H2") return mk(x, y, [["HF", "g"]], { type: "explosion", rate: 20, dH: -546, light: 1, flameHex: "#ffffff", sound: "bang" });
+      }
+      // hydrogen + chlorine in daylight: explodes
+      if (fx === "H2" && fy === "Cl2") return mk(x, y, [["HCl", "g"]], { type: "explosion", rate: 10, dH: -185, light: 0.9, flameHex: "#ffffff", sound: "bang" });
+      // potassium chlorate + sugar, started by a drop of sulfuric acid: violet fire
+      if (fx === "KClO3" && fy === "C12H22O11" && L.items.some((i) => i.f === "H2SO4")) return mk(x, y, [["KCl", "s", { kind: "salt", cat: "K", an: "Cl" }], ["CO2", "g"], ["H2O", "g"]], { type: "selfignite", rate: 1.5, delay: 1, dH: -5600, flameHex: "#b37bff", light: 0.8, smokeHex: "#dcdcdc" });
+      // concentrated sulfuric acid dehydrates sugar: the black carbon snake
+      if (fx === "C12H22O11" && fy === "H2SO4" && concOf(y) > 8) return { key: "snake", reac: [[fx, x.state]], prod: [["C", "s", { kind: "element", snake: true }], ["H2O", "g"]], cat: "H2SO4", rate: 0.25, delay: 3, dH: -180, type: "dehydration", smokeHex: "#e8e8e8", snake: true };
+      // copper + hot concentrated sulfuric acid
+      if (ex === "Cu" && x.kind === "element" && fy === "H2SO4" && concOf(y) > 8 && L.T > 120) return mk(x, y, [["CuSO4", "s", { kind: "salt", cat: "Cu", an: "SO4" }], ["SO2", "g"], ["H2O", "l"]], { type: "oxacid", rate: 0.3, dH: -50, gas: "SO2" });
+      // zinc + ammonium nitrate + a drop of water: flame
+      if (ex === "Zn" && x.kind === "element" && fy === "NH4NO3" && wet && water() < 15) return mk(x, y, [["ZnO", "s", { kind: "oxide" }], ["N2", "g"], ["H2O", "g"]], { type: "selfignite", rate: 1, delay: 5, dH: -400, flameHex: "#7cff9a", light: 0.5, smokeHex: "#f4f4f4" });
+      // iron(III) + thiocyanate: blood red
+      if (x.cat === "Fe3" && x.state === "aq" && fy === "KSCN") return mk(x, y, [["Fe(SCN)" + (x.an === "Cl" ? "Cl2" : "SO4"), "aq", { colourHex: "#8e0b0b", strength: 6 }], [x.an === "Cl" ? "KCl" : "KHSO4", "aq", { kind: "salt" }]], { type: "colourtest", rate: 6, dH: -5 });
+      // acid + thiosulfate: sulfur makes the liquid cloudy (the "disappearing cross")
+      if (x.kind === "acid" && fy === "Na2S2O3" && x.cat === "H") return mk(x, y, [[saltFormula("Na", x.an), "aq", { kind: "salt", cat: "Na", an: x.an }], ["S", "s", { kind: "element", cloudy: true }], ["SO2", "g"], ["H2O", "l"]], { type: "cloudy", rate: 0.12, dH: -10 });
+      // iodide + hydrogen peroxide in acid: brown iodine (with starch: blue-black)
+      if (x.an === "I" && x.state === "aq" && fy === "H2O2" && has("H2SO4")) {
+        const acid = has("H2SO4");
+        return mkN([x, y, acid], [[saltFormula(x.cat, "SO4"), "aq", { kind: "salt", cat: x.cat, an: "SO4" }], ["I2", "aq", { kind: "element", halogenAq: "I" }], ["H2O", "l"]], { type: "iodine", rate: 0.3, dH: -100 });
+      }
+      // Benedict / Fehling test: copper(II) hydroxide + glucose, heated -> brick-red Cu2O
+      if (fx === "Cu(OH)2" && fy === "C6H12O6" && L.T > 70) return mk(x, y, [["Cu2O", "s", { kind: "oxide", colourHex: "#b5401f" }], ["C6H12O7", "aq", { kind: "organic" }], ["H2O", "l"]], { type: "benedict", rate: 0.4, dH: -20 });
+      // Tollens test: silver nitrate + ammonia + glucose, warmed -> silver mirror
+      if (fx === "AgNO3" && fy === "C6H12O6" && has("NH3") && has("H2O", "l") && L.T > 45) return mkN([x, y, has("NH3"), has("H2O", "l")].filter(Boolean), [["Ag", "s", { kind: "element", deposit: true, mirror: true }], ["C6H12O7", "aq", { kind: "organic" }], ["NH4NO3", "aq", { kind: "salt", cat: "NH4", an: "NO3" }]], { type: "mirror", rate: 0.3, dH: -20, mirror: true, fixed: [2, 1, 2, 1, 2, 1, 2] });
+      // aluminium and zinc dissolve in strong alkali too (amphoteric), giving hydrogen
+      if ((ex === "Al" || ex === "Zn") && x.kind === "element" && y.an === "OH" && /^(Na|K)$/.test(y.cat) && wet) {
+        const w = has("H2O", "l");
+        return mkN([x, y, w], [[ex === "Al" ? saltFormula(y.cat, "OH").replace("OH", "") + "Al(OH)4" : y.cat + "2Zn(OH)4", "aq", { kind: "salt" }], ["H2", "g"]], { type: "amphoteric", rate: ex === "Al" ? 0.25 : 0.08, dH: -200, gas: "H2" });
+      }
+      // chlorine water: bleaching hypochlorous acid
+      if (fx === "Cl2" && fy === "H2O" && wet) return mk(x, y, [["HCl", "aq", { kind: "acid", cat: "H", an: "Cl" }], ["HClO", "aq", { kind: "bleach" }]], { type: "bleach", rate: 0.5, dH: -25 });
+      // starch + iodine: blue-black (shown as a colour test)
+      if (x.ind === "starch" && fy === "I2" && y.state === "aq") return { key: "starch|I2", reac: [[fx, x.state], [fy, "aq"]], prod: [["C6H10O5I2", "aq", { colourHex: "#141a4a", strength: 4000 }]], fixed: [1, 1, 1], rate: 8, dH: 0, type: "starch" };
+      return null;
+    }
+    // heating a solid (or a solution) until it breaks down
+    const DECOMP = {
+      NaHCO3: { T: 80, prod: [["Na2CO3", "s", { kind: "salt", cat: "Na", an: "CO3" }], ["H2O", "g"], ["CO2", "g"]], rate: 0.25, dH: 64, gas: "CO2" },
+      CaCO3: { T: 825, prod: [["CaO", "s", { kind: "oxide", cat: "Ca", an: "O" }], ["CO2", "g"]], rate: 0.15, dH: 178, light: 0.3 },
+      CuCO3: { T: 290, prod: [["CuO", "s", { kind: "oxide", cat: "Cu", an: "O", colourHex: "#151515" }], ["CO2", "g"]], rate: 0.3, dH: 46 },
+      KMnO4: { T: 240, dry: true, prod: [["K2MnO4", "s", { kind: "salt", colourHex: "#1f5f33" }], ["MnO2", "s", { kind: "catalyst" }], ["O2", "g"]], rate: 0.3, dH: -10, smokeHex: "#c06bd8" },
+      "(NH4)2Cr2O7": { T: 180, prod: [["Cr2O3", "s", { kind: "oxide", colourHex: "#3e7a3a" }], ["N2", "g"], ["H2O", "g"]], rate: 0.6, dH: -315, sparks: true, light: 0.5, flameHex: "#ff8a2a", smokeHex: "#6f7f5f", volcano: true },
+      "Pb(NO3)2": { T: 470, prod: [["PbO", "s", { kind: "oxide", colourHex: "#e8c34a" }], ["NO2", "g"], ["O2", "g"]], rate: 0.3, dH: 300, gas: "NO2", smokeHex: "#a5471b" },
+      NH4Cl: { T: 340, dry: true, prod: [["NH3", "g"], ["HCl", "g"]], rate: 0.4, dH: 176, smokeHex: "#f4f4f4" },
+      "CuSO4(H2O)5": { T: 110, prod: [["CuSO4", "s", { kind: "salt", cat: "Cu", an: "SO4", colourHex: "#f2f2f2", anhydrous: true }], ["H2O", "g"]], rate: 0.3, dH: 78, steam: true },
+      C12H22O11: { T: 186, dry: true, prod: [["C", "s", { kind: "element" }], ["H2O", "g"]], rate: 0.12, dH: 50, smokeHex: "#8a7a6a" },
+      I2: { T: 100, dry: true, sublime: true, prod: [["I2", "g"]], rate: 0.5, dH: 62, smokeHex: "#8e3fd0" },
+      H2O2: { T: 60, prod: [["H2O", "l"], ["O2", "g"]], rate: 0.05, dH: -98, gas: "O2" },
+      KClO3: { T: 400, dry: true, prod: [["KCl", "s", { kind: "salt", cat: "K", an: "Cl" }], ["O2", "g"]], rate: 0.3, dH: -45 },
+    };
+    function decompRule(x, wet) {
+      const d = DECOMP[x.f];
+      if (!d || L.T < d.T) return null;
+      if (d.dry && wet) return null;
+      if (x.f !== "H2O2" && x.state !== "s" && !(x.f === "NaHCO3")) return null;
+      return Object.assign({ key: "heat|" + x.f, reac: [[x.f, x.state]], type: d.sublime ? "sublime" : "decomp" }, d);
+    }
+
     // burning in air when heated (dry substances, or gases)
     function burnRule(x) {
-      const tTh = x.ignite || (x.kind === "element" ? { Mg: 470, Fe: 700, Na: 120, K: 70, Li: 180, Ca: 300, Al: 800, Zn: 460, Cu: 700, C: 450, S: 230, P: 240, H2: 500 }[x.f] : null);
+      const tTh = x.ignite || (x.kind === "element" ? { Mg: 470, Fe: 315, Na: 115, K: 70, Li: 180, Ca: 300, Al: 800, Zn: 460, Cu: 700, C: 400, S: 232, P: 260, H2: 500, Rb: 15, Cs: 10, Ba: 550, Sr: 450, Ti: 1200 }[elSym(x)] || (x.f === "H2" ? 500 : null) : null);
       if (!tTh || L.T < tTh || x.state === "l" && x.kind === "element") return null;   // molten metal (e.g. thermite iron) is not re-burnt
       if (x.kind === "organic") {
-        const p = parse(x.f), prods = [["CO2", "g"], ["H2O", "g"]];
-        void p;
-        return { key: "burn|" + x.f, reac: [[x.f, x.state], ["O2", "air"]], prod: prods, rate: 0.5, dH: { C2H5OH: -1367, CH4: -890, C6H12O6: -2803 }[x.f] || -1000, type: "combustion", flame: "H", light: 0.4 };
+        const prods = [["CO2", "g"], ["H2O", "g"]];
+        return { key: "burn|" + x.f, reac: [[x.f, x.state], ["O2", "air"]], prod: prods, rate: 0.5, dH: { C2H5OH: -1367, CH4: -890, C6H12O6: -2803, C3H8O3: -1655, C12H22O11: -5640, C25H52: -15000 }[x.f] || -1000,
+          type: "combustion", flameHex: x.f === "C2H5OH" || x.f === "CH4" ? "#6fa8ff" : "#ffb347", light: 0.4, smokeHex: x.f === "C25H52" ? "#3a3a3a" : null };
       }
+      if (x.f === "P4") return { key: "burn|P4", reac: [["P4", x.state], ["O2", "air"]], prod: [["P4O10", "s", { kind: "oxide" }]], rate: 1, dH: -2984, type: "combustion", flameHex: "#fff1b0", light: 0.6, smokeHex: "#f8f8f8" };
       if (x.kind !== "element") return null;
       const s = elSym(x);
       if (s === "C") return { key: "burn|C", reac: [["C", x.state], ["O2", "air"]], prod: [["CO2", "g"]], rate: 0.1, dH: -394, type: "combustion", light: 0.3, flame: "C" };
@@ -414,10 +520,13 @@
       r.reac.forEach(([f, st], i) => { if (st !== "air") take(f, coeffs[i] * ext, st); });
       r.prod.forEach(([f, st, m], i) => {
         const c = coeffs[r.reac.length + i] * ext;
-        if (st === "g") { L.gas[f] = (L.gas[f] || 0) + c; return; }      // gases leave the beaker as bubbles
+        // carbon dioxide passing through an alkali is absorbed (limewater turns milky); other gases leave as bubbles
+        if (st === "g" && f === "CO2" && L.items.some((i) => i.an === "OH" && i.state === "aq")) { put("CO2", c, "aq", { kind: "gas" }); return; }
+        if (st === "g") { L.gas[f] = (L.gas[f] || 0) + c; return; }
         const it = put(f, c, st, m);
         if (m && m.halogenAq) it.colourHex = m.halogenAq === "I" ? "#9a5a14" : "#c96a1e";
         if (m && m.colourHex) { it.colourHex = m.colourHex; it.strength = m.strength; }
+        if (m && m.deposit) it.deposit = true;
       });
       // dH is per mole of the reactant with the smallest coefficient (the metal, the carbonate, the fuel...), or per mole of water formed
       const ref = Math.min.apply(null, r.reac.map(([, st], i) => (st === "air" ? Infinity : coeffs[i])));
@@ -442,7 +551,7 @@
       const wet = water() > 0.5;
       const decay = Math.exp(-dt * 1.5);
       Object.keys(L.gas).forEach((k) => { L.gas[k] *= decay; if (L.gas[k] < 1e-7) delete L.gas[k]; });
-      L.flame = null; L.light *= decay; L.smoke *= Math.exp(-dt * 0.4);
+      L.flame = null; L.flameHex = null; L.pending = null; L.sparks = 0; L.light *= decay; L.smoke *= Math.exp(-dt * 0.4);
       const fired = new Set();
       for (let pass = 0; pass < 4; pass++) {
         const items = L.items.slice();
@@ -450,12 +559,14 @@
         for (let i = 0; i < items.length; i++) {
           for (let j = i + 1; j < items.length; j++) { const r = ruleFor(items[i], items[j], wet); if (r) cand.push(r); }
           const b = !wet || items[i].state === "g" ? burnRule(items[i]) : null; if (b) cand.push(b);
+          const d = decompRule(items[i], wet); if (d) cand.push(d);
         }
         if (!cand.length) break;
         let any = false;
         cand.forEach((r) => {
           if (fired.has(r.key)) return;
-          const coeffs = r.coeffHint ? [2, 3, 2, 3, 2].slice(0, r.reac.length + r.prod.length) : balance(r.reac.map((x) => x[0]), r.prod.map((x) => x[0]));
+          if (r.delay) { L.contact[r.key] = L.contact[r.key] || L.time; if (L.time - L.contact[r.key] < r.delay) { L.pending = r; return; } }
+          const coeffs = r.fixed || (r.coeffHint ? [2, 3, 2, 3, 2].slice(0, r.reac.length + r.prod.length) : balance(r.reac.map((x) => x[0]), r.prod.map((x) => x[0])));
           if (!coeffs) return;
           const amounts = r.reac.map(([f, st], i) => (st === "air" ? Infinity : ((find(f, st) || { mol: 0 }).mol) / coeffs[i]));
           const maxExt = Math.min.apply(null, amounts);
@@ -471,6 +582,11 @@
           if (r.flame && ext / dt > 1e-5) L.flame = r.flame;
           if (r.light) L.light = Math.max(L.light, r.light);
           if (r.smoke) L.smoke = Math.min(1, L.smoke + ext * 50);
+          if (r.flameHex && ext / dt > 1e-6) L.flameHex = r.flameHex;
+          if (r.smokeHex) { L.smoke = Math.min(1, L.smoke + Math.max(0.02, ext * 60)); L.smokeHex = r.smokeHex; }
+          if (r.sparks) L.sparks = 1;
+          if (r.snake) L.snake += ext * 12;
+          if (r.mirror) L.mirror = Math.min(1, L.mirror + ext * 400);
         });
         merge();
         if (!any) break;
@@ -526,7 +642,9 @@
         if (it.colourHex) addCol(it.colourHex, Math.min(3, c * 4 * (it.strength || 1)));
         [it.cat, it.an].forEach((k) => { if (k && ION_COLOUR[k]) addCol(ION_COLOUR[k], Math.min(3, c * 4 * (ION_STRENGTH[k] || 0.5) * (k === it.an ? 1 : 1))); });
       });
-      const ic = indicatorColour(pH());
+      if (L.items.some((i) => i.f === "S" && i.state === "s" && water() > 0)) { const s = L.items.find((i) => i.f === "S"); addCol("#f3efcf", Math.min(4, s.mol / V * 60)); }   // sulfur clouds the liquid
+      const bleached = L.items.some((i) => i.f === "HClO");
+      const ic = bleached ? null : indicatorColour(pH());
       if (ic) addCol(ic[0], ic[1] * 2.5);
       if (!w) return { hex: "#cfe8ff", a: 0.25 };
       const hx = (v) => Math.round(Math.min(255, v / w)).toString(16).padStart(2, "0");
@@ -538,19 +656,20 @@
         const M = molarMass(it.f);
         const name = it.cat && it.an && it.kind !== "acid" && !(it.cat === "H") ? saltName(it.cat, it.an, lang) : (lookup(it.id || it.f) || elementSubstance(it.f.replace(/2$/, "")) || {}).name;
         return { f: it.f, fp: pretty(it.f), state: it.state, mol: it.mol, g: it.mol * M, name: name ? (name[lang] || name.en || name) : it.f, deposit: !!it.deposit,
-          colour: it.state === "s" ? (PRECIP_COLOUR[it.f] || it.colour || METAL_COLOUR[it.f] || "#e8e8e8") : null };
+          colour: it.state === "s" ? (it.colourHex || PRECIP_COLOUR[it.f] || it.colour || METAL_COLOUR[it.f] || "#e8e8e8") : null, cloudy: !!it.cloudy, snake: !!it.snake };
       });
       const events = L.events.map((e) => ({ eq: e.eq, type: e.r.type, active: L.time - e.last < 0.6 && e.rateNow > 1e-7, start: e.start, extent: e.ext, gas: e.r.gas || null, catalyst: e.r.cat || null }));
       const gases = Object.keys(L.gas).map((f) => ({ f: f, fp: pretty(f), rate: L.gas[f] * 1.5, colour: { NO2: "#a5471b", Cl2: "#bcd64a", Br2: "#b5531c", I2: "#7a3fa0", H2O: "#ffffff" }[f] || null }));
-      return { T: L.T, pH: pH(), water: water(), capacity: L.capacity, volume: water() + L.items.filter((x) => x.state === "l" && x.f !== "H2O").reduce((s, x) => s + x.mol * molarMass(x.f) / 0.9, 0),
+      const flameHex = L.flameHex || (L.flame ? FLAME[L.flame] || "#ffb347" : null);
+      return { flameHex: flameHex, smokeHex: L.smokeHex || "#eeeeee", sparks: L.sparks, snake: L.snake, mirror: L.mirror, pending: L.pending ? L.pending.type : null, T: L.T, pH: pH(), water: water(), capacity: L.capacity, volume: water() + L.items.filter((x) => x.state === "l" && x.f !== "H2O").reduce((s, x) => s + x.mol * molarMass(x.f) / 0.9, 0),
         colour: liquidColour(), contents: contents, events: events, gases: gases, flame: L.flame ? FLAME[L.flame] || "#ffb347" : null, light: L.light, smoke: L.smoke,
         precip: contents.filter((c) => c.state === "s").map((c) => ({ f: c.f, colour: c.colour, mol: c.mol, deposit: c.deposit, metal: !!METAL_COLOUR[c.f] })) };
     }
-    function empty() { L.items = []; L.events = []; L.gas = {}; L.T = ROOM; L.ind = null; L.log = []; L.light = 0; L.smoke = 0; L.flame = null; }
+    function empty() { L.items = []; L.events = []; L.gas = {}; L.T = ROOM; L.ind = null; L.log = []; L.light = 0; L.smoke = 0; L.flame = null; L.contact = {}; L.snake = 0; L.mirror = 0; L.smokeHex = null; L.flameHex = null; }
     return { add: add, step: step, view: view, empty: empty, get T() { return L.T; }, set T(v) { L.T = v; }, get items() { return L.items; }, get events() { return L.events; }, L: L };
   }
 
-  const api = { init: init, lab: lab, COMPOUNDS: COMPOUNDS, lookup: lookup, parse: parse, balance: balance, molarMass: molarMass, saltFormula: saltFormula,
+  const api = { FLAME_EXTRA: FLAME_EXTRA, init: init, lab: lab, COMPOUNDS: COMPOUNDS, lookup: lookup, parse: parse, balance: balance, molarMass: molarMass, saltFormula: saltFormula,
     insoluble: insoluble, pretty: pretty, E0: E0, METAL_COLOUR: METAL_COLOUR, FLAME: FLAME, isMetal: isMetal, elementSubstance: elementSubstance };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.ChemEngine = api;

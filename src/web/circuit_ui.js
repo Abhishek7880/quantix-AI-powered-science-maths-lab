@@ -45,17 +45,21 @@
     },
   };
   // ease-of-use + customisation texts
-  Object.assign(TX.en, { common: "Most used", quick: "Quick values", settings: "⚙ Settings", style: "Symbols", iec: "IEC / Indian (box resistor)", ansi: "US / ANSI (zig-zag)",
+  Object.assign(TX.en, { cut: "✂ Cut", cutting: "Click a wire to cut a piece out of it · Esc to stop", cutHere: "✂ Cut wire here", insertHere: "＋ Insert a part here", delWire: "🗑 Delete wire",
+    inserted: "inserted into the wire", cutDone: "wire cut", insertHint: "Now pick a part in the list — it goes into the wire.",
+    common: "Most used", quick: "Quick values", settings: "⚙ Settings", style: "Symbols", iec: "IEC / Indian (box resistor)", ansi: "US / ANSI (zig-zag)",
     grid: "Grid dots", vcol: "Colour wires by voltage", dots: "Moving current dots", vals: "Show values on parts", board: "3D board colour",
     boards: [["green", "Green"], ["blue", "Blue"], ["black", "Black"], ["red", "Red"], ["white", "White"], ["purple", "Purple"]],
     bands: "Colour bands", smd: "SMD code", edit: "✎ Edit value", toggle: "⇄ Switch on / off", dragPin: "drag to connect",
-    tip: ["Drag a part from the left onto the board.", "Drag from a pin (small dot) to another pin to connect a wire.", "Press ▶ Run, click switches, double-click a part to change its value."], gotIt: "Got it",
+    tip: ["Drag a part from the left onto the board — drop it on a wire to insert it into that wire.", "Drag from a pin (small dot) to another pin to wire; drag a wire's free end to stretch it; ✂ Cut or right-click a wire to cut it.", "Press ▶ Run, click switches, double-click a part to change its value."], gotIt: "Got it",
     auto: "auto" });
-  Object.assign(TX.hi, { common: "सबसे ज़्यादा उपयोग", quick: "त्वरित मान", settings: "⚙ सेटिंग्स", style: "चिह्न", iec: "IEC / भारतीय (डिब्बा प्रतिरोधक)", ansi: "US / ANSI (ज़िग-ज़ैग)",
+  Object.assign(TX.hi, { cut: "✂ काटें", cutting: "तार का टुकड़ा काटने के लिए उस पर क्लिक करें · रोकने के लिए Esc", cutHere: "✂ तार यहाँ काटें", insertHere: "＋ यहाँ घटक डालें", delWire: "🗑 तार हटाएँ",
+    inserted: "तार में जोड़ा गया", cutDone: "तार कटा", insertHint: "अब सूची से घटक चुनें — वह तार में लग जाएगा।",
+    common: "सबसे ज़्यादा उपयोग", quick: "त्वरित मान", settings: "⚙ सेटिंग्स", style: "चिह्न", iec: "IEC / भारतीय (डिब्बा प्रतिरोधक)", ansi: "US / ANSI (ज़िग-ज़ैग)",
     grid: "ग्रिड बिंदु", vcol: "वोल्टेज से तारों का रंग", dots: "चलते धारा बिंदु", vals: "घटकों पर मान दिखाएँ", board: "3D बोर्ड का रंग",
     boards: [["green", "हरा"], ["blue", "नीला"], ["black", "काला"], ["red", "लाल"], ["white", "सफ़ेद"], ["purple", "बैंगनी"]],
     bands: "रंग पट्टियाँ", smd: "SMD कोड", edit: "✎ मान बदलें", toggle: "⇄ चालू / बंद", dragPin: "जोड़ने के लिए खींचें",
-    tip: ["बाईं ओर से घटक खींचकर बोर्ड पर छोड़ें।", "किसी पिन (छोटा बिंदु) से दूसरे पिन तक खींचकर तार जोड़ें।", "▶ चलाएँ दबाएँ, स्विच क्लिक करें, मान बदलने के लिए घटक पर डबल-क्लिक करें।"], gotIt: "समझ गया",
+    tip: ["बाईं ओर से घटक खींचकर बोर्ड पर छोड़ें — तार पर छोड़ें तो वह तार के बीच लग जाता है।", "पिन (छोटा बिंदु) से दूसरे पिन तक खींचकर तार जोड़ें; तार का खुला सिरा खींचकर बढ़ाएँ; ✂ काटें या राइट-क्लिक से तार काटें।", "▶ चलाएँ दबाएँ, स्विच क्लिक करें, मान बदलने के लिए घटक पर डबल-क्लिक करें।"], gotIt: "समझ गया",
     auto: "स्वतः" });
   const COMMON = ["battery", "resistor", "led", "switch", "capacitor", "button", "ground", "voltmeter"];
   // one-click values for each part (the field still takes any value)
@@ -541,27 +545,81 @@
     }
     return base;
   }
+  // a 2-pin part dropped onto a wire: turn it to follow the wire, then cut the wire so the part sits in the middle
+  function wireUnder(x, y) { return S.circuit.wires.findIndex((w) => CS.onSegment(x, y, w) && !(w.x1 === x && w.y1 === y) && !(w.x2 === x && w.y2 === y)); }
+  function alignToWire(p) {
+    if (PARTS[p.type].pins.length !== 2) return;
+    const k = wireUnder(p.x, p.y);
+    if (k < 0) return;
+    const w = S.circuit.wires[k], wireVertical = w.x1 === w.x2;
+    const pins = CS.pinPositions(p), partVertical = pins[0][0] === pins[1][0];
+    if (wireVertical !== partVertical) p.rot = ((p.rot || 0) + 1) % 4;
+  }
+  function spliceIntoWires(p) {
+    const pins = CS.pinPositions(p);
+    if (pins.length !== 2) return false;
+    const k = S.circuit.wires.findIndex((w) => CS.onSegment(pins[0][0], pins[0][1], w) && CS.onSegment(pins[1][0], pins[1][1], w));
+    if (k < 0) return false;
+    const w = S.circuit.wires[k], a = [w.x1, w.y1], b = [w.x2, w.y2];
+    const d = (q) => Math.abs(q[0] - a[0]) + Math.abs(q[1] - a[1]);
+    const [near, far] = d(pins[0]) <= d(pins[1]) ? [pins[0], pins[1]] : [pins[1], pins[0]];
+    const parts = [[a, near], [far, b]].filter(([u, v]) => u[0] !== v[0] || u[1] !== v[1]).map(([u, v]) => ({ x1: u[0], y1: u[1], x2: v[0], y2: v[1] }));
+    S.circuit.wires.splice(k, 1, ...parts);
+    announce(p.label + " ↔ " + t("inserted"));
+    return true;
+  }
   function placePart(type, at) {
     const p = newPart(type, at[0], at[1], 0);
+    alignToWire(p);
     S.circuit.parts.push(p); S.sel = { kind: "part", id: p.id };
+    spliceIntoWires(p);
     S.mode = "select"; S.placing = null; renderTools();
     commit(); announce(tr(PARTS[type].name) + " " + p.label + " " + t("placed"));
     return p;
   }
-  function setMode(m) { S.mode = m; S.wireStart = null; if (m !== "place") S.placing = null; renderTools(); cv.style.cursor = m === "wire" ? "crosshair" : m === "place" ? "copy" : "default"; }
+  // cut a wire: remove the one-grid piece around point g (or the whole wire if it is that short)
+  function cutWire(k, g) {
+    const w = S.circuit.wires[k];
+    if (!w) return;
+    const len = Math.abs(w.x2 - w.x1) + Math.abs(w.y2 - w.y1), dx = Math.sign(w.x2 - w.x1), dy = Math.sign(w.y2 - w.y1);
+    const along = dx ? (g[0] - w.x1) * dx : (g[1] - w.y1) * dy;
+    if (len <= 1) { S.circuit.wires.splice(k, 1); commit(); announce("✂"); return; }
+    const t0 = Math.max(0, Math.min(len - 1, Math.floor(along)));
+    const a = [w.x1 + dx * t0, w.y1 + dy * t0], b = [a[0] + dx, a[1] + dy];
+    const pieces = [[[w.x1, w.y1], a], [b, [w.x2, w.y2]]].filter(([u, v]) => u[0] !== v[0] || u[1] !== v[1]).map(([u, v]) => ({ x1: u[0], y1: u[1], x2: v[0], y2: v[1] }));
+    S.circuit.wires.splice(k, 1, ...pieces);
+    S.sel = null; commit(); announce("✂ " + t("cutDone"));
+  }
+  function setMode(m) {
+    S.mode = m; S.wireStart = null; if (m !== "place") S.placing = null; renderTools();
+    cv.style.cursor = m === "wire" ? "crosshair" : m === "place" ? "copy" : m === "cut" ? "cell" : "default";
+  }
 
   // ------------------------------------------------------------------ pointer
   let drag = null;
   const local = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
   // nearest connection point (pin or wire end) within `max` grid units — wires snap to it
-  function nearestPoint(g, max) {
+  function nearestPoint(g, max, skipWire) {
     let best = null, bd = max;
-    const pts = allPins().map((q) => [q.x, q.y]).concat(S.circuit.wires.flatMap((w) => [[w.x1, w.y1], [w.x2, w.y2]]));
+    const pts = allPins().map((q) => [q.x, q.y]).concat(S.circuit.wires.flatMap((w, k) => (k === skipWire ? [] : [[w.x1, w.y1], [w.x2, w.y2]])));
     pts.forEach((q) => { const d = Math.hypot(q[0] - g[0], q[1] - g[1]); if (d < bd) { bd = d; best = q; } });
     return best;
   }
   const nearestPin = (g, max) => { let best = null, bd = max; allPins().forEach((q) => { const d = Math.hypot(q.x - g[0], q.y - g[1]); if (d < bd) { bd = d; best = [q.x, q.y]; } }); return best; };
-  const magnet = (g) => nearestPoint(g, 0.7) || snapPt(g);
+  const magnet = (g, skipWire) => nearestPoint(g, 0.7, skipWire) || snapPt(g);
+  // a wire end that belongs to this wire only (no pin, no other wire): it can be dragged to stretch the wire
+  function freeEnd(g) {
+    for (let k = 0; k < S.circuit.wires.length; k++) {
+      const w = S.circuit.wires[k];
+      for (const end of [1, 2]) {
+        const x = end === 1 ? w.x1 : w.x2, y = end === 1 ? w.y1 : w.y2;
+        if (Math.hypot(x - g[0], y - g[1]) > 0.4) continue;
+        const shared = allPins().some((q) => q.x === x && q.y === y) || S.circuit.wires.some((o, j) => j !== k && CS.onSegment(x, y, o));
+        if (!shared) return { k: k, end: end };
+      }
+    }
+    return null;
+  }
   function finishWire(a, b, shift) {
     if (!b || (a[0] === b[0] && a[1] === b[1])) return false;
     addWire(a, b, shift !== S.vFirst); commit();
@@ -571,9 +629,13 @@
   cv.addEventListener("pointerdown", (e) => {
     cv.focus({ preventScroll: true }); hideMenu();
     const [px, py] = local(e), g = toGrid(px, py), sp = snapPt(g);
-    if (e.button === 2) { const p = hitPart(g); if (p) { S.sel = { kind: "part", id: p.id }; renderPanels(true); showMenu(p, px, py); return; } }
+    if (e.button === 2) {
+      const p = hitPart(g); if (p) { S.sel = { kind: "part", id: p.id }; renderPanels(true); showMenu(p, px, py); return; }
+      const wk = hitWire(g); if (wk >= 0) { S.sel = { kind: "wire", k: wk }; renderPanels(true); showWireMenu(wk, g, px, py); return; }
+    }
     if (e.button === 1 || e.button === 2) { drag = { kind: "pan", sx: px, sy: py, ox: S.view.ox, oy: S.view.oy }; cv.setPointerCapture(e.pointerId); return; }
     if (S.mode === "place" && S.placing) { placePart(S.placing, sp); return; }
+    if (S.mode === "cut") { const wk = hitWire(g); if (wk >= 0) cutWire(wk, g); return; }
     if (S.mode === "wire") {
       const m = magnet(g);
       if (!S.wireStart) { S.wireStart = m; return; }
@@ -584,10 +646,12 @@
       S.wireStart = ends ? null : m;
       return;
     }
-    // select mode: pressing on a pin starts a wire straight away (no tool switch needed)
-    const pin = nearestPin(g, 0.45);
-    if (pin) { S.wireDrag = { a: pin }; drag = { kind: "wire" }; cv.setPointerCapture(e.pointerId); return; }
+    // select mode. A part is grabbed by its body; only a press right on a pin dot starts a wire.
     const p = hitPart(g);
+    const pin = nearestPin(g, p ? 0.3 : 0.5);
+    if (pin) { S.wireDrag = { a: pin }; drag = { kind: "wire" }; cv.setPointerCapture(e.pointerId); return; }
+    const fe = !p && freeEnd(g);
+    if (fe) { S.sel = { kind: "wire", k: fe.k }; drag = { kind: "wireEnd", k: fe.k, end: fe.end, wires: JSON.stringify(S.circuit.wires) }; cv.setPointerCapture(e.pointerId); return; }
     if (p) {
       S.sel = { kind: "part", id: p.id }; renderPanels(true);
       if (p.type === "button") { p.p.on = true; S.pressing = p; }
@@ -610,8 +674,18 @@
     const [px, py] = local(e), g = toGrid(px, py);
     S.mouse = [px, py];
     S.hover = S.mode === "wire" || S.wireDrag ? magnet(g) : snapPt(g);
-    if (!drag) { cv.style.cursor = S.mode === "select" ? (nearestPin(g, 0.45) ? "crosshair" : hitPart(g) ? "grab" : "default") : cv.style.cursor; return; }
+    if (!drag) {
+      if (S.mode === "select") { const p = hitPart(g); cv.style.cursor = nearestPin(g, p ? 0.3 : 0.5) ? "crosshair" : p ? "grab" : freeEnd(g) ? "move" : "default"; }
+      return;
+    }
     if (drag.kind === "pan") { S.view.ox = drag.ox + px - drag.sx; S.view.oy = drag.oy + py - drag.sy; return; }
+    if (drag.kind === "wireEnd") {   // stretch the wire: its free end follows the pointer (snaps to pins)
+      const m = magnet(g, drag.k), w = S.circuit.wires[drag.k];
+      if (!w) return;
+      if (drag.end === 1) { w.x1 = m[0]; w.y1 = m[1]; } else { w.x2 = m[0]; w.y2 = m[1]; }
+      drag.moved = true; S.sim.update(S.circuit); S.flows = null;
+      return;
+    }
     if (drag.kind === "part") {
       cv.style.cursor = "grabbing";
       const sp = snapPt(g), nx = drag.orig[0] + sp[0] - drag.start[0], ny = drag.orig[1] + sp[1] - drag.start[1];
@@ -629,8 +703,15 @@
       const b = S.hover;
       finishWire(S.wireDrag.a, b, e && e.shiftKey);
       S.wireDrag = null;
-    } else if (drag.kind === "part") {
+    } else if (drag.kind === "wireEnd") {
       if (drag.moved) { straighten(); commit(); }
+    } else if (drag.kind === "part") {
+      if (drag.moved) {
+        straighten();
+        // dropped onto a wire with no wires attached yet: insert it into that wire
+        if (!drag.att.length) { alignToWire(drag.part); spliceIntoWires(drag.part); }
+        commit();
+      }
       else if (drag.part.type === "switch") { drag.part.p.on = !(drag.part.p.on === true); save(); renderPanels(true); announce(drag.part.label + ": " + (drag.part.p.on ? "ON" : "OFF")); }
       else if (drag.part.type === "spdt") { drag.part.p.pos = drag.part.p.pos === "B" ? "A" : "B"; save(); renderPanels(true); }
     }
@@ -641,6 +722,20 @@
   cv.addEventListener("pointerleave", () => { S.mouse = null; });
   cv.addEventListener("wheel", (e) => { e.preventDefault(); const [px, py] = local(e); zoomAt(e.deltaY > 0 ? 0.9 : 1.1, px, py); }, { passive: false });
   cv.addEventListener("contextmenu", (e) => e.preventDefault());
+  // drag & drop from the parts list (native browser drag for the mouse; touch uses the pointer path below)
+  cv.addEventListener("dragover", (e) => {
+    if (!S.dragType) return;
+    e.preventDefault(); e.dataTransfer.dropEffect = "copy";
+    const [px, py] = local(e); S.mouse = [px, py]; S.hover = snapPt(toGrid(px, py)); S.placing = S.dragType; S.mode = "place";
+  });
+  cv.addEventListener("drop", (e) => {
+    const type = S.dragType || e.dataTransfer.getData("text/plain");
+    if (!PARTS[type]) return;
+    e.preventDefault();
+    const [px, py] = local(e);
+    S.dragType = null; placePart(type, snapPt(toGrid(px, py))); cv.focus();
+  });
+  cv.addEventListener("dragleave", () => { S.hover = null; });
   // double-click a part: jump to its main value
   function editPart(p) {
     S.sel = { kind: "part", id: p.id }; renderPanels(true);
@@ -654,20 +749,29 @@
     if (p) editPart(p);
   });
 
-  // right-click menu on a part
+  // right-click menus
   const menu = $("ctxMenu");
   function hideMenu() { menu.hidden = true; }
-  function showMenu(p, px, py) {
-    const items = [[t("edit"), () => editPart(p)]];
-    if (/^(switch|spdt)$/.test(p.type)) items.push([t("toggle"), () => { if (p.type === "switch") p.p.on = !(p.p.on === true); else p.p.pos = p.p.pos === "B" ? "A" : "B"; save(); renderPanels(true); }]);
-    items.push([t("rotate"), () => rotatePart(p)], [t("dup"), duplicateSel], [t("del"), deleteSel]);
-    fill(menu, h("div", { class: "mh" }, p.label + " · " + tr(PARTS[p.type].name)),
-      items.map(([lab, fn]) => h("button", { type: "button", role: "menuitem", onclick: () => { hideMenu(); fn(); } }, lab)));
+  function openMenu(title, items, px, py) {
+    fill(menu, h("div", { class: "mh" }, title), items.map(([lab, fn]) => h("button", { type: "button", role: "menuitem", onclick: () => { hideMenu(); fn(); } }, lab)));
     menu.hidden = false;
     menu.style.left = Math.min(px, W - 200) + "px"; menu.style.top = Math.min(py, H - 40 * items.length - 40) + "px";
     menu.querySelector("button").focus();
   }
-  menu.addEventListener("keydown", (e) => {
+  function showMenu(p, px, py) {
+    const items = [[t("edit"), () => editPart(p)]];
+    if (/^(switch|spdt)$/.test(p.type)) items.push([t("toggle"), () => { if (p.type === "switch") p.p.on = !(p.p.on === true); else p.p.pos = p.p.pos === "B" ? "A" : "B"; save(); renderPanels(true); }]);
+    items.push([t("rotate"), () => rotatePart(p)], [t("dup"), duplicateSel], [t("del"), deleteSel]);
+    openMenu(p.label + " · " + tr(PARTS[p.type].name), items, px, py);
+  }
+  function showWireMenu(k, g, px, py) {
+    const at = snapPt(g);
+    openMenu(t("wireSel"), [
+      [t("cutHere"), () => cutWire(k, g)],
+      [t("insertHere"), () => { S.insertAt = at; announce(t("insertHint")); $("psearch").focus(); }],
+      [t("delWire"), () => { S.sel = { kind: "wire", k: k }; deleteSel(); }],
+    ], px, py);
+  }  menu.addEventListener("keydown", (e) => {
     const bs = [...menu.querySelectorAll("button")], i = bs.indexOf(document.activeElement);
     if (e.key === "Escape") { hideMenu(); cv.focus(); }
     else if (e.key === "ArrowDown") { e.preventDefault(); bs[(i + 1) % bs.length].focus(); }
@@ -729,6 +833,7 @@
     if (k === "-" || k === "_") { zoomAt(1 / 1.15, W / 2, H / 2); return; }
     if ((k === "ContextMenu" || (k === "F10" && e.shiftKey)) && p) { e.preventDefault(); const b = partBox(p); showMenu(p, S.view.ox + b[2] * S.view.scale, S.view.oy + b[1] * S.view.scale); return; }
     if (k === "Enter" && p) { e.preventDefault(); editPart(p); return; }
+    if ((k === "x" || k === "X") && S.sel && S.sel.kind === "wire") { const w = S.circuit.wires[S.sel.k]; if (w) cutWire(S.sel.k, [(w.x1 + w.x2) / 2, (w.y1 + w.y2) / 2]); return; }
     if (k === "]") { selectNext(1); return; }
     if (k === "[") { selectNext(-1); return; }
     if (k === " ") {
@@ -1034,8 +1139,12 @@
     const q = $("psearch").value.trim().toLowerCase();
     const match = (d) => !q || tr(d.name).toLowerCase().includes(q) || d.name.en.toLowerCase().includes(q) || d.type.includes(q);
     const item = (d) => h("button", { type: "button", class: "pitem" + (S.placing === d.type ? " on" : ""), title: tr(d.blurb), "aria-pressed": String(S.placing === d.type), "data-type": d.type,
+      draggable: "true",
+      ondragstart: (e) => { S.dragType = d.type; e.dataTransfer.setData("text/plain", d.type); e.dataTransfer.effectAllowed = "copy"; },
+      ondragend: () => { if (S.dragType) { S.dragType = null; setMode("select"); } },
       onclick: (e) => {
         if (palDrag.done) { palDrag.done = false; return; }
+        if (S.insertAt) { const at = S.insertAt; S.insertAt = null; placePart(d.type, at); cv.focus(); return; }
         if (e.detail === 0) { const at = freeSpot(d.type); placePart(d.type, at); cv.focus(); return; }   // keyboard: place at once
         S.placing = d.type; setMode("place"); renderPalette(); announce(t("place"));
       } }, h("span", { class: "pic", "aria-hidden": "true" }, d.icon), h("span", {}, tr(d.name)));
@@ -1050,7 +1159,7 @@
   // drag a part from the list straight onto the board
   const palDrag = { type: null, x: 0, y: 0, moving: false, done: false };
   $("palette").addEventListener("pointerdown", (e) => {
-    const b = e.target.closest(".pitem"); if (!b || e.button !== 0) return;
+    const b = e.target.closest(".pitem"); if (!b || e.button !== 0 || e.pointerType === "mouse") return;   // mouse uses native drag & drop
     Object.assign(palDrag, { type: b.dataset.type, x: e.clientX, y: e.clientY, moving: false, done: false });
   });
   document.addEventListener("pointermove", (e) => {
@@ -1073,7 +1182,8 @@
   });  function renderTools() {
     $("selBtn").setAttribute("aria-pressed", String(S.mode === "select" || S.mode === "place"));
     $("wireBtn").setAttribute("aria-pressed", String(S.mode === "wire"));
-    $("hint").textContent = S.mode === "wire" ? t("wiring") : S.mode === "place" ? t("place") : t("keys");
+    $("cutBtn").setAttribute("aria-pressed", String(S.mode === "cut"));
+    $("hint").textContent = S.mode === "wire" ? t("wiring") : S.mode === "place" ? t("place") : S.mode === "cut" ? t("cutting") : t("keys");
     renderPalette();
   }
   function paramInput(p, q) {
@@ -1220,7 +1330,7 @@
   function renderAllText() {
     document.documentElement.lang = S.lang; document.title = t("title") + " · Quantix";
     $("tTitle").textContent = t("title");
-    [["selBtn", "select"], ["wireBtn", "wire"], ["fitBtn", "fit"], ["newBtn", "clear"], ["v2d", "view2d"], ["v3d", "view3d"], ["saveBtn", "save"], ["openBtn", "open"],
+    [["selBtn", "select"], ["wireBtn", "wire"], ["cutBtn", "cut"], ["fitBtn", "fit"], ["newBtn", "clear"], ["v2d", "view2d"], ["v3d", "view3d"], ["saveBtn", "save"], ["openBtn", "open"],
       ["shareBtn", "share"], ["pngBtn", "png"], ["bomBtn", "bom"], ["resetBtn", "reset"], ["speedLbl", "speed"], ["tdivLbl", "tdiv"]].forEach(([id, k]) => { $(id).textContent = t(k); });
     $("undoBtn").textContent = t("undo"); $("redoBtn").textContent = t("redo");
     $("undoBtn").setAttribute("aria-label", "Undo (Ctrl+Z)"); $("redoBtn").setAttribute("aria-label", "Redo (Ctrl+Y)");
@@ -1301,7 +1411,7 @@
   function setView(three) {
     if (three && !window.CircuitPCB3D) {
       $("v3d").disabled = true;
-      (window.THREE ? Promise.resolve() : loadScript("/web/vendor/three.min.js")).then(() => loadScript("/web/circuit_3d.js"))
+      (window.THREE ? Promise.resolve() : loadScript("/web/vendor/three.min.js")).then(() => loadScript("/web/circuit_3d.js?v=20261028c"))
         .then(() => { $("v3d").disabled = false; setView(true); }, () => { $("v3d").disabled = false; announce("3D could not load."); });
       return;
     }
@@ -1337,6 +1447,7 @@
   $("speed").onchange = (e) => { S.speed = +e.target.value; S.scope.buf = []; S.scope.last = -1; };
   $("selBtn").onclick = () => setMode("select");
   $("wireBtn").onclick = () => { setMode(S.mode === "wire" ? "select" : "wire"); cv.focus(); };
+  $("cutBtn").onclick = () => { setMode(S.mode === "cut" ? "select" : "cut"); cv.focus(); };
   $("undoBtn").onclick = undo; $("redoBtn").onclick = redo;
   $("fitBtn").onclick = () => { fit(); if (S.pcb && S.view3d) S.pcb.setCircuit(S.circuit); };
   $("newBtn").onclick = () => { if (S.snap) { S.undo.push(S.snap); S.redo = []; } loadCircuit({ parts: [], wires: [] }); };

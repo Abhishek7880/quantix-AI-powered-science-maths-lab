@@ -40,6 +40,6 @@ def test_plc_tab_in_every_menu(client):
 
 @pytest.mark.skipif(not shutil.which("node"), reason="Node.js not installed")
 def test_ladder_engine():
-    r = subprocess.run(["node", str(ROOT / "tests" / "plc_engine_check.js")], capture_output=True, text=True, timeout=120)
+    r = subprocess.run(["node", str(ROOT / "tests" / "plc_engine_check.js")], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120)
     assert r.returncode == 0, r.stdout + r.stderr
     assert "ALL PASSED" in r.stdout

@@ -68,6 +68,32 @@ check("molar mass of CuSO4 ≈ 159.6", Math.abs(C.molarMass("CuSO4") - 159.6) < 
 { const L = C.lab(); L.add("Mg", 0.5, "g"); const v = run(L, 25, { heatW: 2000 }); check("Mg burns when heated (MgO, bright light)", has(v, "MgO") && eq(v, /2 Mg.*O2.*→ 2 MgO/), v.events.map((e) => e.eq).join(" ; ")); }
 // noble gas, gold: honest no reaction
 { const L = C.lab(); L.add("HCl", 50, "mL", 6); L.add("Au", 1, "g"); L.add("Ar", 10, "mL"); const v = run(L, 5); check("Au and Ar: no reaction", !v.events.length); }
+// ---- reactions that start on their own (no burner)
+{ const L = C.lab(); L.add("KMnO4", 5, "g"); L.add("C3H8O3", 2, "mL"); const v0 = run(L, 2); check("KMnO4 + glycerol: smoulders first (delay)", !v0.events.length && v0.pending === "selfignite");
+  let fire = false; for (let k = 0; k < 120; k++) { L.step(0.05); if (L.view().flameHex) fire = true; } const v = L.view();
+  check("KMnO4 + glycerol bursts into flame with no heating", fire && has(v, "K2CO3"), v.events.map((e) => e.eq).join(" ; ")); }
+{ const L = C.lab(); L.add("Al", 1, "g"); L.add("I", 5, "g"); L.add("H2O", 2, "drops"); let purple = false; for (let k = 0; k < 160; k++) { L.step(0.05); if (L.view().smoke > 0.05 && L.view().smokeHex === "#8e3fd0") purple = true; }
+  check("Al + I2 + a drop of water → violet smoke, AlI3", purple && has(L.view(), "AlI3"), L.view().events.map((e) => e.eq).join(" ; ")); }
+{ const L = C.lab(); L.add("Na", 0.5, "g"); L.add("Cl", 200, "mL"); const v = run(L, 3); check("Na burns in chlorine without heating → NaCl", has(v, "NaCl") && v.T > 30, v.events.map((e) => e.eq).join(" ; ")); }
+{ const L = C.lab(); L.add("C12H22O11", 20, "g"); L.add("H2SO4c", 10, "mL"); const v = run(L, 15); check("sugar + conc. H2SO4 → black carbon snake + steam", v.snake > 0.01 && has(v, "C"), v.events.map((e) => e.eq).join(" ; ")); }
+{ const L = C.lab(); L.add("KClO3", 3, "g"); L.add("C12H22O11", 3, "g"); L.add("H2SO4c", 2, "drops"); let violet = false; for (let k = 0; k < 120; k++) { L.step(0.05); if (L.view().flameHex === "#b37bff") violet = true; } check("KClO3 + sugar + drop of acid → violet fire", violet); }
+{ const L = C.lab(); L.add("H", 100, "mL"); L.add("Cl", 100, "mL"); const v = run(L, 1); check("H2 + Cl2 → 2HCl (explosion)", v.events.some((e) => e.type === "explosion")); }
+// ---- reactions that need a set temperature
+{ const L = C.lab(); L.add("NaHCO3", 5, "g"); const v1 = run(L, 2); check("baking soda is stable at room temperature", !v1.events.length);
+  const v = run(L, 40, { heatW: 150 }); check("baking soda breaks down above ~80 °C → Na2CO3 + CO2", has(v, "Na2CO3"), v.T.toFixed(0) + " °C; " + v.events.map((e) => e.eq).join(" ; ")); }
+{ const L = C.lab(); L.add("I", 2, "g"); const v = run(L, 30, { heatW: 300 }); check("iodine heated → violet vapour", v.events.some((e) => e.type === "sublime") && v.smokeHex === "#8e3fd0", v.T.toFixed(0) + " °C"); }
+{ const L = C.lab(); L.add("(NH4)2Cr2O7", 5, "g"); const v = run(L, 30, { heatW: 1000 }); check("ammonium dichromate volcano → green Cr2O3 + sparks", has(v, "Cr2O3"), v.events.map((e) => e.eq).join(" ; ")); }
+{ const L = C.lab(); L.add("P4", 1, "g"); const v0 = run(L, 2); const v = run(L, 20, { heatW: 20 }); check("white phosphorus ignites at ~30 °C (white smoke)", !v0.events.length && has(v, "P4O10"), v.T.toFixed(0) + " °C"); }
+{ const L = C.lab(); L.add("CuSO4.5H2O", 5, "g"); const v = run(L, 40, { heatW: 300 }); check("blue CuSO4·5H2O heated → white anhydrous CuSO4", v.contents.some((c) => c.f === "CuSO4" && c.colour === "#f2f2f2"), v.T.toFixed(0) + " °C"); }
+// ---- colour and gas tests
+{ const L = C.lab(); L.add("Ca(OH)2", 100, "mL", 0.02); L.add("CO2", 50, "mL"); const v = run(L, 3); check("CO2 turns limewater milky (CaCO3)", v.precip.some((p) => p.f === "CaCO3"), v.events.map((e) => e.eq).join(" ; ")); }
+{ const L = C.lab(); L.add("Ca(OH)2", 100, "mL", 0.02); L.add("HCl", 5, "mL", 1); L.add("CaCO3", 0.5, "g"); const v = run(L, 6); check("limewater turns milky from CO2 made in the same beaker", v.events.some((e) => e.type === "limewater")); }
+{ const L = C.lab(); L.add("FeCl3", 30, "mL", 0.1); L.add("KSCN", 10, "mL", 0.1); const v = run(L, 2); check("Fe3+ + thiocyanate → blood red", parseInt(v.colour.hex.slice(1, 3), 16) > 2 * parseInt(v.colour.hex.slice(3, 5), 16), v.colour.hex); }
+{ const L = C.lab(); L.add("Na2S2O3", 50, "mL", 0.15); L.add("HCl", 10, "mL", 1); const v = run(L, 20); check("thiosulfate + acid → cloudy sulfur", has(v, "S"), v.events.map((e) => e.eq).join(" ; ")); }
+{ const L = C.lab(); L.add("KI", 30, "mL", 0.1); L.add("starch", 3, "drops"); L.add("H2SO4", 10, "mL", 1); L.add("H2O2", 5, "mL"); const v = run(L, 15); check("iodide + peroxide + acid with starch → blue-black", parseInt(v.colour.hex.slice(5, 7), 16) < 0x60 && parseInt(v.colour.hex.slice(1, 3), 16) < 0x60, v.colour.hex); }
+{ const L = C.lab(); L.add("CuSO4", 20, "mL", 0.5); L.add("NaOH", 20, "mL", 1); L.add("C6H12O6", 2, "g"); const v = run(L, 40, { heatW: 400 }); check("Benedict/Fehling: heated with glucose → brick-red Cu2O", has(v, "Cu2O"), v.T.toFixed(0) + " °C"); }
+{ const L = C.lab(); L.add("AgNO3", 20, "mL", 0.1); L.add("NH3", 10, "mL", 2); L.add("C6H12O6", 1, "g"); const v = run(L, 40, { heatW: 300 }); check("Tollens: silver mirror", v.mirror > 0.05 && has(v, "Ag"), v.events.map((e) => e.eq).join(" ; ")); }
+{ const L = C.lab(); L.add("NaOH", 50, "mL", 2); L.add("Al", 0.5, "g"); const v = run(L, 3); check("aluminium dissolves in NaOH giving H2", v.gases.some((g) => g.f === "H2"), v.events.map((e) => e.eq).join(" ; ")); }
 // every one of the 118 elements can be added without errors
 { let bad = 0; for (let z = 1; z <= 118; z++) { const e = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "src", "knowledge", "elements.json"), "utf8")).elements[z - 1];
     try { const L = C.lab(); L.add("H2O", 50, "mL"); L.add(e.sym, 0.1, "g"); L.add("HCl", 20, "mL", 1); run(L, 1); L.view(); } catch (err) { bad++; console.log("   " + e.sym + ": " + err.message); } }

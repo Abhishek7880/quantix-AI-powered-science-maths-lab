@@ -50,6 +50,30 @@
       hazards: { corrosive: "संक्षारक — चश्मा और दस्ताने पहनें", toxic: "विषैला", flammable: "ज्वलनशील — लौ से दूर रखें", oxidiser: "ऑक्सीकारक", irritant: "उत्तेजक", radioactive: "रेडियोधर्मी — असली नमूनों के लिए विशेष प्रयोगशाला",
         alkaliwater: "पानी से तेज़ अभिक्रिया करता है", explosive: "पानी के साथ विस्फोटक" } },
   };
+  // texts for the reactions added later (merged into both languages)
+  Object.assign(TX.en.types, { limewater: "CO₂ + limewater", selfignite: "Spontaneous ignition", iodinesmoke: "Metal + iodine", burnhalogen: "Burns in halogen", fluorine: "Fluorine attack",
+    explosion: "Explosion", dehydration: "Dehydration", colourtest: "Colour test", cloudy: "Sulfur precipitate", iodine: "Iodide oxidised", benedict: "Benedict / Fehling test", mirror: "Silver mirror (Tollens)",
+    amphoteric: "Amphoteric metal + alkali", bleach: "Chlorine water", starch: "Starch–iodine test", decomp: "Thermal decomposition", sublime: "Sublimation", flametest: "Flame test" });
+  Object.assign(TX.hi.types, { limewater: "CO₂ + चूने का पानी", selfignite: "स्वतः प्रज्वलन", iodinesmoke: "धातु + आयोडीन", burnhalogen: "हैलोजन में जलना", fluorine: "फ़्लोरीन का हमला",
+    explosion: "विस्फोट", dehydration: "निर्जलीकरण", colourtest: "रंग परीक्षण", cloudy: "सल्फ़र अवक्षेप", iodine: "आयोडाइड का ऑक्सीकरण", benedict: "बेनेडिक्ट / फ़ेलिंग परीक्षण", mirror: "चाँदी का दर्पण (टॉलेन्स)",
+    amphoteric: "उभयधर्मी धातु + क्षार", bleach: "क्लोरीन जल", starch: "स्टार्च–आयोडीन परीक्षण", decomp: "ऊष्मीय अपघटन", sublime: "ऊर्ध्वपातन", flametest: "ज्वाला परीक्षण" });
+  Object.assign(TX.en.see, { limewater: "Limewater turns milky: insoluble calcium carbonate forms — the test for carbon dioxide.", selfignite: "No burner needed: the mixture heats itself up and bursts into flame.",
+    iodinesmoke: "A drop of water starts it: clouds of violet iodine vapour and a flash of flame.", burnhalogen: "The metal burns in the halogen gas on its own, making a salt smoke.",
+    fluorine: "Fluorine is the most reactive element — it attacks this violently.", explosion: "The gas mixture explodes with a bang.", dehydration: "Concentrated acid pulls the water out of the sugar: a black column of carbon grows, steaming and hot.",
+    colourtest: "A deep blood-red colour: the test for iron(III) ions.", cloudy: "Pale yellow sulfur slowly clouds the liquid (a cross under the beaker would disappear).", iodine: "The colourless solution turns brown as iodine forms.",
+    benedict: "On heating, a brick-red precipitate of copper(I) oxide forms: a reducing sugar is present.", mirror: "Silver deposits on the glass as a shiny mirror: an aldehyde (glucose) is present.",
+    amphoteric: "Aluminium and zinc also dissolve in strong alkali, giving hydrogen.", bleach: "Chlorine water is acidic and bleaches indicators and dyes.", starch: "Starch turns blue-black with iodine.",
+    decomp: "Heating breaks the substance down into simpler ones.", sublime: "The solid turns straight into a coloured vapour without melting.", flametest: "Metal ions give each flame its own colour." });
+  Object.assign(TX.hi.see, { limewater: "चूने का पानी दूधिया होता है: अघुलनशील कैल्शियम कार्बोनेट बनता है — कार्बन डाइऑक्साइड का परीक्षण।", selfignite: "बर्नर की ज़रूरत नहीं: मिश्रण ख़ुद गर्म होकर जल उठता है।",
+    iodinesmoke: "पानी की एक बूँद से शुरू: बैंगनी आयोडीन वाष्प के बादल और लौ की चमक।", burnhalogen: "धातु हैलोजन गैस में अपने आप जलकर लवण का धुआँ बनाती है।",
+    fluorine: "फ़्लोरीन सबसे क्रियाशील तत्व है — यह इस पर तेज़ हमला करती है।", explosion: "गैस मिश्रण धमाके के साथ फटता है।", dehydration: "सांद्र अम्ल चीनी से पानी खींच लेता है: भाप छोड़ता गर्म काला कार्बन स्तंभ उठता है।",
+    colourtest: "गहरा ख़ूनी लाल रंग: आयरन(III) आयनों का परीक्षण।", cloudy: "हल्का पीला सल्फ़र धीरे-धीरे द्रव को धुंधला करता है।", iodine: "रंगहीन विलयन आयोडीन बनने से भूरा होता है।",
+    benedict: "गर्म करने पर ईंट-लाल कॉपर(I) ऑक्साइड अवक्षेप: अपचायक शर्करा मौजूद है।", mirror: "चाँदी काँच पर चमकीले दर्पण की तरह जमती है: ऐल्डिहाइड (ग्लूकोज़) मौजूद है।",
+    amphoteric: "ऐल्युमिनियम और ज़िंक तेज़ क्षार में भी घुलकर हाइड्रोजन देते हैं।", bleach: "क्लोरीन जल अम्लीय होता है और सूचकों का रंग उड़ा देता है।", starch: "स्टार्च आयोडीन के साथ नीला-काला होता है।",
+    decomp: "गर्म करने से पदार्थ सरल पदार्थों में टूटता है।", sublime: "ठोस पिघले बिना सीधे रंगीन वाष्प बनता है।", flametest: "धातु आयन लौ को अपना रंग देते हैं।" });
+  TX.en.pending = "Smouldering… it is heating itself up"; TX.hi.pending = "सुलग रहा है… ख़ुद गर्म हो रहा है";
+  TX.en.flameBtn = "🔥 Flame test"; TX.hi.flameBtn = "🔥 ज्वाला परीक्षण";
+  TX.en.flameNone = "No metal ions here to colour the flame."; TX.hi.flameNone = "लौ को रंग देने वाले धातु आयन नहीं हैं।";
   const S = { lang: "en", sel: null, amount: null, unit: "g", conc: null, heatW: 0, stir: false, speed: 1, container: "beaker250", tab: "compounds", lab: null, elements: [], ready: false, lastAddAt: -1, lastAdd: null, lastView: null };
   const t = (k) => TX[S.lang][k];
   const tr = (o) => (o == null ? "" : typeof o === "string" ? o : o[S.lang] || o.en);
@@ -82,6 +106,26 @@
     { id: "nitric", t: { en: "Copper + nitric acid (brown gas)", hi: "कॉपर + नाइट्रिक अम्ल (भूरी गैस)" }, steps: [["HNO3", 50, "mL", 6], ["Cu", 1, "g"]] },
     { id: "cold", t: { en: "Instant cold pack (ammonium nitrate)", hi: "तुरंत ठंडा पैक (अमोनियम नाइट्रेट)" }, steps: [["H2O", 100, "mL"], ["NH4NO3", 25, "g"]] },
     { id: "hot", t: { en: "Quicklime + water (gets hot)", hi: "बिना बुझा चूना + पानी (गर्म होता है)" }, steps: [["H2O", 50, "mL"], ["CaO", 20, "g"]] },
+    { id: "selfire", t: { en: "Potassium permanganate + glycerol (fire by itself)", hi: "पोटैशियम परमैंगनेट + ग्लिसरॉल (अपने आप आग)" }, container: "crucible", steps: [["KMnO4", 5, "g"], ["C3H8O3", 2, "mL"]] },
+    { id: "purple", t: { en: "Aluminium + iodine + a drop of water (violet smoke)", hi: "ऐल्युमिनियम + आयोडीन + पानी की बूँद (बैंगनी धुआँ)" }, container: "crucible", steps: [["Al", 1, "g"], ["I", 5, "g"], ["H2O", 2, "drops"]] },
+    { id: "snake", t: { en: "Sugar + concentrated sulfuric acid (carbon snake)", hi: "चीनी + सांद्र सल्फ़्यूरिक अम्ल (कार्बन साँप)" }, container: "beaker100", steps: [["C12H22O11", 20, "g"], ["H2SO4c", 10, "mL"]] },
+    { id: "violetfire", t: { en: "Potassium chlorate + sugar + a drop of acid (violet fire)", hi: "पोटैशियम क्लोरेट + चीनी + अम्ल की बूँद (बैंगनी आग)" }, container: "crucible", steps: [["KClO3", 3, "g"], ["C12H22O11", 3, "g"], ["H2SO4c", 2, "drops"]] },
+    { id: "nacl2", t: { en: "Sodium burns in chlorine", hi: "क्लोरीन में जलता सोडियम" }, container: "crucible", steps: [["Na", 0.5, "g"], ["Cl", 300, "mL"]] },
+    { id: "volcano2", t: { en: "Ammonium dichromate volcano (heat)", hi: "अमोनियम डाइक्रोमेट ज्वालामुखी (गर्म)" }, container: "crucible", heat: 1200, speed: 2, steps: [["(NH4)2Cr2O7", 5, "g"]] },
+    { id: "iodine", t: { en: "Heating iodine (violet vapour)", hi: "आयोडीन गर्म करना (बैंगनी वाष्प)" }, container: "crucible", heat: 400, speed: 2, steps: [["I", 2, "g"]] },
+    { id: "soda", t: { en: "Heating baking soda (breaks down at ~80 °C)", hi: "खाने का सोडा गर्म करना (~80 °C पर टूटता है)" }, container: "crucible", heat: 200, speed: 2, steps: [["NaHCO3", 5, "g"]] },
+    { id: "vitriol", t: { en: "Heating blue vitriol (blue → white)", hi: "नीला थोथा गर्म करना (नीला → सफ़ेद)" }, container: "crucible", heat: 400, speed: 2, steps: [["CuSO4.5H2O", 5, "g"]] },
+    { id: "limewater", t: { en: "Limewater test for CO2", hi: "CO2 के लिए चूने के पानी का परीक्षण" }, steps: [["Ca(OH)2", 100, "mL", 0.02], ["CO2", 60, "mL"]] },
+    { id: "blood", t: { en: "Iron(III) + thiocyanate (blood red)", hi: "आयरन(III) + थायोसायनेट (ख़ूनी लाल)" }, steps: [["FeCl3", 50, "mL", 0.05], ["KSCN", 10, "mL", 0.1]] },
+    { id: "cross", t: { en: "Disappearing cross (thiosulfate + acid)", hi: "ग़ायब होता क्रॉस (थायोसल्फ़ेट + अम्ल)" }, steps: [["Na2S2O3", 80, "mL", 0.15], ["HCl", 10, "mL", 1]], speed: 2 },
+    { id: "clock", t: { en: "Iodine + starch (blue-black)", hi: "आयोडीन + स्टार्च (नीला-काला)" }, steps: [["KI", 50, "mL", 0.1], ["starch", 5, "drops"], ["H2SO4", 10, "mL", 1], ["H2O2", 5, "mL"]] },
+    { id: "benedict", t: { en: "Benedict / Fehling test for glucose (heat)", hi: "ग्लूकोज़ के लिए बेनेडिक्ट / फ़ेलिंग परीक्षण (गर्म)" }, heat: 500, steps: [["CuSO4", 30, "mL", 0.5], ["NaOH", 30, "mL", 1], ["C6H12O6", 3, "g"]], speed: 2 },
+    { id: "mirror", t: { en: "Silver mirror (Tollens test, warm)", hi: "चाँदी का दर्पण (टॉलेन्स परीक्षण, गुनगुना)" }, heat: 300, steps: [["AgNO3", 40, "mL", 0.1], ["NH3", 20, "mL", 2], ["C6H12O6", 2, "g"]], speed: 2 },
+    { id: "alnaoh", t: { en: "Aluminium in sodium hydroxide", hi: "सोडियम हाइड्रॉक्साइड में ऐल्युमिनियम" }, steps: [["NaOH", 80, "mL", 2], ["Al", 1, "g"]] },
+    { id: "flameLi", t: { en: "Flame test: lithium (pink-crimson)", hi: "ज्वाला परीक्षण: लिथियम (गुलाबी-लाल)" }, container: "crucible", heat: 1500, steps: [["LiCl", 1, "g"]], flame: true },
+    { id: "flameSr", t: { en: "Flame test: strontium (red)", hi: "ज्वाला परीक्षण: स्ट्रॉन्शियम (लाल)" }, container: "crucible", heat: 1500, steps: [["SrCl2", 1, "g"]], flame: true },
+    { id: "flameBa", t: { en: "Flame test: barium (green)", hi: "ज्वाला परीक्षण: बेरियम (हरा)" }, container: "crucible", heat: 1500, steps: [["BaCl2", 1, "g"]], flame: true },
+    { id: "flameCu", t: { en: "Flame test: copper (blue-green)", hi: "ज्वाला परीक्षण: कॉपर (नीला-हरा)" }, container: "crucible", heat: 1500, steps: [["CuCl2", 1, "g"]], flame: true },
     { id: "mgburn", t: { en: "Burning magnesium (crucible, heat)", hi: "जलता मैग्नीशियम (क्रूसिबल, गर्म)" }, container: "crucible", heat: 2000, speed: 5, steps: [["Mg", 0.5, "g"]] },
     { id: "thermite", t: { en: "Thermite (crucible, heat)", hi: "थर्माइट (क्रूसिबल, गर्म)" }, container: "crucible", heat: 2000, speed: 5, steps: [["Al", 2.7, "g"], ["Fe2O3", 8, "g"]] },
   ];
@@ -204,9 +248,12 @@
     $("volVal").textContent = Math.round(v.volume) + " / " + CAP[S.container] + " mL";
     const evs = v.events.slice().reverse();
     const why = whyNot();
-    if (!force && S.sideKey === JSON.stringify([evs.map((e) => e.eq + e.active), v.contents.map((c) => c.f + c.state + c.mol.toPrecision(3)), why, S.lang])) return;
+    if (!force && !v.pending && !(S.flameNote && S.flameNote.until > performance.now()) && S.sideKey === JSON.stringify([evs.map((e) => e.eq + e.active), v.contents.map((c) => c.f + c.state + c.mol.toPrecision(3)), why, S.lang])) return;
     S.sideKey = JSON.stringify([evs.map((e) => e.eq + e.active), v.contents.map((c) => c.f + c.state + c.mol.toPrecision(3)), why, S.lang]);
-    fill($("eqs"), evs.length ? evs.map((e) => h("div", { class: "ev" + (e.active ? " live" : "") },
+    const note = S.flameNote && S.flameNote.until > performance.now() ? h("div", { class: "ev live" }, h("div", { class: "evt" }, "🔥 " + t("types").flametest),
+      h("div", { class: "eq" }, S.flameNote.colour ? h("span", { class: "dot", style: "background:" + S.flameNote.colour + ";width:14px;height:14px" }) : null, S.flameNote.text), h("div", { class: "see" }, t("see").flametest)) : null;
+    const pend = v.pending && !evs.some((e) => e.active) ? h("div", { class: "ev none" }, h("div", { class: "evt" }, "⏳ " + (t("types")[v.pending] || "")), h("div", { class: "see" }, t("pending"))) : null;
+    fill($("eqs"), note, pend, evs.length ? evs.map((e) => h("div", { class: "ev" + (e.active ? " live" : "") },
       h("div", { class: "evt" }, (e.active ? "● " : "✓ ") + (t("types")[e.type] || e.type)), h("div", { class: "eq" }, e.eq), h("div", { class: "see" }, t("see")[e.type] || ""))) :
       why ? h("div", { class: "ev none" }, h("div", { class: "evt" }, "✗ " + t("noReact")), h("div", { class: "see" }, why)) : h("p", { class: "muted" }, v.contents.length ? "" : t("nothing")));
     if (why && evs.length) $("eqs").prepend(h("div", { class: "ev none" }, h("div", { class: "evt" }, "✗ " + t("noReact") + " (" + S.lastAdd + ")"), h("div", { class: "see" }, why)));
@@ -305,7 +352,7 @@
     for (let k = 0; k <= n; k++) { const y = sh.H * k / n; pts.push(new THREE.Vector2(sh.r(y) + 0.04, y)); }
     const glassMat = sh.opaque ? new THREE.MeshStandardMaterial({ color: 0xece6dc, roughness: 0.8, side: THREE.DoubleSide })
       : new THREE.MeshStandardMaterial({ color: 0xdbeeff, transparent: true, opacity: 0.2, roughness: 0.05, metalness: 0.1, side: THREE.DoubleSide, depthWrite: false });
-    const glass = new THREE.Mesh(new THREE.LatheGeometry(pts, 48), glassMat); G.vessel.add(glass);
+    const glass = new THREE.Mesh(new THREE.LatheGeometry(pts, 48), glassMat); G.vessel.add(glass); G.glassMat = glassMat; G.snakeMesh = null;
     const rim = new THREE.Mesh(new THREE.TorusGeometry(sh.r(sh.H) + 0.04, 0.03, 8, 48), new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 }));
     rim.rotation.x = Math.PI / 2; rim.position.y = sh.H; G.vessel.add(rim);
     if (!sh.opaque) for (let k = 1; k <= 4; k++) {   // graduation marks
@@ -417,25 +464,41 @@
       s.userData.y += dt * (0.4 + k * 0.03); if (s.userData.y > 3) { s.userData.y = 0; s.userData.x = rnd(-0.3, 0.3); }
       s.position.set(s.userData.x + Math.sin(now / 900 + k) * 0.2, top + s.userData.y, Math.cos(k) * 0.2);
       const sz = 0.4 + s.userData.y * 0.5; s.scale.set(sz, sz, 1);
-      s.material.opacity = smoke * 0.35 * (1 - s.userData.y / 3);
+      s.material.opacity = smoke * (v.smoke > steam * 0.6 ? 0.6 : 0.35) * (1 - s.userData.y / 3);
+      s.material.color.set(v.smoke > steam * 0.6 ? v.smokeHex : "#eeeeee");
     });
     // flame on the surface, bright light, sparks
     G.flameSprite.position.set(G.solids.children[0] ? G.solids.children[0].position.x : 0, G.vessel.position.y + Math.max(y, 0.3) + 0.25, G.solids.children[0] ? G.solids.children[0].position.z : 0);
-    if (v.flame) { G.flameSprite.material.color.set(v.flame); G.flameSprite.material.opacity = 0.8 + Math.random() * 0.2; const s = 0.9 + Math.random() * 0.4; G.flameSprite.scale.set(s, s * 1.4, 1); }
+    if (v.flameHex) { G.flameSprite.material.color.set(v.flameHex); G.flameSprite.material.opacity = 0.8 + Math.random() * 0.2; const s = 0.9 + Math.random() * 0.4; G.flameSprite.scale.set(s, s * 1.4, 1); }
     else G.flameSprite.material.opacity = Math.max(0, G.flameSprite.material.opacity - dt * 3);
     G.glow.position.set(0, G.vessel.position.y + sh.H * 0.6, 0); G.glow.material.opacity = Math.min(1, v.light); G.glowLight.intensity = v.light * 3; G.glowLight.position.copy(G.glow.position);
-    const sparky = v.events.some((e) => e.active && (e.type === "thermite" || (e.type === "combustion" && /Fe/.test(e.eq))));
+    const sparky = v.sparks || v.events.some((e) => e.active && (e.type === "thermite" || (e.type === "combustion" && /Fe/.test(e.eq))));
     G.sparks.forEach((s) => {
       const u = s.userData;
       if (u.life <= 0 && sparky && Math.random() < 0.3) { u.life = rnd(0.4, 1.2); s.position.set(0, G.vessel.position.y + sh.H, 0); u.v.set(rnd(-2, 2), rnd(2, 5), rnd(-2, 2)); }
       if (u.life > 0) { u.life -= dt; u.v.y -= 9 * dt; s.position.addScaledVector(u.v, dt); s.material.opacity = Math.min(1, u.life * 2); } else s.material.opacity = 0;
     });
-    // burner flame
+    // carbon snake: a black porous column growing out of the sugar
+    if (v.snake > 0.001) {
+      if (!G.snakeMesh) { G.snakeMesh = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 1, 18, 6), new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 1 })); G.vessel.add(G.snakeMesh); }
+      const hgt = Math.min(sh.H * 2.4, v.snake * 3.2), rr = Math.min(sh.r(0) * 0.8, 0.45);
+      G.snakeMesh.visible = true; G.snakeMesh.scale.set(rr, Math.max(0.01, hgt), rr); G.snakeMesh.position.y = hgt / 2;
+      G.snakeMesh.rotation.y += dt * 0.2;
+    } else if (G.snakeMesh) G.snakeMesh.visible = false;
+    // silver mirror: the glass itself turns silvery
+    if (G.glassMat && !sh.opaque) {
+      const m = Math.min(1, v.mirror || 0);
+      G.glassMat.color.setRGB(0.86, 0.93 - 0.08 * m, 1 - 0.15 * m); G.glassMat.opacity = 0.2 + 0.65 * m; G.glassMat.metalness = 0.1 + 0.8 * m;
+    }
+    // burner flame (a flame test colours it)
     const p = S.heatW / 2000;
+    const ft = S.flameUntil > now;
+    G.flameOuter.material.color.set(ft ? S.flameColour : "#4f8cff"); G.flameInner.material.color.set(ft ? S.flameColour : "#9fd0ff");
     G.flameOuter.visible = G.flameInner.visible = p > 0.01;
     G.flameOuter.scale.set(0.6 + p, 0.5 + p * 1.6, 0.6 + p); G.flameOuter.position.y = 1.05 + (0.3 * (0.5 + p * 1.6)) * 1;
     G.flameInner.scale.set(0.6 + p, 0.5 + p * 1.2, 0.6 + p); G.flameInner.position.y = 1.05 + 0.16 * (0.5 + p * 1.2);
-    G.flameOuter.material.opacity = 0.35 + 0.25 * Math.random();
+    G.flameOuter.material.opacity = (ft ? 0.65 : 0.35) + 0.25 * Math.random();
+    if (ft) { G.flameOuter.scale.multiplyScalar(1.35); }
     // camera
     camera.position.set(view.cx + view.dist * Math.cos(view.pitch) * Math.sin(view.yaw), view.cy + view.dist * Math.sin(view.pitch), view.dist * Math.cos(view.pitch) * Math.cos(view.yaw));
     camera.lookAt(view.cx, view.cy, 0);
@@ -458,10 +521,25 @@
     S.heatW = x.heat || 0; $("heat").value = String(S.heatW);
     S.speed = x.speed || 1; $("speedSel").value = String(S.speed);
     x.steps.forEach(([id2, amt, unit, conc], k) => setTimeout(() => { S.sel = id2; S.amount = amt; S.unit = unit; S.conc = conc != null ? conc : (CE.lookup(id2).conc || null); doAdd(); renderShelf(); renderAdd(); }, 700 * k));
+    if (x.flame) setTimeout(flameTest, 700 * x.steps.length + 200);
     if (x.next) setTimeout(() => { const [id3, a3, u3, c3] = x.next; select(id3); S.amount = a3; S.unit = u3; S.conc = c3; renderAdd(); }, 700 * x.steps.length + 50);
     renderControls(); say(tr(x.t));
   }
-  function clearScene() { if (!scene) return; G.particles.forEach((m) => G.vessel.remove(m)); G.particles = []; G.bubbles.forEach((b) => G.vessel.remove(b)); G.bubbles = []; G.solids.children.slice().forEach((c) => G.solids.remove(c)); }
+  // flame test: the strongest-coloured metal in the beaker colours the burner flame for a few seconds
+  function flameTest() {
+    const cats = [];
+    S.lab.items.forEach((it) => { const sym = it.cat ? String(it.cat).replace(/\d+$/, "") : CE.isMetal(it.f) ? it.f : null; if (sym && sym !== "H" && sym !== "NH4") cats.push([sym, it.mol]); });
+    cats.sort((a, b) => b[1] - a[1]);
+    const order = ["Li", "Sr", "Ba", "Cu", "K", "Ca", "Rb", "Cs", "B", "Pb", "Mn", "Fe", "Zn", "Na"];
+    const sym = (cats.find((c) => order.includes(c[0])) || cats[0] || [])[0];
+    const col = sym && ((CE.FLAME_EXTRA || {})[sym] || CE.FLAME[sym]);
+    if (!col) { S.flameNote = { text: t("flameNone"), until: performance.now() + 4000 }; renderSide(true); return; }
+    const e = S.elements.find((x) => x.sym === sym);
+    S.flameColour = col; S.flameUntil = performance.now() + 7000; if (S.heatW < 600) { S.heatW = 1200; $("heat").value = "1200"; renderControls(); }
+    S.flameNote = { text: (e ? (S.lang === "hi" ? e.name_hi : e.name) : sym) + " → " + col, colour: col, until: performance.now() + 7000 };
+    renderSide(true); say(t("types").flametest + ": " + (e ? e.name : sym));
+  }
+  function clearScene() { S.flameNote = null; S.flameUntil = 0; if (!scene) return; G.particles.forEach((m) => G.vessel.remove(m)); G.particles = []; G.bubbles.forEach((b) => G.vessel.remove(b)); G.bubbles = []; G.solids.children.slice().forEach((c) => G.solids.remove(c)); }
   let last = 0, lastSide = 0;
   function frame(now) {
     const dt = last ? Math.min(0.1, (now - last) / 1000) : 0; last = now;
@@ -476,7 +554,7 @@
   }
   function renderText() {
     document.documentElement.lang = S.lang; document.title = t("title") + " · Quantix"; $("tTitle").textContent = t("title");
-    [["shelfLbl", "shelf"], ["tabC", "compounds"], ["tabE", "elements"], ["burnerLbl", "burner"], ["stirLbl", "stir"], ["containerLbl", "container"], ["emptyBtn", "empty"], ["speedLbl", "speed"],
+    [["flameBtn", "flameBtn"], ["shelfLbl", "shelf"], ["tabC", "compounds"], ["tabE", "elements"], ["burnerLbl", "burner"], ["stirLbl", "stir"], ["containerLbl", "container"], ["emptyBtn", "empty"], ["speedLbl", "speed"],
       ["obsLbl", "eqs"], ["contLbl", "contents"], ["safeLbl", "safety"], ["tLbl", "temp"], ["phLbl", "ph"], ["volLbl", "volume"]].forEach(([id, k]) => { $(id).textContent = t(k); });
     $("search").placeholder = t("search");
     document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === S.lang)));
@@ -493,6 +571,7 @@
   $("stir").onchange = (e) => { S.stir = e.target.checked; };
   $("speedSel").onchange = (e) => { S.speed = +e.target.value; };
   $("containerSel").onchange = (e) => { S.container = e.target.value; S.lab.L.capacity = CAP[S.container]; clearScene(); buildVessel(); renderSide(true); };
+  $("flameBtn").onclick = flameTest;
   $("emptyBtn").onclick = () => { S.lab.empty(); clearScene(); S.lastAdd = null; renderSide(true); say(t("empty")); };
   $("expSel").onchange = (e) => { if (e.target.value) runExperiment(e.target.value); e.target.value = ""; };
   document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => { S.lang = TX[b.dataset.lang] ? b.dataset.lang : "en"; try { localStorage.setItem("iav-formula-lang", S.lang); } catch (_) { /* private */ } renderText(); }));
