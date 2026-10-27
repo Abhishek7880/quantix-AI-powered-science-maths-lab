@@ -223,7 +223,7 @@
   // ------------------------------------------------------------------ "no reaction" explanation
   function whyNot() {
     const v = S.lastView, W = t("why");
-    if (!v || !S.lastAdd || S.lab.L.time - S.lastAddAt < 2.5 || v.events.length > S.eventsBefore) return null;
+    if (!v || !S.lastAdd || v.pending || S.lab.L.pending || S.lab.L.time - S.lastAddAt < 2.5 || v.events.length > S.eventsBefore) return null;
     if (v.contents.length < 2 && !v.water) return null;
     const sub = CE.lookup(S.lastAdd);
     const names = v.contents.map((c) => c.f);
