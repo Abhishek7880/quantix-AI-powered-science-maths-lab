@@ -48,3 +48,10 @@ datasets/everyday_test/
 
 # generated Learn pages (tools/build_seo_pages.py)
 build/
+
+# Android app: build outputs and machine-specific paths (signing key lives in secrets/)
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+!src/web/app/Quantix.apk

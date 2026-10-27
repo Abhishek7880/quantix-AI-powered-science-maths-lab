@@ -1,0 +1,46 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Release signing: secrets/android-keystore.properties (git-ignored) holds the keystore path and passwords.
+def keyProps = new Properties()
+def keyFile = rootProject.file('../secrets/android-keystore.properties')
+if (keyFile.exists()) keyFile.withInputStream { keyProps.load(it) }
+
+android {
+    namespace 'com.abhishek.quantix'
+    compileSdk 34
+    buildToolsVersion '36.0.0'
+
+    defaultConfig {
+        applicationId 'com.abhishek.quantix'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+        // the site the app shows; change here to point a test build at another server
+        buildConfigField 'String', 'SITE', '"https://quantix-ai-abhi.duckdns.org"'
+    }
+    buildFeatures { buildConfig true }
+
+    signingConfigs {
+        release {
+            if (keyFile.exists()) {
+                storeFile rootProject.file(keyProps['storeFile'])
+                storePassword keyProps['storePassword']
+                keyAlias keyProps['keyAlias']
+                keyPassword keyProps['keyPassword']
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (keyFile.exists()) signingConfig signingConfigs.release
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Quantix" parent="android:Theme.Material.NoActionBar">
+        <item name="android:colorPrimary">#0284c7</item>
+        <item name="android:colorAccent">#38bdf8</item>
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:navigationBarColor">@color/bg</item>
+    </style>
+    <!-- shown while the app starts: the Quantix logo on the dark background -->
+    <style name="Theme.Quantix.Splash" parent="Theme.Quantix">
+        <item name="android:windowBackground">@drawable/splash</item>
+    </style>
+    <color name="bg">#050a16</color>
+    <color name="icon_bg">#050a16</color>
+</resources>

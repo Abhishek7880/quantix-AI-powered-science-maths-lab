@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- long-press the app icon: jump straight into a lab -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut android:shortcutId="circuit" android:enabled="true" android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/sc_circuit">
+        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.abhishek.quantix" android:targetClass="com.abhishek.quantix.MainActivity" android:data="https://quantix-ai-abhi.duckdns.org/circuit" />
+    </shortcut>
+    <shortcut android:shortcutId="chem" android:enabled="true" android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/sc_chem">
+        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.abhishek.quantix" android:targetClass="com.abhishek.quantix.MainActivity" android:data="https://quantix-ai-abhi.duckdns.org/chemlab" />
+    </shortcut>
+    <shortcut android:shortcutId="plc" android:enabled="true" android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/sc_plc">
+        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.abhishek.quantix" android:targetClass="com.abhishek.quantix.MainActivity" android:data="https://quantix-ai-abhi.duckdns.org/plc" />
+    </shortcut>
+    <shortcut android:shortcutId="photo" android:enabled="true" android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/sc_photo">
+        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.abhishek.quantix" android:targetClass="com.abhishek.quantix.MainActivity" android:data="https://quantix-ai-abhi.duckdns.org/" />
+    </shortcut>
+</shortcuts>

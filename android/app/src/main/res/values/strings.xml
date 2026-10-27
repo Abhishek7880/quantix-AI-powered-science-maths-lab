@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Quantix</string>
+    <string name="choose">Choose a photo or file</string>
+    <string name="downloading">Downloading</string>
+    <string name="saved">Saved to</string>
+    <string name="save_failed">Could not save the file</string>
+    <string name="allow_storage">Allow storage access, then tap download again</string>
+    <string name="no_app">No app on this phone can open that link</string>
+    <string name="still_offline">Still offline — check your internet connection</string>
+    <string name="press_again">Press back again to exit</string>
+    <string name="sc_circuit">Circuit Lab</string>
+    <string name="sc_chem">Chemistry Lab</string>
+    <string name="sc_plc">PLC Lab</string>
+    <string name="sc_photo">Photo AI</string>
+</resources>

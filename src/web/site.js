@@ -10,10 +10,10 @@
   const FOOT = {
     en: { tag: "AI-powered science & maths lab", contact: "Contact us", sub: "Questions, ideas or a bug? We read every message.", top: "↑ Top", skip: "Skip to content",
           follow: "Follow us", social: "Social media", newTab: "opens in a new tab", by: "Designed & built by",
-          learn: "📚 Learn:", lf: "Formulas", le: "Elements", lc: "Unit conversions" },
+          learn: "📚 Learn:", lf: "Formulas", le: "Elements", lc: "Unit conversions", app: "Android app" },
     hi: { tag: "AI-संचालित विज्ञान और गणित लैब", contact: "संपर्क करें", sub: "प्रश्न, सुझाव या गड़बड़ी? हम हर संदेश पढ़ते हैं।", top: "↑ ऊपर", skip: "मुख्य सामग्री पर जाएँ",
           follow: "हमें फ़ॉलो करें", social: "सोशल मीडिया", newTab: "नए टैब में खुलता है", by: "रचना एवं निर्माण",
-          learn: "📚 सीखें:", lf: "सूत्र", le: "तत्व", lc: "मात्रक रूपांतरण" },
+          learn: "📚 सीखें:", lf: "सूत्र", le: "तत्व", lc: "मात्रक रूपांतरण", app: "एंड्रॉइड ऐप" },
   };
   const LEARN_BASE = "";   // Learn pages live on the main site; the static Lite build sets its full address here
   const root = document.documentElement;
@@ -60,7 +60,7 @@
             <path d="M3 11 C 45 3, 95 14, 140 7 S 190 4, 197 9"/>
             <path class="spark" d="M3 11 C 45 3, 95 14, 140 7 S 190 4, 197 9"/></svg></span></a>
       <span class="sf-role" hidden></span><span class="sf-reach" hidden></span></div>
-    <div class="sf-mid"><span class="sf-sub"></span> <a class="sf-contact" href="/contact">✉ <span></span></a>
+    <div class="sf-mid"><span class="sf-sub"></span> <a class="sf-contact" href="/contact">✉ <span></span></a> <a class="sf-app" href="/web/app/Quantix.apk" download="Quantix.apk">📱 <span></span></a>
       <nav class="sf-learn" aria-label="Learn"><b></b> <a data-l="lf"></a> · <a data-l="le"></a> · <a data-l="lc"></a></nav></div>
     <div class="sf-end"><nav class="sf-social" hidden></nav><span>© ${new Date().getFullYear()}</span><a class="sf-top" href="#">↑</a></div>`;
   document.body.append(foot);
@@ -140,6 +140,8 @@
     foot.querySelector(".sf-tag").textContent = L.tag;
     foot.querySelector(".sf-sub").textContent = L.sub;
     foot.querySelector(".sf-contact span").textContent = L.contact;
+    const app = foot.querySelector(".sf-app");
+    app.querySelector("span").textContent = L.app; app.hidden = /QuantixApp/.test(navigator.userAgent);   // not shown inside the app itself
     foot.querySelector(".sf-top").textContent = L.top;
     foot.querySelector(".sf-by").textContent = L.by;
     const hi = root.lang === "hi" ? "/hi" : "";       // Hindi Learn pages exist for formulas and elements
