@@ -386,21 +386,18 @@ async def measure_references(file: UploadFile = File(...)):
 async def measure_shapes(file: UploadFile = File(...), mm_per_px: float = Form(..., gt=0),
                          depth_mm: float | None = Form(None, gt=0), model: str | None = Form(None),
                          conf: float = Form(cfg.inference.conf, ge=0, le=1),
-                         imgsz: int = Form(cfg.inference.imgsz, ge=32, le=4096)):
-    """Detect shapes and measure them in real units using the scale (mm per pixel) of this exact image."""
-    from src import everyday, measure
+                         imgsz: int = Form(cfg.inference.imgsz, ge=32, le=4096),
+                         ref_cx: float | None = Form(None), ref_cy: float | None = Form(None), ref_r: float | None = Form(None)):
+    """Detect shapes and measure them in real units using the scale (mm per pixel) of this exact image.
+    Auto mode traces each object's exact outline and decides 2D shape or 3D solid; ref_cx/ref_cy/ref_r (the reference
+    coin) keep the coin itself out of the results."""
+    from src import measure
     img = await _read_upload_image(file)
-    if model in (None, "", "auto"):                  # default: drawn shapes AND real everyday objects
-        r = everyday.detect_auto(img, _auto_model)
-        dets, latency, model_name = r["detections"], r["latency_ms"], "auto"
-        shapes = measure.measure_detections(dets, mm_per_px, CLASS_KNOWLEDGE, depth_mm)
-        for sh, info in zip(shapes, r["infos"]):
-            if info:                                 # "mug → Cylinder", plus how much it holds
-                sh.update(object=info["object"], object_hi=info["object_hi"], shape_note=info["note"],
-                          name=f"{info['object']} → {sh['name']}")
-                vol = next((x["value_mm"] for x in sh["results"] if x.get("power") == 3), None)
-                if vol and info["shape"] in ("cylinder", "hemisphere", "sphere", "cone", "cuboid", "cube"):
-                    sh["capacity_ml"] = round(vol / 1000, 1)          # 1 ml = 1000 mm³ (outside size, so a bit more than it holds)
+    if model in (None, "", "auto"):                  # default: drawn shapes, cut-outs AND real everyday objects
+        t0 = time.perf_counter()
+        exclude = {"circle": {"cx": ref_cx, "cy": ref_cy, "r": ref_r}} if None not in (ref_cx, ref_cy, ref_r) else None
+        r = measure.analyse_photo(img, mm_per_px, CLASS_KNOWLEDGE, _auto_model, exclude=exclude, depth_mm=depth_mm)
+        shapes, latency, model_name = r["shapes"], (time.perf_counter() - t0) * 1000, "auto"
     else:
         det = get_detector(model, conf, imgsz)
         dets, _, latency = det.predict(img, conf=conf, annotate=False)

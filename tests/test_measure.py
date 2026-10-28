@@ -99,3 +99,60 @@ def test_physics_lab_page(client):
         assert f'id: "{sim}"' in js
     for p in ("/", "/measure", "/formulas", "/elements", "/converter", "/graph"):
         assert 'href="/physics"' in client.get(p).text
+
+
+# ------------------------------------------------------------------ outlines: 2D shape or 3D solid
+def _canvas():
+    import numpy as np
+    return np.full((400, 400, 3), 225, np.uint8)
+
+
+def test_flat_ellipse_and_pentagon_are_2d():
+    import numpy as np
+    from src import shape_geometry as sg
+    img = _canvas()
+    cv2.ellipse(img, ((200, 200), (220, 120), 30), (40, 90, 200), -1)
+    m = (np.abs(img.astype(int) - 225).sum(2) > 30).astype(np.uint8)
+    a = sg.analyse(img, m)
+    assert (a["class_name"], a["dimension"]) == ("ellipse", "2D")
+    assert a["dims_px"]["a"] == pytest.approx(110, rel=0.04) and a["dims_px"]["b"] == pytest.approx(60, rel=0.04)
+    img = _canvas()
+    R = 90
+    pts = np.array([[200 + R * np.cos(np.pi / 2 + k * 2 * np.pi / 5 + 0.3), 200 + R * np.sin(np.pi / 2 + k * 2 * np.pi / 5 + 0.3)] for k in range(5)], np.int32)
+    cv2.fillPoly(img, [pts], (30, 160, 60))
+    m = (np.abs(img.astype(int) - 225).sum(2) > 30).astype(np.uint8)
+    a = sg.analyse(img, m, "pentagon")
+    assert (a["class_name"], a["dimension"]) == ("pentagon", "2D")
+    assert a["dims_px"]["a"] == pytest.approx(2 * R * np.sin(np.pi / 5), rel=0.05)
+
+
+def test_shaded_ball_is_a_sphere_but_a_flat_disc_is_a_circle():
+    import numpy as np
+    from src import shape_geometry as sg
+    img = _canvas()
+    yy, xx = np.mgrid[:400, :400]
+    d = np.hypot(xx - 200, yy - 200)
+    lit = np.clip(255 - 1.6 * np.hypot(xx - 165, yy - 165), 30, 255)     # lit from the top left
+    for ch in range(3):
+        img[..., ch] = np.where(d <= 100, lit * (0.4, 0.6, 1.0)[ch], img[..., ch])
+    m = (d <= 100).astype(np.uint8)
+    a = sg.analyse(img, m, "sphere")
+    assert (a["class_name"], a["dimension"]) == ("sphere", "3D") and a["dims_px"]["r"] == pytest.approx(100, rel=0.03)
+    flat = _canvas()
+    cv2.circle(flat, (200, 200), 100, (60, 60, 200), -1)
+    a = sg.analyse(flat, m, "sphere")                   # a detector called the paper disc a ball
+    assert (a["class_name"], a["dimension"]) == ("circle", "2D")
+
+
+def test_reference_coin_is_not_measured(client):
+    with open(SAMPLE, "rb") as fh:
+        refs = client.post(f"{P}/measure/references", files={"file": ("s.jpg", fh, "image/jpeg")}).json()
+    coin = min(refs["data"]["circles"], key=lambda c: abs(c["cx"] - 250) + abs(c["cy"] - 250))
+    assert "score" in coin and coin["score"] >= 0.75
+    with open(SAMPLE, "rb") as fh:
+        body = client.post(f"{P}/measure/shapes", files={"file": ("s.jpg", fh, "image/jpeg")},
+                           data={"mm_per_px": str(27 / (2 * coin["r"])), "ref_cx": str(coin["cx"]), "ref_cy": str(coin["cy"]), "ref_r": str(coin["r"])}).json()
+    for s in body["data"]["shapes"]:
+        cx, cy = (s["box"][0] + s["box"][2]) / 2, (s["box"][1] + s["box"][3]) / 2
+        assert abs(cx - coin["cx"]) + abs(cy - coin["cy"]) > coin["r"] * 0.5
+        assert s["dimension"] == "2D" and len(s["outline"]) >= 3

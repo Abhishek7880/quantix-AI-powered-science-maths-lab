@@ -4,7 +4,7 @@
    server and show a friendly message when offline.
    Strategy: pages and data are network-first (always fresh when online, cached copy when offline); scripts, styles,
    images and fonts are cache-first with a background refresh. Bump VERSION to drop old caches. */
-const VERSION = "quantix-v1";
+const VERSION = "quantix-v2";
 const PAGES = ["/", "/circuit", "/plc", "/chemlab", "/physics", "/formulas", "/converter", "/graph", "/elements"];
 const ASSETS = ["/web/lab.css", "/web/site.js", "/web/sci_bg.js", "/web/social_icons.js", "/web/favicon.svg", "/web/icon-512.png",
   "/web/circuit_sim.js", "/web/circuit_examples.js", "/web/circuit_ui.js", "/web/circuit_3d.js", "/web/plc_engine.js", "/web/plc_ui.js",
@@ -20,11 +20,11 @@ self.addEventListener("activate", (e) => {
 });
 
 const offlinePage = () => new Response(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Offline · Quantix</title><body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#050a16;color:#e6f0ff;font:16px/1.5 system-ui,sans-serif;text-align:center;padding:24px">
+<title>Offline Â· Quantix</title><body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#050a16;color:#e6f0ff;font:16px/1.5 system-ui,sans-serif;text-align:center;padding:24px">
 <div><h1 style="font-size:22px">You're offline</h1><p style="color:#93a6c4">This page needs the internet. These labs work offline:</p>
-<p><a style="color:#38bdf8" href="/circuit">Circuits</a> · <a style="color:#38bdf8" href="/chemlab">Chem Lab</a> · <a style="color:#38bdf8" href="/plc">PLC</a> ·
-<a style="color:#38bdf8" href="/physics">Physics</a> · <a style="color:#38bdf8" href="/formulas">Formulas</a> · <a style="color:#38bdf8" href="/converter">Converter</a> ·
-<a style="color:#38bdf8" href="/graph">Graphs</a> · <a style="color:#38bdf8" href="/elements">Elements</a></p>
+<p><a style="color:#38bdf8" href="/circuit">Circuits</a> Â· <a style="color:#38bdf8" href="/chemlab">Chem Lab</a> Â· <a style="color:#38bdf8" href="/plc">PLC</a> Â·
+<a style="color:#38bdf8" href="/physics">Physics</a> Â· <a style="color:#38bdf8" href="/formulas">Formulas</a> Â· <a style="color:#38bdf8" href="/converter">Converter</a> Â·
+<a style="color:#38bdf8" href="/graph">Graphs</a> Â· <a style="color:#38bdf8" href="/elements">Elements</a></p>
 <button onclick="location.reload()" style="padding:12px 26px;border:0;border-radius:12px;background:#0284c7;color:#fff;font:600 16px system-ui">Try again</button></div>`,
   { headers: { "Content-Type": "text/html; charset=utf-8" } });
 

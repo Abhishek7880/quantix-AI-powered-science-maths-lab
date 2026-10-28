@@ -100,6 +100,7 @@
   .shape-card { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: color-mix(in srgb, var(--panel-solid) 45%, transparent); }
   .shape-card h4 { margin: 0 0 4px; font: 600 15px var(--f-head); display: flex; gap: 8px; align-items: center; }
   .tag { font: 600 11px var(--f-mono); padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--accent); }
+  .tag.d3 { color: #f59e0b; border-color: #f59e0b; }
   .dims { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; margin: 4px 0 6px; }
   .dims i { font: italic 700 14px Cambria, Georgia, serif; }
   table { border-collapse: collapse; width: 100%; font-size: 13px; }
@@ -257,7 +258,13 @@
                     slant_side_assumed: "Slant side estimated from the outline.", trapezium_sides_assumed: "Sides estimated from the outline.",
                     front_view: "Measured from its front face.", depth_assumed: "Depth is not visible in a photo — assumed. Enter the real depth for an exact volume.",
                     depth_given: "Used the depth you entered.", side_view: "Measured from the side: width → diameter, height → height.",
-                    unknown_shape: "No formulas for this shape." },
+                    unknown_shape: "No formulas for this shape.",
+                    rim_corrected: "Camera looks down on it: height corrected for the tilt (from the rim's curve).",
+                    base_corrected: "Camera looks down on it: height corrected for the tilt (from the base's curve).",
+                    top_face_removed: "Top face seen in the photo was left out of the height.",
+                    open_side_up: "Treated as a bowl (round side down).", outline_only: "Sizes are the outline's width and height.",
+                    irregular_outline: "Not a regular shape — its outline area and size are given." },
+          flat2d: "2D · flat", solid3d: "3D · solid",
           px: "px", custom: "custom length", warnPersp: "Keep the camera square to the object — tilted photos change sizes." },
     hi: { title: "मापन", s1: "फ़ोटो", s2: "पैमाना तय करें", s3: "मापें", s4: "परिणाम", dropTitle: "फ़ोटो यहाँ छोड़ें",
           dropHelp: "या चुनने के लिए क्लिक करें · Ctrl+V से चिपकाएँ", cam: "फ़ोटो खींचें", sample: "नमूना आज़माएँ",
@@ -282,7 +289,13 @@
                     slant_side_assumed: "तिर्यक भुजा रूपरेखा से अनुमानित।", trapezium_sides_assumed: "भुजाएँ रूपरेखा से अनुमानित।",
                     front_view: "सामने के फलक से मापा गया।", depth_assumed: "फ़ोटो में गहराई नहीं दिखती — अनुमानित। सटीक आयतन के लिए असली गहराई लिखें।",
                     depth_given: "आपकी लिखी गहराई ली गई।", side_view: "बगल से मापा गया: चौड़ाई → व्यास, ऊँचाई → ऊँचाई।",
-                    unknown_shape: "इस आकृति के सूत्र उपलब्ध नहीं।" },
+                    unknown_shape: "इस आकृति के सूत्र उपलब्ध नहीं।",
+                    rim_corrected: "कैमरा ऊपर से देख रहा है: किनारे के वक्र से ऊँचाई का झुकाव सुधारा गया।",
+                    base_corrected: "कैमरा ऊपर से देख रहा है: आधार के वक्र से ऊँचाई का झुकाव सुधारा गया।",
+                    top_face_removed: "फ़ोटो में दिखा ऊपरी फलक ऊँचाई में नहीं जोड़ा गया।",
+                    open_side_up: "कटोरे की तरह माना गया (गोल भाग नीचे)।", outline_only: "माप रूपरेखा की चौड़ाई व ऊँचाई हैं।",
+                    irregular_outline: "नियमित आकृति नहीं — रूपरेखा का क्षेत्रफल व माप दिए गए।" },
+          flat2d: "2D · समतल", solid3d: "3D · ठोस",
           px: "px", custom: "अपनी लंबाई", warnPersp: "कैमरा वस्तु के ठीक सामने रखें — तिरछी फ़ोटो से माप बदल जाते हैं।" },
   };
   const t = (k, ...a) => { const v = T[S.lang][k]; return typeof v === "function" ? v(...a) : v; };
@@ -370,8 +383,12 @@
     // detected shapes
     S.shapes.forEach((sh, i) => {
       const [x1, y1] = map([sh.box[0], sh.box[1]]), [x2, y2] = map([sh.box[2], sh.box[3]]);
-      c.strokeStyle = COL.shape; c.lineWidth = 2 * k; c.setLineDash([6 * k, 4 * k]); c.strokeRect(x1, y1, x2 - x1, y2 - y1); c.setLineDash([]);
-      label(c, (x1 + x2) / 2, y1 - 14 * k, `${i + 1}. ${sh.name} · ${fmtMm(sh.width_mm)} × ${fmtMm(sh.height_mm)}`, COL.shape);
+      c.strokeStyle = COL.shape; c.lineWidth = 2 * k;
+      if (sh.outline && sh.outline.length > 2) {     // the object's traced outline
+        c.beginPath(); sh.outline.forEach((p, j) => { const [x, y] = map(p); j ? c.lineTo(x, y) : c.moveTo(x, y); }); c.closePath();
+        c.fillStyle = "rgba(56,189,248,.12)"; c.fill(); c.stroke();
+      } else { c.setLineDash([6 * k, 4 * k]); c.strokeRect(x1, y1, x2 - x1, y2 - y1); c.setLineDash([]); }
+      label(c, (x1 + x2) / 2, y1 - 14 * k, `${i + 1}. ${sh.name}${sh.dimension ? " · " + sh.dimension : ""}`, COL.shape);
     });
     // reference candidates
     if (S.cands) {
@@ -572,7 +589,8 @@
     let b;
     try { b = await (await fetch(`${API}/measure/references`, { method: "POST", body: fd })).json(); } catch (_) { return toast(t("offline")); }
     if (!b.success) return toast(b.error.errorContent);
-    const list = p.kind === "circle" ? b.data.circles.map((c) => ({ kind: "circle", ...c }))
+    const rimmed = b.data.circles.filter((c) => (c.score || 0) >= 0.75);      // a clear rim all round: a real coin
+    const list = p.kind === "circle" ? (rimmed.length ? rimmed : b.data.circles).map((c) => ({ kind: "circle", ...c }))
                : b.data.rects.map((r) => ({ kind: "rect", ...r })).sort((a, z) => (z.guess === $("ref").value) - (a.guess === $("ref").value));
     if (!list.length) { toast(t("noCands")); return; }
     if (list.length === 1) { useCandidate(list[0]); return; }
@@ -624,7 +642,8 @@
     });
     S.shapes.forEach((sh, i) => {
       rows.push(h("div", { class: "shape-card" },
-        h("h4", {}, h("span", { class: "sw", style: { background: COL.shape } }), `${i + 1}. ${sh.name}`, sh.dimension ? h("span", { class: "tag" }, sh.dimension) : null),
+        h("h4", {}, h("span", { class: "sw", style: { background: COL.shape } }), `${i + 1}. ${sh.name}`,
+          sh.dimension ? h("span", { class: "tag" + (sh.dimension === "3D" ? " d3" : "") }, sh.dimension === "3D" ? t("solid3d") : t("flat2d")) : null),
         h("div", { class: "dims" }, h("span", { class: "sub" }, `${t("dims")}:`), Object.entries(sh.dims_mm).map(([k, v]) => h("span", {}, h("i", {}, k), ` = ${fmtMm(v)}`))),
         sh.results.length ? h("table", {}, h("tbody", {}, sh.results.map((r) => h("tr", {}, h("td", {}, r.label), h("td", { class: "f" }, r.formula),
           h("td", { class: "val" }, fmtMm(r.value_mm, r.power)))))) : null,
@@ -652,6 +671,8 @@
     fd.append("file", S.blob, "photo.jpg"); fd.append("mm_per_px", String(S.scale.mmpx));
     const d = parseFloat($("depth").value);
     if (d > 0) fd.append("depth_mm", String(d * UNIT[S.unit]));
+    const rc = S.scale.circle;                         // the reference coin is not measured as an object
+    if (rc) { fd.append("ref_cx", String(rc.cx)); fd.append("ref_cy", String(rc.cy)); fd.append("ref_r", String(rc.r)); }
     $("detectBtn").disabled = true; toast(t("detecting"));
     let b;
     try { b = await (await fetch(`${API}/measure/shapes`, { method: "POST", body: fd })).json(); }
