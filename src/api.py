@@ -1061,6 +1061,8 @@ def _predict_auto(img: np.ndarray, name: str, return_image: bool) -> dict:
         x = d.to_dict()
         if info:
             x.update(object=info["object"], object_hi=info["object_hi"], shape_note=info["note"], source=info["source"])
+            if info.get("outline"):
+                x["outline"] = info["outline"]
         dets.append(x)
     data = {"image": name, "width": img.shape[1], "height": img.shape[0], "model": "auto", "stage": r["stage"],
             "device": resolve_device(cfg.device), "conf": None, "latency_ms": round(r["latency_ms"], 1), "count": len(dets),

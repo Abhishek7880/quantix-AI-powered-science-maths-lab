@@ -258,7 +258,11 @@ def annotate(img, dets: list, infos: list):
         label = f"{info['object']} -> {d.class_name}" if info else d.class_name
         label += f" {d.confidence:.2f}"
         p1, p2 = (int(d.x1), int(d.y1)), (int(d.x2), int(d.y2))
-        cv2.rectangle(out, p1, p2, (248, 189, 56), 2 * th)
+        if info and info.get("outline"):             # traced outline (objects no model knows)
+            import numpy as np
+            cv2.polylines(out, [np.array(info["outline"], np.int32)], True, (248, 189, 56), 2 * th)
+        else:
+            cv2.rectangle(out, p1, p2, (248, 189, 56), 2 * th)
         (tw, tht), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5 * th, th)
         y = max(p1[1], tht + 8)
         cv2.rectangle(out, (p1[0], y - tht - 8), (p1[0] + tw + 6, y), (248, 189, 56), -1)
@@ -340,8 +344,26 @@ def detect_auto(img, get_model) -> dict:
             return result(dets, infos, "coco")
         if flat >= 0.7 and shapes:                   # nearly flat: maybe a drawing after all
             return result(shapes, [None] * len(shapes), "shapes")
-        return result([], [], "none")
+        return outline_fallback(img, result)
     if shapes:                                                                                  # a drawing
         return result(shapes, [None] * len(shapes), "shapes")
     dets, infos = objects(run("extra", 0.35), "extra")
-    return result(dets, infos, "extra" if dets else "none")
+    return result(dets, infos, "extra") if dets else outline_fallback(img, result)
+
+
+def outline_fallback(img, result) -> dict:
+    """No model knows the thing (an inverter, a machine part): trace the main subject's outline and name its
+    shape from geometry (shading / edges decide 2D or 3D). infos carry the mask so Measure reuses it."""
+    import numpy as np
+    from src import shape_geometry as sg
+    from src.inference import Detection
+    m = sg.main_object(img)
+    a = sg.analyse(img, m) if m is not None else None
+    if not a or a["class_name"] == "polygon":
+        return result([], [], "none")
+    ys, xs = np.nonzero(m)
+    d = Detection(-1, a["class_name"], 0.5, float(xs.min()), float(ys.min()), float(xs.max()), float(ys.max()))
+    info = {"object": "Unknown object", "object_hi": "अज्ञात वस्तु", "shape": a["class_name"], "source": "outline",
+            "note": f"Not an object the AI knows by name — its shape ({a['dimension']}) was read from its outline.",
+            "mask": m, "outline": a["outline"]}
+    return result([d], [info], "outline", ordered=True)

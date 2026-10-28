@@ -370,6 +370,9 @@ def analyse_photo(img: np.ndarray, mm_per_px: float, class_info: dict | None = N
                 old["source"] = "drawing"
                 regions.append({"done": old, "area": (d.x2 - d.x1) * (d.y2 - d.y1), "mask": box_mask})
                 continue
+        if info and info.get("mask") is not None:      # already traced (everyday.outline_fallback)
+            regions.append({"mask": info["mask"], "prior": None, "info": info, "conf": None, "source": "outline"})
+            continue
         m = next((f for f in fg if np.logical_and(f, box_mask).sum() > 0.5 * box_mask.sum() * 0.3), None)
         m = clip(m, d) if m is not None else None
         if m is None or m.sum() < 0.2 * box_mask.sum():
@@ -377,7 +380,10 @@ def analyse_photo(img: np.ndarray, mm_per_px: float, class_info: dict | None = N
         regions.append({"mask": m if m is not None else box_mask, "prior": d.class_name if info else None, "info": info,
                         "conf": d.confidence, "source": "object" if info else "shape"})
     for f in fg:                                        # things no model knows: cut-outs, plain objects
-        if any(iou(f, r["mask"]) > 0.3 for r in regions):
+        if any(iou(f, r["mask"]) > 0.3 or np.logical_and(f, r["mask"]).sum() > 0.3 * r["mask"].sum() for r in regions):
+            continue
+        ys, xs = np.nonzero(f)                          # cut off by the frame (a shelf rail, a neighbour): no true size
+        if xs.min() <= 2 or ys.min() <= 2 or xs.max() >= w - 3 or ys.max() >= h - 3:
             continue
         regions.append({"mask": f, "prior": None, "info": None, "conf": None, "source": "outline"})
 

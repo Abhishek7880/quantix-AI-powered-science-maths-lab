@@ -102,6 +102,25 @@ def foreground_regions(img: np.ndarray, min_frac: float = 0.004, max_regions: in
 
 
 # ------------------------------------------------------------------ outline analysis
+def main_object(img: np.ndarray) -> np.ndarray | None:
+    """The main subject of a photo nobody's model knows (an inverter in a rack, a machine part): GrabCut seeded with
+    the middle of the frame, so neighbours and rails cut off by the frame edge stay background. None if the result
+    is tiny, most of the frame, or in pieces."""
+    h, w = img.shape[:2]
+    m = object_mask(img, (0.06 * w, 0.06 * h, 0.94 * w, 0.96 * h))
+    if m is None:
+        return None
+    cnt = _contour(m)
+    if cnt is None:
+        return None
+    keep = np.zeros_like(m)
+    cv2.drawContours(keep, [cnt], -1, 1, -1)                  # the biggest piece, holes filled
+    frac = keep.mean()
+    if not 0.03 < frac < 0.85 or cv2.contourArea(cnt) < 0.7 * m.sum():
+        return None
+    return keep.astype(np.uint8)
+
+
 def _contour(mask):
     cnts, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     return max(cnts, key=cv2.contourArea) if cnts else None
@@ -260,8 +279,10 @@ def analyse(img: np.ndarray, mask: np.ndarray, prior: str | None = None) -> dict
             cls = "sphere"
         elif nv == 3 or (solidity > 0.85 and _narrow_top(mask, x, y, bw, bh)):
             cls = "cone"
-        elif nv in (5, 6) and edges > 1.2:
-            cls = "cube" if 0.8 < bw / max(bh, 1) < 1.25 else "cuboid"
+        elif (nv in (5, 6) and edges > 1.2) or (rect_fill > 0.85 and max(_top_sagitta(mask, x, y, bw),
+                                                 _bottom_sagitta(mask, x, y, bw, bh)) < 0.015 * bw):
+            # faces and edges, or a straight top and bottom (a cylinder seen from slightly above shows a curved rim)
+            cls = "cuboid"                             # depth is not visible, so "cube" only comes from a detector
         elif ell_ratio < 0.9 and bw > bh:
             cls = "hemisphere" if _round_bottom(mask, x, y, bw, bh) else "cuboid"
         else:
@@ -301,7 +322,7 @@ def analyse(img: np.ndarray, mask: np.ndarray, prior: str | None = None) -> dict
         if cls == "cube":
             return {**res, "class_name": "cube", "dimension": "3D", "dims_px": {"a": hgt}}
         notes.append("depth_assumed")
-        return {**res, "class_name": "cuboid", "dimension": "3D", "dims_px": {"l": max(rw, rh) if not front_h else bw * 0.75, "h": hgt, "b": (top_h or bw * 0.3) * 2}}
+        return {**res, "class_name": "cuboid", "dimension": "3D", "dims_px": {"l": bw if not front_h else bw * 0.75, "h": hgt, "b": (top_h or bw * 0.3) * 2}}
     notes.append("outline_only")
     return {**res, "class_name": cls, "dimension": "3D", "dims_px": {"width": bw, "height": bh}}
 
@@ -353,7 +374,7 @@ def _box_front_height(img, mask, x, y, bw, bh):
     """A box seen from above shows its top face: find the brightness change between the top face and the front faces
     along the middle columns; the front face is what lies below it."""
     g = cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (5, 5), 0).astype(np.float32)
-    cols = np.linspace(x + 0.3 * bw, x + 0.7 * bw, 9).astype(int)
+    cols = np.linspace(x + 0.12 * bw, x + 0.88 * bw, 13).astype(int)
     cuts = []
     for c in cols:
         ys = np.where(mask[:, c])[0]
@@ -368,9 +389,21 @@ def _box_front_height(img, mask, x, y, bw, bh):
             continue
         k = lo + int(np.argmax(d[lo:hi]))
         if d[k] > 6:
-            cuts.append((ys.min() + k, ys.max()))
+            cuts.append((ys.min() + k, ys.max(), c))
     if len(cuts) < 3:
         return None, None
     edge = float(np.median([c[0] for c in cuts]))
+    # a real top-face edge is one straight line (slanted when the box is turned) across almost the whole box; a
+    # label, panel or recess on the front face only crosses part of it
+    xs_, ks = np.array([c[2] for c in cuts], float), np.array([c[0] for c in cuts], float)
+    best = 0
+    for i in range(len(cuts)):                       # line through every pair: the one most cut points agree with
+        for j in range(i + 1, len(cuts)):
+            if xs_[j] == xs_[i]:
+                continue
+            s = (ks[j] - ks[i]) / (xs_[j] - xs_[i])
+            best = max(best, int((np.abs(ks - (ks[i] + s * (xs_ - xs_[i]))) <= 0.04 * bh).sum()))
+    if best < 0.7 * len(cols):
+        return None, None
     base = float(np.median([c[1] for c in cuts]))
     return base - edge, edge - y

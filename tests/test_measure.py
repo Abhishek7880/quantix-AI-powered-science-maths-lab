@@ -156,3 +156,22 @@ def test_reference_coin_is_not_measured(client):
         cx, cy = (s["box"][0] + s["box"][2]) / 2, (s["box"][1] + s["box"][3]) / 2
         assert abs(cx - coin["cx"]) + abs(cy - coin["cy"]) > coin["r"] * 0.5
         assert s["dimension"] == "2D" and len(s["outline"]) >= 3
+
+
+def test_unknown_object_falls_back_to_its_outline():
+    """A thing no model knows (an inverter in a rack): traced from the middle of the frame, named by geometry."""
+    import numpy as np
+    from src import everyday
+    rng = np.random.default_rng(1)
+    img = (rng.normal(60, 18, (480, 600, 3))).clip(0, 255).astype(np.uint8)          # dark cluttered rack
+    img[:, :40] = (40, 170, 210); img[:, 560:] = (40, 170, 210)                        # neighbours cut by the frame
+    shade = np.linspace(150, 230, 300)[None, :, None]                                  # a lit, shaded yellow box
+    img[90:430, 150:450] = (np.array([40, 190, 220]) * shade / 230).astype(np.uint8)
+    cv2.rectangle(img, (230, 220), (420, 410), (200, 200, 200), -1)                    # a label on its front
+    seen = {}
+    r = everyday.outline_fallback(img, lambda d, i, stage, ordered=False: seen.update(d=d, i=i, stage=stage) or seen)
+    assert r["stage"] == "outline" and r["i"][0]["object"] == "Unknown object"
+    d = r["d"][0]
+    assert d.class_name == "cuboid"
+    assert d.x1 == pytest.approx(150, abs=12) and d.x2 == pytest.approx(450, abs=12)
+    assert d.y2 - d.y1 == pytest.approx(340, rel=0.06)
