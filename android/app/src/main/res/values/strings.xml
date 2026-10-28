@@ -18,4 +18,13 @@
     <string name="update_text">A newer version of Quantix is ready. Download and install it now?</string>
     <string name="update_now">Update</string>
     <string name="later">Later</string>
+    <string name="net_title">Internet needed</string>
+    <string name="net_text">This feature runs on the Quantix server (photo AI, auto-measure, equation solver, PDF downloads, contact). Turn on mobile data or Wi-Fi.\n\nLabs, formulas, elements, converter, graphs and the measuring tools keep working offline.</string>
+    <string name="net_settings">Turn on internet</string>
+    <string name="ok">OK</string>
+    <string name="went_offline">You\'re offline — labs, formulas and tools still work</string>
+    <string name="back_online">Back online</string>
+    <string name="server_down">Server not reachable — showing the offline copy</string>
+    <string name="up_to_date">You have the latest version</string>
+    <string name="share_app">Try Quantix — AI-powered science &amp; maths lab (Android app):</string>
 </resources>

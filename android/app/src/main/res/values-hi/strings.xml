@@ -18,4 +18,13 @@
     <string name="update_text">Quantix का नया संस्करण तैयार है। अभी डाउनलोड करके इंस्टॉल करें?</string>
     <string name="update_now">अपडेट करें</string>
     <string name="later">बाद में</string>
+    <string name="net_title">इंटरनेट चाहिए</string>
+    <string name="net_text">यह सुविधा Quantix सर्वर पर चलती है (फ़ोटो AI, स्वतः मापन, समीकरण हल, PDF डाउनलोड, संपर्क)। मोबाइल डेटा या वाई-फ़ाई चालू करें।\n\nलैब, सूत्र, तत्व, रूपांतरक, ग्राफ़ और मापने के उपकरण ऑफ़लाइन भी चलते हैं।</string>
+    <string name="net_settings">इंटरनेट चालू करें</string>
+    <string name="ok">ठीक है</string>
+    <string name="went_offline">आप ऑफ़लाइन हैं — लैब, सूत्र और उपकरण चलते रहेंगे</string>
+    <string name="back_online">फिर से ऑनलाइन</string>
+    <string name="server_down">सर्वर नहीं मिल रहा — ऑफ़लाइन प्रति दिखाई जा रही है</string>
+    <string name="up_to_date">आपके पास नया संस्करण है</string>
+    <string name="share_app">Quantix आज़माएँ — AI-संचालित विज्ञान और गणित लैब (एंड्रॉइड ऐप):</string>
 </resources>

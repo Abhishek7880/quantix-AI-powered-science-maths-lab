@@ -1,3 +1,3 @@
-{ "versionCode": 2, "versionName": "1.1", "url": "/web/app/Quantix.apk",
-  "notes": { "en": "New: phone-friendly menu and layouts, labs work offline, pinch-zoom and long-press in the Circuit Lab, share button, screen stays on during experiments, status bar follows the theme.",
-             "hi": "नया: फ़ोन के लिए आसान मेन्यू और लेआउट, प्रयोगशालाएँ ऑफ़लाइन चलती हैं, सर्किट लैब में पिंच-ज़ूम और लंबा दबाना, शेयर बटन, प्रयोग के दौरान स्क्रीन चालू रहती है, स्टेटस बार थीम के अनुसार।" } }
+{ "versionCode": 3, "versionName": "1.2", "url": "/web/app/Quantix.apk",
+  "notes": { "en": "New: works fully offline — every lab, formulas, elements, converter, graphs and measuring tools are inside the app. Bottom tab bar with a Labs sheet, pull down to refresh, tap vibration, back button closes menus first, no more loading line. Photo AI and other online features show a 'Turn on internet' popup when you're offline.",
+             "hi": "नया: पूरी तरह ऑफ़लाइन — सभी लैब, सूत्र, तत्व, रूपांतरक, ग्राफ़ और मापने के उपकरण ऐप के अंदर। नीचे टैब बार और लैब शीट, नीचे खींचकर रिफ़्रेश, टैप पर हल्का कंपन, back बटन पहले मेन्यू बंद करता है, लोडिंग लाइन हटाई गई। ऑफ़लाइन होने पर फ़ोटो AI जैसी ऑनलाइन सुविधाएँ 'इंटरनेट चालू करें' पॉपअप दिखाती हैं।" } }

@@ -54,4 +54,6 @@ android/.gradle/
 android/build/
 android/app/build/
 android/local.properties
+# offline copy of the site inside the app, made by tools/build_app_bundle.py
+android/app/src/main/assets/site/
 !src/web/app/Quantix.apk

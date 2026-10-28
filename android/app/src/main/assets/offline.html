@@ -12,20 +12,34 @@
   p { color: #93a6c4; margin: 0 0 22px; }
   button { padding: 12px 28px; border: 0; border-radius: 12px; background: linear-gradient(120deg, #0284c7, #7c3aed); color: #fff; font: 600 16px system-ui, sans-serif; }
   button:focus-visible { outline: 3px solid #38bdf8; outline-offset: 3px; }
+  button.ghost { background: transparent; border: 1px solid #334155; margin-top: 10px; }
+  nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 0 0 22px; }
+  .chip { padding: 10px 14px; border-radius: 999px; background: #0f1b33; border: 1px solid #1e3a5f; font: 500 14px system-ui, sans-serif; }
 </style>
 </head>
 <body>
 <div class="card">
   <svg viewBox="-50 -50 100 100" aria-hidden="true"><g fill="none" stroke-width="4"><ellipse rx="44" ry="15" stroke="#38bdf8"/><ellipse rx="44" ry="15" stroke="#a78bfa" transform="rotate(60)"/><ellipse rx="44" ry="15" stroke="#38bdf8" transform="rotate(120)"/></g><circle r="9" fill="#e0f2fe"/></svg>
   <h1 id="t">You're offline</h1>
-  <p id="m">Quantix needs the internet for the photo AI and the labs. Connect to Wi-Fi or mobile data and try again.</p>
+  <p id="m">This page needs the internet. Everything below works offline:</p>
+  <nav id="go"></nav>
   <button type="button" id="b" autofocus>Try again</button>
+  <button type="button" id="s" class="ghost">Turn on internet</button>
 </div>
 <script>
   var hi = (navigator.language || "").indexOf("hi") === 0;
-  if (hi) { document.getElementById("t").textContent = "आप ऑफ़लाइन हैं"; document.getElementById("m").textContent = "फ़ोटो AI और प्रयोगशालाओं के लिए इंटरनेट चाहिए। वाई-फ़ाई या मोबाइल डेटा जोड़कर फिर कोशिश करें।"; document.getElementById("b").textContent = "फिर कोशिश करें"; }
+  var SITE = "https://quantix-ai-abhi.duckdns.org";
+  var GO = [["/", "🏠", "Home", "होम"], ["/circuit", "🔌", "Circuits", "सर्किट"], ["/chemlab", "⚗️", "Chem Lab", "रसायन लैब"],
+            ["/plc", "🏭", "PLC", "पीएलसी"], ["/physics", "🧲", "Physics", "भौतिकी"], ["/formulas", "📐", "Formulas", "सूत्र"],
+            ["/elements", "🧪", "Elements", "तत्व"], ["/converter", "🔁", "Converter", "रूपांतरक"], ["/graph", "📈", "Graphs", "ग्राफ़"],
+            ["/measure", "📏", "Measure", "मापन"]];
+  if (hi) { document.getElementById("t").textContent = "आप ऑफ़लाइन हैं"; document.getElementById("m").textContent = "इस पेज के लिए इंटरनेट चाहिए। नीचे सब कुछ ऑफ़लाइन चलता है:"; document.getElementById("b").textContent = "फिर कोशिश करें"; document.getElementById("s").textContent = "इंटरनेट चालू करें"; }
+  var go = document.getElementById("go");
+  GO.forEach(function (g) { var a = document.createElement("button"); a.type = "button"; a.className = "chip"; a.textContent = g[1] + " " + (hi ? g[3] : g[2]);
+    a.onclick = function () { if (window.QuantixAndroid) QuantixAndroid.retry(SITE + g[0]); }; go.appendChild(a); });
   var u = new URLSearchParams(location.search).get("u");
   document.getElementById("b").onclick = function () { if (window.QuantixAndroid) QuantixAndroid.retry(u || ""); };
+  document.getElementById("s").onclick = function () { if (window.QuantixAndroid) QuantixAndroid.networkSettings(); };
 </script>
 </body>
 </html>

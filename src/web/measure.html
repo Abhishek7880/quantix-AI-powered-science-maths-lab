@@ -253,7 +253,7 @@
           noCands: "No coin / card found automatically — use “Draw across it”.", wrongKind: "That reference is a different shape — pick another or draw it.",
           needPhoto: "Add a photo first.", needScale: "Set the scale first (step 2).", detecting: "Detecting shapes…",
           found: (n) => `${n} shape(s) measured`, none0: "No shapes detected. Try a clearer photo, or measure by hand with the tools.",
-          dims: "Measured", offline: "API not reachable — start it with start_ui.bat.", copied: "Copied",
+          dims: "Measured", offline: "Can't reach the Quantix server — check your internet connection.", copied: "Copied",
           assume: { isosceles_assumed: "Triangle treated as isosceles (sides from its base and height).",
                     slant_side_assumed: "Slant side estimated from the outline.", trapezium_sides_assumed: "Sides estimated from the outline.",
                     front_view: "Measured from its front face.", depth_assumed: "Depth is not visible in a photo — assumed. Enter the real depth for an exact volume.",
@@ -284,7 +284,7 @@
           noCands: "सिक्का / कार्ड स्वतः नहीं मिला — “उसके आर-पार खींचें” का उपयोग करें।", wrongKind: "यह संदर्भ अलग आकार का है — दूसरा चुनें या खींचें।",
           needPhoto: "पहले फ़ोटो जोड़ें।", needScale: "पहले पैमाना तय करें (चरण 2)।", detecting: "आकृतियाँ खोजी जा रही हैं…",
           found: (n) => `${n} आकृति(याँ) मापी गईं`, none0: "कोई आकृति नहीं मिली। साफ़ फ़ोटो लें या उपकरणों से हाथ से मापें।",
-          dims: "मापा गया", offline: "API उपलब्ध नहीं है — start_ui.bat से चालू करें।", copied: "कॉपी हो गया",
+          dims: "मापा गया", offline: "Quantix सर्वर से संपर्क नहीं हुआ — इंटरनेट कनेक्शन जाँचें।", copied: "कॉपी हो गया",
           assume: { isosceles_assumed: "त्रिभुज को समद्विबाहु माना गया (भुजाएँ आधार व ऊँचाई से)।",
                     slant_side_assumed: "तिर्यक भुजा रूपरेखा से अनुमानित।", trapezium_sides_assumed: "भुजाएँ रूपरेखा से अनुमानित।",
                     front_view: "सामने के फलक से मापा गया।", depth_assumed: "फ़ोटो में गहराई नहीं दिखती — अनुमानित। सटीक आयतन के लिए असली गहराई लिखें।",
@@ -695,8 +695,13 @@
     const c = document.createElement("canvas");
     c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
     c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
-    S.img = c; S.W = c.width; S.H = c.height;
-    S.blob = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.92));       // exactly the pixels we show
+    let blob = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.92));       // exactly the pixels we show
+    if (!blob) {                                      // some phone WebViews return no blob from toBlob
+      try { blob = await (await fetch(c.toDataURL("image/jpeg", 0.92))).blob(); } catch (_) { blob = null; }
+      if (!blob && k === 1) blob = file;              // not resized: the original has the same pixels
+    }
+    // the photo counts as loaded only now, so a quick tap on Auto-find never sends an empty upload
+    S.img = c; S.W = c.width; S.H = c.height; S.blob = blob;
     S.items = []; S.shapes = []; S.scale = null; S.cands = null; S.draft = []; S.history = []; S.sel = null;
     $("empty").hidden = true; $("ok1").hidden = false;
     fit(); renderScale(); renderResults(); setTool("line");
