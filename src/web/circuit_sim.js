@@ -34,7 +34,8 @@
     ["sources", T("Power & ground", "पावर और ग्राउंड")], ["passive", T("Passive parts", "निष्क्रिय घटक")],
     ["semi", T("Diodes & transistors", "डायोड और ट्रांज़िस्टर")], ["ic", T("ICs & logic", "आईसी और लॉजिक")],
     ["switch", T("Switches & protection", "स्विच और सुरक्षा")], ["out", T("Outputs & meters", "आउटपुट और मीटर")],
-    ["sensor", T("Sensors", "सेंसर")],
+    ["sensor", T("Sensors", "सेंसर")], ["meters", T("Meters & instruments", "मीटर और उपकरण")],
+    ["board", T("Breadboard & notes", "ब्रेडबोर्ड और नोट्स")], ["custom", T("My ICs", "मेरे आईसी")],
   ];
   const TWO = [[-2, 0], [2, 0]];
   const VERT = [[0, -2], [0, 2]];
@@ -155,21 +156,54 @@
       blurb: T("Glows with its power; R = V² / P. Burns out well above its rated voltage.", "शक्ति के अनुसार चमकता है; R = V² / P. रेटेड वोल्टेज से बहुत अधिक पर फ़्यूज़ हो जाता है।") },
     motor: { cat: "out", icon: "Ⓜ", prefix: "M", name: T("DC motor", "डीसी मोटर"), pins: TWO, pinNames: ["+", "−"],
       params: [P("R", "Armature resistance", "आर्मेचर प्रतिरोध", "Ω", 2, { min: 0.01, max: 1e4 }), P("ke", "Motor constant k", "मोटर स्थिरांक k", "V·s/rad", 0.01, { min: 1e-4, max: 10 }),
-        P("J", "Inertia", "जड़त्व", "kg·m²", 2e-5, { min: 1e-8, max: 10 }), P("load", "Load torque", "लोड बलाघूर्ण", "N·m", 0, { min: 0, max: 100, live: true })],
+        P("J", "Inertia", "जड़त्व", "kg·m²", 2e-5, { min: 1e-8, max: 10 }), P("load", "Load torque", "लोड बलाघूर्ण", "N·m", 0, { min: 0, max: 100, live: true }), P("Vr", "Rated voltage", "रेटेड वोल्टेज", "V", 12, { min: 0.5, max: 1000 })],
       blurb: T("Speed rises until the back-EMF k·ω nearly equals the supply. More load → more current.", "गति तब तक बढ़ती है जब तक बैक-EMF k·ω सप्लाई के लगभग बराबर न हो। अधिक लोड → अधिक धारा।") },
     buzzer: { cat: "out", icon: "🔔", prefix: "BZ", name: T("Buzzer", "बज़र"), pins: TWO, pinNames: ["+", "−"],
-      params: [P("R", "Resistance", "प्रतिरोध", "Ω", 120, { min: 1, max: 1e5 }), P("Von", "Sounds above", "इससे ऊपर बजता है", "V", 2, { min: 0.1, max: 100 })],
+      params: [P("R", "Resistance", "प्रतिरोध", "Ω", 120, { min: 1, max: 1e5 }), P("Von", "Sounds above", "इससे ऊपर बजता है", "V", 2, { min: 0.1, max: 100 }), P("Vmax", "Max voltage", "अधिकतम वोल्टेज", "V", 15, { min: 0.5, max: 1000 })],
       blurb: T("Active buzzer: beeps when its voltage is above the threshold (turn on 🔊 to hear it).", "सक्रिय बज़र: वोल्टेज सीमा से ऊपर हो तो बजता है (सुनने के लिए 🔊 चालू करें)।") },
     seg7: { cat: "out", icon: "8", prefix: "DS", name: T("7-segment display", "सात-खंड डिस्प्ले"), pins: [[-4, 4], [-3, 4], [-2, 4], [-1, 4], [0, 4], [1, 4], [2, 4], [3, 4], [4, 4]],
       pinNames: ["a", "b", "c", "d", "e", "f", "g", "dp", "COM"],
       params: [P("common", "Type", "प्रकार", "", "cathode", { choices: [["cathode", T("Common cathode", "कॉमन कैथोड")], ["anode", T("Common anode", "कॉमन एनोड")]] })],
       blurb: T("Seven LED bars a–g (+ dot). Common cathode: COM to 0 V, drive segments high through resistors.", "सात एलईडी खंड a–g (+ बिंदु)। कॉमन कैथोड: COM को 0 V, खंडों को प्रतिरोधकों से उच्च दें।") },
-    voltmeter: { cat: "out", icon: "Ⓥ", prefix: "VM", name: T("Voltmeter", "वोल्टमीटर"), pins: TWO, pinNames: ["+", "−"],
+    voltmeter: { cat: "meters", icon: "Ⓥ", prefix: "VM", name: T("Voltmeter", "वोल्टमीटर"), pins: TWO, pinNames: ["+", "−"],
       params: [P("mode", "Reading", "पठन", "", "dc", { choices: [["dc", T("DC (instant)", "डीसी (तत्काल)")], ["rms", T("AC RMS", "एसी RMS")]], live: true })],
       blurb: T("Connect across a part (in parallel). 10 MΩ: it barely disturbs the circuit.", "घटक के आर-पार (समांतर) जोड़ें। 10 MΩ: सर्किट को लगभग प्रभावित नहीं करता।") },
-    ammeter: { cat: "out", icon: "Ⓐ", prefix: "AM", name: T("Ammeter", "एमीटर"), pins: TWO, pinNames: ["+", "−"],
+    ammeter: { cat: "meters", icon: "Ⓐ", prefix: "AM", name: T("Ammeter", "एमीटर"), pins: TWO, pinNames: ["+", "−"],
       params: [P("mode", "Reading", "पठन", "", "dc", { choices: [["dc", T("DC (instant)", "डीसी (तत्काल)")], ["rms", T("AC RMS", "एसी RMS")]], live: true })],
       blurb: T("Connect in series (break the wire). 1 mΩ: almost no voltage drop.", "श्रेणी में जोड़ें (तार तोड़कर)। 1 mΩ: लगभग कोई वोल्टेज ड्रॉप नहीं।") },
+
+    fan: { cat: "out", icon: "🌀", prefix: "FAN", name: T("Fan (DC)", "पंखा (डीसी)"), pins: TWO, pinNames: ["+", "−"],
+      params: [P("R", "Winding resistance", "कुंडली प्रतिरोध", "Ω", 6, { min: 0.01, max: 1e4 }), P("ke", "Motor constant k", "मोटर स्थिरांक k", "V·s/rad", 0.012, { min: 1e-4, max: 10 }),
+        P("J", "Blade inertia", "पंखुड़ी जड़त्व", "kg·m²", 4e-5, { min: 1e-8, max: 10 }), P("Vr", "Rated voltage", "रेटेड वोल्टेज", "V", 12, { min: 0.5, max: 1000 })],
+      blurb: T("A DC motor with blades: air drag grows with speed, so it settles at a speed set by the voltage.", "पंखुड़ियों वाली डीसी मोटर: हवा का प्रतिरोध गति के साथ बढ़ता है, इसलिए गति वोल्टेज पर टिकती है।") },
+    bell: { cat: "out", icon: "🛎", prefix: "BL", name: T("Electric bell", "बिजली की घंटी"), pins: TWO, pinNames: ["+", "−"],
+      params: [P("R", "Coil resistance", "कुंडली प्रतिरोध", "Ω", 40, { min: 1, max: 1e5 }), P("Von", "Rings above", "इससे ऊपर बजती है", "V", 3, { min: 0.1, max: 400 }), P("Vmax", "Rated voltage", "रेटेड वोल्टेज", "V", 12, { min: 0.5, max: 1000 })],
+      blurb: T("An electromagnet hits the gong while current flows (turn on 🔊 to hear it).", "धारा बहते समय विद्युत-चुंबक घंटी पर चोट करता है (सुनने के लिए 🔊 चालू करें)।") },
+    breaker: { cat: "switch", icon: "⏏", prefix: "CB", name: T("Circuit breaker (MCB)", "सर्किट ब्रेकर (MCB)"), pins: VERT, pinNames: ["Line", "Load"],
+      params: [P("Ir", "Rated current", "रेटेड धारा", "A", 6, { min: 0.01, max: 1000 }),
+        P("curve", "Trip curve", "ट्रिप वक्र", "", "C", { choices: [["B", T("B: trips at 3–5 × (lights)", "B: 3–5 × पर (लाइट)")], ["C", T("C: trips at 5–10 × (general)", "C: 5–10 × पर (सामान्य)")], ["D", T("D: trips at 10–20 × (motors)", "D: 10–20 × पर (मोटर)")]] }),
+        P("on", "Switched on", "चालू", "", true, { bool: true, live: true })],
+      blurb: T("Trips off on overload (heat, a few seconds) or short circuit (magnet, at once). Switch it back on to reset.", "अधिक भार (गर्मी, कुछ सेकंड) या शॉर्ट सर्किट (चुंबक, तुरंत) पर बंद हो जाता है। रीसेट के लिए फिर चालू करें।") },
+    opto: { cat: "ic", icon: "⇉", prefix: "U", name: T("Optocoupler (PC817)", "ऑप्टोकपलर (PC817)"), pins: [[-2, -1], [-2, 1], [2, -1], [2, 1]], pinNames: ["A", "K", "C", "E"],
+      params: [P("CTR", "Current transfer ratio", "धारा अंतरण अनुपात", "%", 100, { min: 1, max: 600 }), P("Imax", "Max LED current", "अधिकतम एलईडी धारा", "A", 0.05, { min: 0.001, max: 1 })],
+      blurb: T("An LED shining on a phototransistor inside one chip: the output switches with no electrical link to the input. Ic ≈ CTR × If.", "एक चिप में एलईडी फ़ोटोट्रांज़िस्टर पर चमकती है: आउटपुट बिना विद्युत संबंध के बदलता है। Ic ≈ CTR × If।") },
+
+    dmm: { cat: "meters", icon: "📟", prefix: "DMM", name: T("Digital multimeter", "डिजिटल मल्टीमीटर"), pins: TWO, pinNames: ["V/Ω/A", "COM"],
+      params: [P("mode", "Dial", "डायल", "", "vdc", { live: true, choices: [["vdc", T("V⎓ DC volts", "V⎓ डीसी वोल्ट")], ["vac", T("V~ AC volts (RMS)", "V~ एसी वोल्ट (RMS)")],
+        ["adc", T("A⎓ DC amps", "A⎓ डीसी एम्पियर")], ["aac", T("A~ AC amps (RMS)", "A~ एसी एम्पियर (RMS)")], ["ohm", T("Ω resistance", "Ω प्रतिरोध")], ["cont", T("🔊 continuity", "🔊 निरंतरता")]] })],
+      blurb: T("Volts: across a part. Amps: in series (it is a near-short!). Ω and continuity: only on an unpowered circuit — it sends its own small test current.", "वोल्ट: घटक के आर-पार। एम्पियर: श्रेणी में (यह लगभग शॉर्ट है!)। Ω और निरंतरता: केवल बिना बिजली के सर्किट पर — यह अपनी छोटी परीक्षण धारा भेजता है।") },
+    wattmeter: { cat: "meters", icon: "Ⓦ", prefix: "WM", name: T("Wattmeter", "वाटमीटर"), pins: [[-2, -1], [2, -1], [-2, 1], [2, 1]], pinNames: ["I in", "I out", "V+", "V−"],
+      params: [],
+      blurb: T("Current coil in series (I in → I out), voltage coil across the load (V+, V−). Shows the average power P = V × I (real power for AC).", "धारा कुंडली श्रेणी में (I in → I out), वोल्टेज कुंडली लोड के आर-पार (V+, V−)। औसत शक्ति P = V × I दिखाता है (एसी के लिए वास्तविक शक्ति)।") },
+
+    breadboard: { cat: "board", icon: "▦", prefix: "BB", name: T("Breadboard", "ब्रेडबोर्ड"), pins: [], pinNames: [], params: [], noRotate: true,
+      blurb: T("Push leads into the holes: each column of 5 holes is joined; the long + and − rails at the top and bottom run the whole length.", "लीड छेदों में लगाएँ: 5 छेदों का हर कॉलम जुड़ा है; ऊपर और नीचे की लंबी + और − रेल पूरी लंबाई में जुड़ी हैं।") },
+    text: { cat: "board", icon: "T", prefix: "TXT", name: T("Text note", "पाठ नोट"), pins: [], pinNames: [],
+      params: [P("text", "Text", "पाठ", "", "Note", { text: true }), P("size", "Size", "आकार", "", 1, { choices: [[0.7, T("Small", "छोटा")], [1, T("Normal", "सामान्य")], [1.6, T("Large", "बड़ा")], [2.4, T("Title", "शीर्षक")]] })],
+      blurb: T("A label on the board: explain your circuit.", "बोर्ड पर लेबल: अपना सर्किट समझाएँ।") },
+    port: { cat: "custom", icon: "⊸", prefix: "P", name: T("IC pin (for IC creator)", "आईसी पिन (आईसी निर्माता के लिए)"), pins: [[0, 0]], pinNames: ["pin"],
+      params: [P("name", "Pin name", "पिन का नाम", "", "IN", { text: true })],
+      blurb: T("Marks an outside connection of the circuit you turn into an IC with ▣ IC creator.", "▣ आईसी निर्माता से आईसी बनाते समय बाहरी कनेक्शन चिह्नित करता है।") },
 
     ldr: { cat: "sensor", icon: "☀", prefix: "LDR", name: T("Light sensor (LDR)", "प्रकाश सेंसर (LDR)"), pins: TWO, pinNames: ["1", "2"],
       params: [P("lux", "Light", "प्रकाश", "lux", 100, { min: 0.1, max: 100000, live: true, slider: true, log: true }), P("R10", "Resistance at 10 lux", "10 lux पर प्रतिरोध", "Ω", 20000, { min: 10, max: 1e8 })],
@@ -221,9 +255,30 @@
     for (let i = 0; i < ((rot % 4) + 4) % 4; i++) { const t = x; x = -y; y = t; }
     return [x, y];
   }
+  // flip mirrors the part left-right before it is rotated
   function pinPositions(part) {
     const def = PARTS[part.type];
-    return def.pins.map((pt) => { const r = rotate(pt, part.rot || 0); return [part.x + r[0], part.y + r[1]]; });
+    if (!def) return [];
+    return def.pins.map((pt) => { const r = rotate([part.flip ? -pt[0] : pt[0], pt[1]], part.rot || 0); return [part.x + r[0], part.y + r[1]]; });
+  }
+
+  // breadboard: 30 columns. Relative to the part (its top-left hole): + and − rails at y −3 / −2, holes a–e at y 0..4
+  // (each column joined), the centre gap at y 5, holes f–j at y 6..10, − and + rails at y 12 / 13 (each rail joined).
+  const BB = { cols: 30, rails: { "-3": "r+", "-2": "r-", "12": "R-", "13": "R+" }, box: [-1.5, -4.2, 30.5, 14.2] };
+  function bbStrip(bb, x, y) {
+    const dx = x - bb.x, dy = y - bb.y;
+    if (dx < 0 || dx >= BB.cols) return null;
+    if (dy >= 0 && dy <= 4) return "a" + dx;
+    if (dy >= 6 && dy <= 10) return "f" + dx;
+    const rail = BB.rails[String(dy)];
+    return rail && dx % 6 !== 5 ? rail : null;                // rails have a gap after every 5 holes, like a real board
+  }
+  function bbHoles(bb) {
+    const out = [];
+    for (let dx = 0; dx < BB.cols; dx++) {
+      for (let dy = -3; dy <= 13; dy++) if (bbStrip(bb, bb.x + dx, bb.y + dy)) out.push([bb.x + dx, bb.y + dy, bbStrip(bb, bb.x + dx, bb.y + dy)]);
+    }
+    return out;
   }
   const key = (x, y) => x + "," + y;
   function onSegment(px, py, w) {
@@ -244,6 +299,12 @@
     const wires = circuit.wires || [];
     wires.forEach((w) => { union(key(w.x1, w.y1), key(w.x2, w.y2)); points.push([w.x1, w.y1], [w.x2, w.y2]); });
     wires.forEach((w) => points.forEach((q) => { if (onSegment(q[0], q[1], w)) union(key(q[0], q[1]), key(w.x1, w.y1)); }));
+    // a lead or wire end in a breadboard hole joins that hole's strip
+    circuit.parts.forEach((bb) => {
+      if (bb.type !== "breadboard") return;
+      points.forEach((q) => { const s = bbStrip(bb, q[0], q[1]); if (s) union(key(q[0], q[1]), "bb:" + bb.id + ":" + s); });
+    });
+    (circuit.links || []).forEach((l) => union(key(l[0][0], l[0][1]), key(l[1][0], l[1][1])));   // custom IC pins <-> their inside
     return { find: find, has: (k) => parent.has(k), pinPos: pinPos };
   }
 
@@ -306,11 +367,14 @@
   // Each model returns { stamp(c), accept(c), info(c) }. c.v = node voltages of the current Newton iterate.
   // Stamp helpers on c: G(a, b, g); I(a, b, i) = source pushing i out of a and into b (through the device);
   // NL2(a, b, i, g, vlin) = non-linear branch a→b with current i and slope g, linearised at vlin.
-  function burnCheck(st, ok, reason, c, instant) {
+  // Overload heats a part up (st.stress 0 -> 1, shown as a heat bar); it keeps working until it is cooked:
+  // about 4 s under a heavy overload, 7 s under a light one. Back within its rating, it cools down again.
+  const BURN_HEAVY_S = 4, BURN_LIGHT_S = 7, COOL_S = 15;
+  function burnCheck(st, ok, reason, c, heavy) {
     if (!c.damage || st.burnt) return;
-    if (ok) { st.over = 0; return; }
-    st.over = (st.over || 0) + c.dt;
-    if (instant || st.over > 0.02) { st.burnt = reason; c.events.push(reason); }
+    if (ok) { st.stress = Math.max(0, (st.stress || 0) - c.dt / COOL_S); return; }
+    st.stress = (st.stress || 0) + c.dt / (heavy ? BURN_HEAVY_S : BURN_LIGHT_S);
+    if (st.stress >= 1) { st.stress = 1; st.burnt = reason; c.events.push(reason); }
   }
   const MODELS = {
     resistor(e) {
@@ -329,8 +393,11 @@
     pot(e) {
       const parts = () => { const R = Math.max(1, num(e.p.R, 1e4)), a = Math.min(1, Math.max(0, num(e.p.pos, 50) / 100)); return [Math.max(0.5, R * a), Math.max(0.5, R * (1 - a))]; };
       return {
-        stamp(c) { const r = parts(); c.G(e.n[0], e.n[2], 1 / r[0]); c.G(e.n[2], e.n[1], 1 / r[1]); },
-        accept() {},
+        stamp(c) { const r = parts(); c.G(e.n[0], e.n[2], e.st.burnt ? OPEN : 1 / r[0]); c.G(e.n[2], e.n[1], e.st.burnt ? OPEN : 1 / r[1]); },
+        accept(c) {   // a 0.5 W track
+          const r = parts(), va = c.v[e.n[0]], vb = c.v[e.n[1]], vw = c.v[e.n[2]], P = (va - vw) * (va - vw) / r[0] + (vw - vb) * (vw - vb) / r[1];
+          burnCheck(e.st, P <= 0.75, "burnt", c, P > 3);
+        },
         info(c) {
           const r = parts(), va = c.v[e.n[0]], vb = c.v[e.n[1]], vw = c.v[e.n[2]];
           const i1 = (va - vw) / r[0], i2 = (vw - vb) / r[1];
@@ -341,15 +408,17 @@
     ldr(e) {
       const R = () => num(e.p.R10, 2e4) * Math.pow(Math.max(0.01, num(e.p.lux, 100)) / 10, -0.7);
       return {
-        stamp(c) { c.G(e.n[0], e.n[1], 1 / R()); }, accept() {},
-        info(c) { const v = c.v[e.n[0]] - c.v[e.n[1]], i = v / R(); return { v: v, i: i, p: v * i, rows: [["R", R(), "Ω"]] }; },
+        stamp(c) { c.G(e.n[0], e.n[1], e.st.burnt ? OPEN : 1 / R()); },
+        accept(c) { const v = c.v[e.n[0]] - c.v[e.n[1]], P = v * v / R(); burnCheck(e.st, P <= 0.15, "burnt", c, P > 0.6); },    // ~0.1 W photocell
+        info(c) { const v = c.v[e.n[0]] - c.v[e.n[1]], i = e.st.burnt ? 0 : v / R(); return { v: v, i: i, p: v * i, rows: [["R", R(), "Ω"]] }; },
       };
     },
     ntc(e) {
       const R = () => num(e.p.R25, 1e4) * Math.exp(num(e.p.B, 3950) * (1 / (num(e.p.T, 25) + 273.15) - 1 / 298.15));
       return {
-        stamp(c) { c.G(e.n[0], e.n[1], 1 / R()); }, accept() {},
-        info(c) { const v = c.v[e.n[0]] - c.v[e.n[1]], i = v / R(); return { v: v, i: i, p: v * i, rows: [["R", R(), "Ω"]] }; },
+        stamp(c) { c.G(e.n[0], e.n[1], e.st.burnt ? OPEN : 1 / R()); },
+        accept(c) { const v = c.v[e.n[0]] - c.v[e.n[1]], P = v * v / R(); burnCheck(e.st, P <= 0.4, "burnt", c, P > 1.5); },     // ~0.25 W bead
+        info(c) { const v = c.v[e.n[0]] - c.v[e.n[1]], i = e.st.burnt ? 0 : v / R(); return { v: v, i: i, p: v * i, rows: [["R", R(), "Ω"]] }; },
       };
     },
     capacitor(e, polar) {
@@ -684,12 +753,14 @@
       return {
         stamp(c) {
           const q = cp(); coil.p = q;
-          const g = 1 / (q.R + q.L / c.dt);
-          c.G(e.n[0], e.n[1], g); c.I(e.n[0], e.n[1], g * (q.L / c.dt) * (st.il || 0));
+          if (st.burnt) { c.G(e.n[0], e.n[1], OPEN); st.on = false; }
+          else { const g = 1 / (q.R + q.L / c.dt); c.G(e.n[0], e.n[1], g); c.I(e.n[0], e.n[1], g * (q.L / c.dt) * (st.il || 0)); }
           c.G(e.n[2], e.n[3], st.on ? 1e3 : OPEN); c.G(e.n[2], e.n[4], st.on ? OPEN : 1e3);
         },
         accept(c) {
           const q = cp(), v = c.v[e.n[0]] - c.v[e.n[1]];
+          if (st.burnt) { st.il = 0; st.on = false; return; }
+          burnCheck(st, Math.abs(v) <= num(e.p.Vcoil, 5) * 1.5, "burnt", c, Math.abs(v) > num(e.p.Vcoil, 5) * 3);   // coil overheats
           st.il = (v + (q.L / c.dt) * (st.il || 0)) / (q.R + q.L / c.dt);
           const pull = 0.7 * num(e.p.Vcoil, 5) / q.R, drop = 0.3 * num(e.p.Vcoil, 5) / q.R;
           if (!st.on && Math.abs(st.il) > pull) st.on = true;
@@ -720,17 +791,25 @@
         info(c) { const v = c.v[e.n[0]] - c.v[e.n[1]], i = st.burnt ? 0 : v / R(), p = v * i; return { v: v, i: i, p: p, glow: st.burnt ? 0 : Math.min(1.4, Math.sqrt(Math.abs(p) / num(e.p.Wr, 5))) }; },
       };
     },
-    motor(e) {
+    motor(e, fan) {
       const st = e.st;
       if (st.w == null) { st.w = 0; st.ang = 0; }
+      const drag = fan ? 6e-8 : 0;                     // fan blades: air drag torque ∝ ω²
       return {
-        stamp(c) {   // armature: R in series with back-EMF k·ω
+        stamp(c) {   // armature: R in series with back-EMF k·ω; a burnt winding is open
+          if (st.burnt) { c.G(e.n[0], e.n[1], OPEN); return; }
           const R = Math.max(1e-3, num(e.p.R, 2));
           c.G(e.n[0], e.n[1], 1 / R); c.I(e.n[1], e.n[0], num(e.p.ke, 0.01) * st.w / R);
         },
         accept(c) {
+          if (st.burnt) {   // coasts to a stop: air drag + bearing friction
+            st.w *= Math.exp(-c.dt / 0.35); st.w -= Math.sign(st.w) * Math.min(Math.abs(st.w), 150 * c.dt);
+            st.ang += st.w * c.dt; st.i = 0; return;
+          }
           const R = Math.max(1e-3, num(e.p.R, 2)), k = num(e.p.ke, 0.01), v = c.v[e.n[0]] - c.v[e.n[1]], i = (v - k * st.w) / R;
-          const torque = k * i - 1e-6 * st.w - Math.sign(st.w) * num(e.p.load, 0) * (Math.abs(st.w) > 1e-3 ? 1 : 0);
+          const Vr = num(e.p.Vr, 12);
+          burnCheck(st, Math.abs(v) <= Vr * 1.25, "burnt", c, Math.abs(v) > Vr * 2);
+          const torque = k * i - 1e-6 * st.w - drag * st.w * Math.abs(st.w) - Math.sign(st.w) * num(e.p.load, 0) * (Math.abs(st.w) > 1e-3 ? 1 : 0);
           st.w += torque / num(e.p.J, 2e-5) * c.dt;
           if (num(e.p.load, 0) > Math.abs(k * i) && Math.abs(st.w) < 0.5) st.w = 0;
           st.ang += st.w * c.dt; st.i = i;
@@ -742,9 +821,11 @@
       };
     },
     buzzer(e) {
+      const st = e.st;
       return {
-        stamp(c) { c.G(e.n[0], e.n[1], 1 / Math.max(1, num(e.p.R, 120))); }, accept() {},
-        info(c) { const v = c.v[e.n[0]] - c.v[e.n[1]], i = v / Math.max(1, num(e.p.R, 120)); return { v: v, i: i, p: v * i, sound: v > num(e.p.Von, 2) }; },
+        stamp(c) { c.G(e.n[0], e.n[1], st.burnt ? OPEN : 1 / Math.max(1, num(e.p.R, 120))); },
+        accept(c) { const v = c.v[e.n[0]] - c.v[e.n[1]], vm = num(e.p.Vmax, 15); burnCheck(st, Math.abs(v) <= vm * 1.2, "burnt", c, Math.abs(v) > vm * 2); },
+        info(c) { const v = c.v[e.n[0]] - c.v[e.n[1]], i = st.burnt ? 0 : v / Math.max(1, num(e.p.R, 120)); return { v: v, i: i, p: v * i, sound: !st.burnt && v > num(e.p.Von, 2) }; },
       };
     },
     seg7(e) {
@@ -760,12 +841,121 @@
             c.NL2(ab[0], ab[1], lp.Is * (limexp(lim / nvt) - 1), lp.Is / nvt * dlimexp(lim / nvt) + GMIN, lim);
           }
         },
-        accept(c) { for (let k = 0; k < 8; k++) { const ab = ends(k), vd = c.v[ab[0]] - c.v[ab[1]]; st.vj[k] = vd; st.seg[k] = lp.Is * (limexp(vd / nvt) - 1); } },
+        accept(c) {
+          for (let k = 0; k < 8; k++) { const ab = ends(k), vd = c.v[ab[0]] - c.v[ab[1]]; st.vj[k] = vd; st.seg[k] = st.burnt ? 0 : lp.Is * (limexp(vd / nvt) - 1); }
+          const worst = Math.max(...st.seg);
+          burnCheck(st, worst <= 0.04, "burnt", c, worst > 0.15);       // a segment LED without its resistor
+        },
         info() {
           const lit = st.seg.map((i) => Math.max(0, Math.min(1.4, i / 0.01)));
           return { v: 0, i: st.seg.reduce((a, b) => a + Math.max(0, b), 0), p: 0, segments: lit, rows: [["lit", "abcdefg.".split("").filter((s, k) => lit[k] > 0.15).join(" ") || "—", ""]] };
         },
       };
+    },
+    bell(e) {
+      const st = e.st;
+      return {
+        stamp(c) { c.G(e.n[0], e.n[1], st.burnt ? OPEN : 1 / Math.max(1, num(e.p.R, 40))); },
+        accept(c) { const v = c.v[e.n[0]] - c.v[e.n[1]], vm = num(e.p.Vmax, 12); burnCheck(st, Math.abs(v) <= vm * 1.25, "burnt", c, Math.abs(v) > vm * 2); },
+        info(c) {
+          const v = c.v[e.n[0]] - c.v[e.n[1]], i = st.burnt ? 0 : v / Math.max(1, num(e.p.R, 40)), on = !st.burnt && Math.abs(v) > num(e.p.Von, 3);
+          return { v: v, i: i, p: v * i, sound: on, ring: on };
+        },
+      };
+    },
+    breaker(e) {
+      const st = e.st, R = 0.005;
+      const closed = () => (e.p.on === true || e.p.on === "true") && !st.tripped;
+      return {
+        stamp(c) { c.G(e.n[0], e.n[1], closed() ? 1 / R : OPEN); },
+        accept(c) {
+          if (!closed()) { st.heat = 0; st.i = 0; return; }
+          const i = (c.v[e.n[0]] - c.v[e.n[1]]) / R, x = Math.abs(i) / Math.max(1e-6, num(e.p.Ir, 6));
+          const magnetic = { B: 4, C: 7.5, D: 15 }[e.p.curve] || 7.5;
+          st.i = i;
+          st.heat = Math.max(0, (st.heat || 0) + (x * x - 1.3) * c.dt);    // bimetal: slow on small overloads
+          if (x > magnetic || st.heat > 1.5) { st.tripped = true; st.heat = 0; c.events.push("tripped"); }
+        },
+        info(c) {
+          const v = c.v[e.n[0]] - c.v[e.n[1]], i = closed() ? v / R : 0;
+          return { v: v, i: i, p: v * i, tripped: !!st.tripped, rows: [["state", st.tripped ? "TRIPPED" : closed() ? "ON" : "OFF", ""], ["load", Math.abs(i) / Math.max(1e-6, num(e.p.Ir, 6)) * 100, "%"]] };
+        },
+      };
+    },
+    opto(e) {   // IR LED (A, K) + phototransistor (C, E): Ic = CTR·If, saturating as Vce falls below ~0.2 V
+      const st = e.st;
+      st.led = st.led || {};
+      const led = MODELS.diode({ n: [e.n[0], e.n[1]], p: { color: "ir", Vf: 1.2, Imax: num(e.p.Imax, 0.05) }, st: st.led }, "led");
+      const sat = 0.15;
+      // the output is a conductance updated once per time step (secant of Ic = k·tanh(Vce/0.15)): it settles in a
+      // few steps and never makes the Newton loop jump between the flat ends of tanh
+      const gOf = (k, vce) => (vce <= 1e-6 ? (vce < 0 ? 1e-9 : k / sat) : Math.max(1e-9, k * Math.tanh(vce / sat) / vce));
+      if (st.g == null) st.g = 1e-9;
+      return {
+        stamp(c) { led.stamp(c); c.G(e.n[2], e.n[3], st.g); },
+        accept(c) {
+          led.accept(c);
+          st.burnt = st.led.burnt; st.stress = st.led.stress;
+          const k = Math.max(0, st.led.i || 0) * num(e.p.CTR, 100) / 100;
+          st.g = gOf(k, c.v[e.n[2]] - c.v[e.n[3]]);
+        },
+        info(c) {
+          const li = led.info(c), vce = c.v[e.n[2]] - c.v[e.n[3]], ic = st.g * vce;
+          return { v: vce, i: ic, p: vce * ic + li.p, glow: li.glow, rows: [["If", li.i, "A"], ["Ic", ic, "A"], ["Vce", vce, "V"]] };
+        },
+      };
+    },
+    dmm(e) {
+      const st = e.st, RA = 0.01, RV = 1e7, VT_ = 3, RT = 3000;      // amps shunt; volts input; ohms test source 3 V / 3 kΩ
+      const mode = () => e.p.mode || "vdc";
+      const avg = (k, x, dt) => { st[k] = (st[k] || 0) * Math.exp(-dt / 0.2) + x * (1 - Math.exp(-dt / 0.2)); };
+      return {
+        stamp(c) {
+          const m = mode();
+          if ((m === "adc" || m === "aac") && st.burnt) { c.G(e.n[0], e.n[1], OPEN); return; }   // its amps fuse is blown
+          if (m === "adc" || m === "aac") c.G(e.n[0], e.n[1], 1 / RA);
+          else if (m === "ohm" || m === "cont") { c.G(e.n[0], e.n[1], 1 / RT); c.I(e.n[1], e.n[0], VT_ / RT); }
+          else c.G(e.n[0], e.n[1], 1 / RV);
+        },
+        accept(c) {
+          const v = c.v[e.n[0]] - c.v[e.n[1]], m = mode();
+          avg("sv", v * v, c.dt); avg("si", (v / RA) * (v / RA), c.dt);
+          if (m === "adc" || m === "aac") burnCheck(st, Math.abs(v / RA) <= 10, "blown", c, Math.abs(v / RA) > 20);   // 10 A range, fused
+          else if (m === "ohm" || m === "cont") burnCheck(st, Math.abs(v) <= 50, "burnt", c, Math.abs(v) > 200);     // ohms on a live circuit
+        },
+        info(c) {
+          const m = mode(), v = c.v[e.n[0]] - c.v[e.n[1]];
+          let reading = v, unit = "V", over = false, i = v / RV;
+          if (m === "vac") reading = Math.sqrt(st.sv || 0);
+          else if (m === "adc") { reading = v / RA; unit = "A"; i = reading; }
+          else if (m === "aac") { reading = Math.sqrt(st.si || 0); unit = "A"; i = v / RA; }
+          else if (m === "ohm" || m === "cont") {
+            unit = "Ω"; i = (VT_ - v) / RT;
+            over = v > VT_ * 0.995 || v < 0;
+            reading = over ? Infinity : v * RT / (VT_ - v);
+          }
+          const beep = m === "cont" && !over && reading < 50;
+          return { v: v, i: i, p: v * i, reading: over ? null : reading, unit: unit, display: over ? "OL" : null, mode: m, sound: beep };
+        },
+      };
+    },
+    wattmeter(e) {
+      const st = e.st, RI = 1e-3, RV = 1e7;
+      return {
+        stamp(c) { c.G(e.n[0], e.n[1], 1 / RI); c.G(e.n[2], e.n[3], 1 / RV); },
+        accept(c) {
+          const i = (c.v[e.n[0]] - c.v[e.n[1]]) / RI, v = c.v[e.n[2]] - c.v[e.n[3]], a = Math.exp(-c.dt / 0.2);
+          st.p = (st.p == null ? v * i : st.p * a + v * i * (1 - a));
+        },
+        info(c) {
+          const i = (c.v[e.n[0]] - c.v[e.n[1]]) / RI, v = c.v[e.n[2]] - c.v[e.n[3]];
+          return { v: v, i: i, p: 0, reading: st.p == null ? v * i : st.p, unit: "W", rows: [["V", v, "V"], ["I", i, "A"], ["P now", v * i, "W"]] };
+        },
+      };
+    },
+    passive() { return { stamp() {}, accept() {}, info() { return { v: 0, i: 0, p: 0 }; } }; },
+    ic(e) {   // a custom IC instance: its inside is expanded into ordinary parts; this only reports the pin voltages
+      return { stamp() {}, accept() {}, info(c) { return { v: 0, i: 0, p: 0, rows: (PARTS[e.type].pinNames || []).map((nm, k) => [nm, c.v[e.n[k]] || 0, "V"]) }; } };
     },
     voltmeter(e) {
       const st = e.st;
@@ -796,15 +986,57 @@
     switch: (e) => MODELS.switch(e), button: (e) => MODELS.switch(e), spdt: (e) => MODELS.spdt(e), relay: (e) => MODELS.relay(e), fuse: (e) => MODELS.fuse(e),
     lamp: (e) => MODELS.lamp(e), motor: (e) => MODELS.motor(e), buzzer: (e) => MODELS.buzzer(e), seg7: (e) => MODELS.seg7(e),
     voltmeter: (e) => MODELS.voltmeter(e), ammeter: (e) => MODELS.ammeter(e),
+    fan: (e) => MODELS.motor(e, true), bell: (e) => MODELS.bell(e), breaker: (e) => MODELS.breaker(e), opto: (e) => MODELS.opto(e),
+    dmm: (e) => MODELS.dmm(e), wattmeter: (e) => MODELS.wattmeter(e),
+    breadboard: () => MODELS.passive(), text: () => MODELS.passive(), port: () => MODELS.passive(),
   };
+  const modelFor = (e) => (MODEL_OF[e.type] ? MODEL_OF[e.type](e) : PARTS[e.type] && PARTS[e.type].custom ? MODELS.ic(e) : MODELS.passive());
+
+  // ------------------------------------------------------------------ custom ICs (IC creator)
+  // def = { name, pinNames: [...], circuit: {parts, wires} with one "port" part per pin (p.name = pin name) }.
+  // Pins go down the left side, then down the right, 2 grid units apart, like a DIP package.
+  function defineIC(key, def) {
+    const names = (def.pinNames || []).slice(0, 24), half = Math.ceil(names.length / 2);
+    const pins = names.map((_, k) => (k < half ? [-3, (k - (half - 1) / 2) * 2] : [3, (k - half - (names.length - half - 1) / 2) * 2]));
+    const type = "ic:" + key;
+    PARTS[type] = { type: type, cat: "custom", icon: "▣", prefix: "IC", name: T(def.name || key, def.name || key), pins: pins, pinNames: names, params: [],
+      blurb: T(def.blurb || "Your own IC, made with the IC creator.", def.blurb || "आईसी निर्माता से बना आपका आईसी।"), custom: def };
+    return type;
+  }
+  // replace every custom IC by its inside, moved far off the board, with its pins linked to the inside's port parts
+  function expandICs(circ) {
+    let parts = circ.parts.slice(), wires = (circ.wires || []).slice(), links = (circ.links || []).slice(), n = 0;
+    for (let depth = 0; depth < 5; depth++) {
+      const ics = parts.filter((p) => PARTS[p.type] && PARTS[p.type].custom && !p._expanded);
+      if (!ics.length) break;
+      ics.forEach((ic) => {
+        const def = PARTS[ic.type].custom, inner = def.circuit || { parts: [], wires: [] }, ox = 100000 + (++n) * 400, oy = 100000 * (depth + 1);
+        const pins = pinPositions(ic);
+        inner.parts.forEach((q) => {
+          const copy = Object.assign({}, q, { id: ic.id + "/" + q.id, label: (ic.label || "IC") + "." + q.label, x: q.x + ox, y: q.y + oy });
+          parts.push(copy);
+          if (q.type === "port") {
+            const k = def.pinNames.indexOf(q.p && q.p.name);
+            if (k >= 0 && pins[k]) links.push([pins[k], [copy.x, copy.y]]);
+          }
+        });
+        inner.wires.forEach((w) => wires.push({ x1: w.x1 + ox, y1: w.y1 + oy, x2: w.x2 + ox, y2: w.y2 + oy }));
+        parts = parts.map((p) => (p === ic ? Object.assign({}, p, { _expanded: true }) : p));
+      });
+    }
+    return { parts: parts, wires: wires, links: links };
+  }
 
   // ------------------------------------------------------------------ the simulator
   function create(circuit, opts) {
     opts = opts || {};
     const S = { t: 0, damage: opts.damage !== false, states: {}, events: [], warn: null, circuit: null, n: 0, v: new Float64Array(1), els: [], netOfPin: {}, noGround: false, iters: 0 };
 
-    function build(circ) {
-      S.circuit = circ;
+    function build(user) {
+      S.circuit = user;
+      const circ = expandICs(user);                  // custom ICs become their inside parts
+      S.labels = {};
+      circ.parts.forEach((p) => { S.labels[p.id] = p.label || p.id; });
       const conn = connectivity(circ);
       const netId = new Map();
       let next = 1;
@@ -832,7 +1064,7 @@
         const st = S.states[p.id] || {};
         keep[p.id] = st;
         const e = { id: p.id, type: p.type, n: nodes, p: p.p || {}, st: st };
-        e.m = MODEL_OF[p.type](e);
+        e.m = modelFor(e);
         S.els.push(e);
       });
       S.states = keep;
@@ -921,6 +1153,7 @@
       c.v = S.v; c.t = S.t;
       const r = e.m.info(c) || {};
       r.burnt = e.st.burnt || null;
+      r.stress = e.st.burnt ? 1 : e.st.stress || 0;       // 0..1 heat from overload (the heat bar)
       r.pinV = e.n.map((nd) => S.v[nd] || 0);
       return r;
     }
@@ -977,8 +1210,142 @@
       pointNode(x, y) { return S.pointNode ? S.pointNode(x, y) : null; },
       pinNodes(id) { return S.netOfPin[id] || []; },
       state(id) { return S.states[id] || {}; },
-      repair(id) { if (S.states[id]) { delete S.states[id].burnt; S.states[id].over = 0; S.states[id].heat = 0; } },
+      repair(id) {
+        const st = S.states[id];
+        if (!st) return;
+        delete st.burnt; delete st.tripped; st.over = 0; st.heat = 0; st.stress = 0;
+        if (st.led) { delete st.led.burnt; st.led.stress = 0; }
+      },
+      elements() { return S.els.map((e) => ({ id: e.id, type: e.type, n: e.n.slice(), p: e.p, label: S.labels[e.id] || e.id })); },
+      label(id) { return S.labels[id] || id; },
     };
+  }
+
+  // ------------------------------------------------------------------ Kirchhoff analysis
+  // KCL: at every node, the currents leaving it into the parts add up to 0. KVL: round every independent loop
+  // (one per two-pin part that closes a cycle), the voltages add up to 0. Parts inside a custom IC count as the IC.
+  const NOT_IN_LOOPS = /^(voltmeter|dmm|wattmeter|breadboard|text|port|ground)$/;
+  function kirchhoff(sim) {
+    const els = sim.elements(), pc = sim.pinCurrents(), V = (n) => sim.nodeVoltage(n);
+    const top = (id) => id.split("/")[0];
+    const nodes = new Map();
+    els.forEach((e) => {
+      const def = PARTS[e.type];
+      if (!def || def.custom || /^(breadboard|text|port)$/.test(e.type)) return;
+      e.n.forEach((nd, k) => {
+        const i = (pc[e.id] || [])[k];
+        if (!isFinite(i)) return;
+        if (!nodes.has(nd)) nodes.set(nd, new Map());
+        const who = top(e.id), name = who === e.id ? sim.label(e.id) + "." + (def.pinNames[k] || k + 1) : sim.label(who) + " (inside)";
+        const m = nodes.get(nd);
+        m.set(name, (m.get(name) || 0) + i);
+      });
+    });
+    const kcl = Array.from(nodes.entries()).sort((a, b) => a[0] - b[0]).map(([nd, m]) => {
+      const terms = Array.from(m.entries()).map(([name, i]) => ({ name: name, i: i })).filter((t) => Math.abs(t.i) > 1e-12 || m.size <= 4);
+      const sum = Array.from(m.values()).reduce((s, x) => s + x, 0), big = Math.max(1e-9, ...Array.from(m.values()).map(Math.abs));
+      return { node: nd, v: V(nd), terms: terms, sum: sum, ok: Math.abs(sum) <= 1e-6 + big * 1e-4 };
+    });
+    // loops from a spanning tree: each extra two-pin branch closes exactly one loop
+    const edges = els.filter((e) => e.n.length === 2 && e.n[0] !== e.n[1] && !NOT_IN_LOOPS.test(e.type) && !/\//.test(e.id))
+      .map((e) => ({ name: sim.label(e.id), a: e.n[0], b: e.n[1] }));
+    const parent = new Map(), adj = new Map(), tree = new Set();
+    edges.forEach((ed, k) => { [ed.a, ed.b].forEach((v) => { if (!adj.has(v)) adj.set(v, []); }); adj.get(ed.a).push(k); adj.get(ed.b).push(k); });
+    const depth = new Map();
+    adj.forEach((_, root) => {
+      if (depth.has(root)) return;
+      depth.set(root, 0); const q = [root];
+      while (q.length) {
+        const v = q.shift();
+        adj.get(v).forEach((k) => { const ed = edges[k], u = ed.a === v ? ed.b : ed.a; if (!depth.has(u)) { depth.set(u, depth.get(v) + 1); parent.set(u, [v, k]); tree.add(k); q.push(u); } });
+      }
+    });
+    const kvl = [];
+    edges.forEach((ed, k) => {
+      if (tree.has(k) || kvl.length >= 12) return;
+      // walk a up the tree to where it meets b's path, down to b, then back to a through this branch
+      let x = ed.a, y = ed.b;
+      const pathA = [], pathB = [], climb = (v, out) => { const [p, ek] = parent.get(v); out.push([v, p, ek]); return p; };
+      while (depth.get(x) > depth.get(y)) x = climb(x, pathA);
+      while (depth.get(y) > depth.get(x)) y = climb(y, pathB);
+      while (x !== y) { x = climb(x, pathA); y = climb(y, pathB); }
+      const terms = [];
+      pathA.forEach(([v, p, ek]) => terms.push({ name: edges[ek].name, v: V(v) - V(p) }));
+      pathB.slice().reverse().forEach(([v, p, ek]) => terms.push({ name: edges[ek].name, v: V(p) - V(v) }));
+      terms.push({ name: ed.name, v: V(ed.b) - V(ed.a) });
+      const sum = terms.reduce((s, x) => s + x.v, 0), big = Math.max(1e-9, ...terms.map((x) => Math.abs(x.v)));
+      kvl.push({ terms: terms, sum: sum, ok: Math.abs(sum) <= 1e-6 + big * 1e-6 });
+    });
+    return { kcl: kcl, kvl: kvl };
+  }
+
+  // ------------------------------------------------------------------ SPICE netlist (for NGSpice / LTspice)
+  function spice(sim, opts) {
+    opts = opts || {};
+    const L = [], models = new Map(), n = (x) => String(x), notes = [];
+    const val = (x) => Number(Number(x).toPrecision(6)).toString();
+    let k = 0;
+    const internal = () => "n_int" + (++k);
+    L.push("* " + (opts.title || "Quantix Circuit Lab") + " — exported netlist (" + new Date().toISOString().slice(0, 10) + ")");
+    sim.elements().forEach((e) => {
+      const p = e.p, a = e.n, lab = String(e.label).replace(/[^\w.]/g, "_"), nm = (pre) => (lab.toUpperCase().startsWith(pre) ? lab : pre + "_" + lab);
+      switch (e.type) {
+        case "resistor": L.push(nm("R") + " " + n(a[0]) + " " + n(a[1]) + " " + val(p.R)); break;
+        case "ldr": { const R = num(p.R10, 2e4) * Math.pow(Math.max(0.01, num(p.lux, 100)) / 10, -0.7); L.push(nm("R") + " " + n(a[0]) + " " + n(a[1]) + " " + val(R) + " ; LDR at " + p.lux + " lux"); break; }
+        case "ntc": { const R = num(p.R25, 1e4) * Math.exp(num(p.B, 3950) * (1 / (num(p.T, 25) + 273.15) - 1 / 298.15)); L.push(nm("R") + " " + n(a[0]) + " " + n(a[1]) + " " + val(R) + " ; NTC at " + p.T + " C"); break; }
+        case "pot": { const R = num(p.R, 1e4), f = Math.min(1, Math.max(0, num(p.pos, 50) / 100)); L.push(nm("R") + "_AW " + n(a[0]) + " " + n(a[2]) + " " + val(Math.max(0.5, R * f))); L.push(nm("R") + "_WB " + n(a[2]) + " " + n(a[1]) + " " + val(Math.max(0.5, R * (1 - f)))); break; }
+        case "capacitor": case "electrolytic": L.push(nm("C") + " " + n(a[0]) + " " + n(a[1]) + " " + val(p.C) + " IC=" + val(p.V0 || 0)); break;
+        case "inductor": { const m = internal(); L.push(nm("L") + " " + n(a[0]) + " " + m + " " + val(p.L)); L.push(nm("R") + "_L " + m + " " + n(a[1]) + " " + val(Math.max(1e-6, num(p.R, 0)))); break; }
+        case "transformer": {
+          const n2 = Math.max(1e-3, num(p.n, 10)), L1 = num(p.Lp, 10);
+          L.push(nm("L") + "_P " + n(a[0]) + " " + n(a[1]) + " " + val(L1)); L.push(nm("L") + "_S " + n(a[2]) + " " + n(a[3]) + " " + val(L1 / (n2 * n2)));
+          L.push("K_" + lab + " " + nm("L") + "_P " + nm("L") + "_S " + val(Math.min(0.99999, num(p.k, 0.999)))); break;
+        }
+        case "battery": { const m = internal(); L.push(nm("V") + " " + m + " " + n(a[1]) + " DC " + val(p.V)); L.push(nm("R") + "_int " + n(a[0]) + " " + m + " " + val(Math.max(1e-4, num(p.r, 0.1)))); break; }
+        case "dcsupply": L.push(nm("V") + " " + n(a[0]) + " " + n(a[1]) + " DC " + val(p.V) + " ; current limit " + p.Ilim + " A not modelled"); break;
+        case "acsource": {
+          const f = num(p.f, 50), Vp = num(p.Vp, 10), off = num(p.off, 0);
+          if (p.wave === "square") L.push(nm("V") + " " + n(a[0]) + " " + n(a[1]) + " PULSE(" + [off - Vp, off + Vp, 0, 1e-9, 1e-9, 0.5 / f, 1 / f].map(val).join(" ") + ")");
+          else if (p.wave === "triangle" || p.wave === "saw") L.push(nm("V") + " " + n(a[0]) + " " + n(a[1]) + " PULSE(" + [off - Vp, off + Vp, 0, p.wave === "saw" ? 1 / f - 2e-9 : 0.5 / f, p.wave === "saw" ? 1e-9 : 0.5 / f, 1e-9, 1 / f].map(val).join(" ") + ")");
+          else L.push(nm("V") + " " + n(a[0]) + " " + n(a[1]) + " SIN(" + [off, Vp, f, 0, 0, num(p.ph, 0)].map(val).join(" ") + ")");
+          break;
+        }
+        case "isource": L.push(nm("I") + " " + n(a[1]) + " " + n(a[0]) + " DC " + val(p.I)); break;
+        case "diode": case "schottky": case "zener": case "led": {
+          let mn, line;
+          if (e.type === "led") { const lp = ledParams(p.color, p.Vf); mn = "DLED_" + (p.color || "red").toUpperCase(); line = ".model " + mn + " D(IS=" + val(lp.Is) + " N=" + lp.n + " RS=1 BV=5)"; }
+          else if (e.type === "zener") { mn = "DZ" + String(p.Vz).replace(".", "V"); line = ".model " + mn + " D(IS=1e-12 N=1.2 BV=" + val(p.Vz) + " IBV=5m)"; }
+          else { mn = e.type === "schottky" ? "D1N5819" : "D1N4007"; line = ".model " + mn + " D(IS=" + val(p.Is) + " N=" + val(p.n) + " BV=" + val(p.PIV) + ")"; }
+          models.set(mn, line); L.push(nm("D") + " " + n(a[0]) + " " + n(a[1]) + " " + mn); break;
+        }
+        case "npn": case "pnp": { const mn = (e.type === "npn" ? "QNPN_B" : "QPNP_B") + Math.round(num(p.beta, 200)); models.set(mn, ".model " + mn + " " + e.type.toUpperCase() + "(IS=1e-14 BF=" + val(p.beta) + " BR=2)");
+          L.push(nm("Q") + " " + n(a[1]) + " " + n(a[0]) + " " + n(a[2]) + " " + mn); break; }
+        case "nmos": case "pmos": { const mn = (e.type === "nmos" ? "NMOS_VT" : "PMOS_VT") + String(p.Vth).replace(".", "V");
+          models.set(mn, ".model " + mn + " " + e.type.toUpperCase() + "(LEVEL=1 VTO=" + val((e.type === "pmos" ? -1 : 1) * num(p.Vth, 3)) + " KP=" + val(2 * num(p.K, 5)) + ")");
+          L.push(nm("M") + " " + n(a[1]) + " " + n(a[0]) + " " + n(a[2]) + " " + n(a[2]) + " " + mn + " L=1 W=1"); break; }
+        case "opamp": L.push(nm("E") + " " + n(a[2]) + " 0 " + n(a[1]) + " " + n(a[0]) + " " + val(p.A) + " ; ideal op-amp, rails " + p.Vlo + "…" + p.Vhi + " V not modelled"); break;
+        case "switch": case "button": case "fuse": case "breaker": {
+          const closed = e.type === "fuse" ? true : p.on === true || p.on === "true";
+          L.push(nm("R") + " " + n(a[0]) + " " + n(a[1]) + " " + (closed ? "1m" : "1G") + " ; " + e.type + " " + (closed ? "closed" : "open")); break;
+        }
+        case "spdt": L.push(nm("R") + "_A " + n(a[0]) + " " + n(a[1]) + " " + (p.pos !== "B" ? "1m" : "1G")); L.push(nm("R") + "_B " + n(a[0]) + " " + n(a[2]) + " " + (p.pos === "B" ? "1m" : "1G")); break;
+        case "relay": { const m = internal(); L.push(nm("L") + " " + n(a[0]) + " " + m + " " + val(p.Lcoil)); L.push(nm("R") + "_coil " + m + " " + n(a[1]) + " " + val(p.Rcoil));
+          L.push(nm("R") + "_NC " + n(a[2]) + " " + n(a[4]) + " 1m ; contacts shown at rest (coil off)"); L.push(nm("R") + "_NO " + n(a[2]) + " " + n(a[3]) + " 1G"); break; }
+        case "lamp": L.push(nm("R") + " " + n(a[0]) + " " + n(a[1]) + " " + val(num(p.Vr, 12) * num(p.Vr, 12) / num(p.Wr, 5)) + " ; lamp (hot resistance)"); break;
+        case "motor": case "fan": L.push(nm("R") + " " + n(a[0]) + " " + n(a[1]) + " " + val(p.R) + " ; " + e.type + " armature only (back-EMF not modelled)"); break;
+        case "buzzer": case "bell": L.push(nm("R") + " " + n(a[0]) + " " + n(a[1]) + " " + val(p.R) + " ; " + e.type); break;
+        case "ammeter": L.push(nm("V") + " " + n(a[0]) + " " + n(a[1]) + " DC 0 ; ammeter: current through this source"); break;
+        case "dmm": if (/^a/.test(p.mode)) L.push(nm("V") + " " + n(a[0]) + " " + n(a[1]) + " DC 0 ; multimeter on amps"); else notes.push("* " + e.label + ": multimeter on " + p.mode + " — use .print / probes"); break;
+        case "wattmeter": L.push(nm("V") + " " + n(a[0]) + " " + n(a[1]) + " DC 0 ; wattmeter current coil"); notes.push("* " + e.label + ": power = V(" + a[2] + "," + a[3] + ") * I(" + nm("V") + ")"); break;
+        case "voltmeter": notes.push("* " + e.label + ": voltmeter between nodes " + a[0] + " and " + a[1]); break;
+        case "ground": case "breadboard": case "text": case "port": break;
+        default:
+          if (PARTS[e.type] && PARTS[e.type].custom) break;           // its inside parts are listed one by one
+          notes.push("* " + e.label + " (" + e.type + ") has no SPICE equivalent here — add a vendor model");
+      }
+    });
+    const stop = opts.stop || 0.01, step = opts.step || stop / 1000;
+    return L.concat(notes, Array.from(models.values()), [".options savecurrents", ".tran " + val(step) + " " + val(stop) + " uic", ".end", ""]).join("\n");
   }
 
   // resistor colour code: 4 bands (digit, digit, multiplier, tolerance) as CSS colours + names; SMD 3-digit code
@@ -1001,7 +1368,8 @@
   }
 
   const api = { PARTS: PARTS, bands: bands, smdCode: smdCode, LED_VF: LED_VF, CATS: CATS, LED_RGB: LED_RGB, create: create, parseValue: parseValue, fmt: fmt, rotate: rotate,
-    pinPositions: pinPositions, connectivity: connectivity, onSegment: onSegment, waveValue: waveValue };
+    pinPositions: pinPositions, connectivity: connectivity, onSegment: onSegment, waveValue: waveValue,
+    defineIC: defineIC, expandICs: expandICs, kirchhoff: kirchhoff, spice: spice, bbStrip: bbStrip, bbHoles: bbHoles, BB: BB };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.CircuitSim = api;
 })(typeof self !== "undefined" ? self : this);

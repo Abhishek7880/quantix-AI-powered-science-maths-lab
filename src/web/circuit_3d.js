@@ -266,7 +266,15 @@
       case "isource": BUILD.terminal(g, p, 0x8a4cd6, [CS.fmt(+p.p.I, "A")]); break;
       case "voltmeter": BUILD.meter(g, p, "V"); break;
       case "ammeter": BUILD.meter(g, p, "A"); break;
-      default: (BUILD[p.type] || BUILD.resistor)(g, p);
+      case "dmm": BUILD.meter(g, p, "Ω"); break;
+      case "opto": BUILD.dip(g, p, CS.PARTS.opto.pins, "PC817", 4); break;
+      case "wattmeter": BUILD.dip(g, p, CS.PARTS.wattmeter.pins, "WATT", 4); break;
+      case "fan": case "bell": (BUILD.motor || BUILD.resistor)(g, p); break;
+      case "breaker": BUILD.terminal(g, p, 0xeeeeee, [String(p.p.curve || "C") + Math.round(+p.p.Ir || 6) + " A"]); break;
+      case "breadboard": case "text": case "port": break;          // not parts on the PCB
+      default:
+        if (CS.PARTS[p.type] && CS.PARTS[p.type].custom) { BUILD.dip(g, p, CS.PARTS[p.type].pins, String(CS.PARTS[p.type].custom.name || "IC").slice(0, 8), Math.max(4, CS.PARTS[p.type].pins.length)); break; }
+        (BUILD[p.type] || BUILD.resistor)(g, p);
     }
     return g;
   }

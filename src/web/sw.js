@@ -4,10 +4,10 @@
    server and show a friendly message when offline.
    Strategy: pages and data are network-first (always fresh when online, cached copy when offline); scripts, styles,
    images and fonts are cache-first with a background refresh. Bump VERSION to drop old caches. */
-const VERSION = "quantix-v2";
+const VERSION = "quantix-v3";
 const PAGES = ["/", "/circuit", "/plc", "/chemlab", "/physics", "/formulas", "/converter", "/graph", "/elements"];
 const ASSETS = ["/web/lab.css", "/web/site.js", "/web/sci_bg.js", "/web/social_icons.js", "/web/favicon.svg", "/web/icon-512.png",
-  "/web/circuit_sim.js", "/web/circuit_examples.js", "/web/circuit_ui.js", "/web/circuit_3d.js", "/web/plc_engine.js", "/web/plc_ui.js",
+  "/web/circuit_sim.js", "/web/circuit_examples.js", "/web/circuit_ui.js", "/web/circuit_real.js", "/web/circuit_3d.js", "/web/plc_engine.js", "/web/plc_ui.js",
   "/web/chem_engine.js", "/web/chem_ui.js", "/web/physics.js", "/web/vendor/three.min.js", "/web/units.js", "/web/graph.js", "/web/mathexpr.js",
   "/web/formula_cards.js", "/web/shapes3d.js", "/api/v1/elements", "/api/v1/formulas"];
 const NEVER = /^\/(api\/v1\/(predict|measure|feedback|contact|handwriting|solve|eq)|contact\/inbox)/;   // live-only requests

@@ -61,6 +61,36 @@
     bands: "रंग पट्टियाँ", smd: "SMD कोड", edit: "✎ मान बदलें", toggle: "⇄ चालू / बंद", dragPin: "जोड़ने के लिए खींचें",
     tip: ["बाईं ओर से घटक खींचकर बोर्ड पर छोड़ें — तार पर छोड़ें तो वह तार के बीच लग जाता है।", "पिन (छोटा बिंदु) से दूसरे पिन तक खींचकर तार जोड़ें; तार का खुला सिरा खींचकर बढ़ाएँ; ✂ काटें या राइट-क्लिक से तार काटें।", "▶ चलाएँ दबाएँ, स्विच क्लिक करें, मान बदलने के लिए घटक पर डबल-क्लिक करें।"], gotIt: "समझ गया",
     auto: "स्वतः" });
+  // DCACLab-style lab: realistic board, damage + repair, instruments, analysis, slides, IC creator
+  Object.assign(TX.en, { repaired: "repaired", burntTap: "BURNT — tap to repair", blownTap: "BLOWN — tap to repair", flip: "⇋ Flip", resetCb: "⏻ Switch back on (reset)",
+    dial: "⟳ Turn the dial", viewReal: "Realistic", perf: "Board colour", flowLbl: "Current direction", conv: "Conventional current (+ → −)", electron: "Electron flow (− → +)",
+    wireColLbl: "New wire colour", tools: "Tools", kirch: "🧮 Kirchhoff analysis", spiceBtn: "📄 NGSpice netlist", icBtn: "▣ IC creator", keysBtn: "⌨ Shortcuts",
+    slides: "Slides", addSlide: "＋ Slide", dupSlide: "⧉", delSlide: "🗑", slideName: "Slide", renameSlide: "Double-click a slide to rename it", close: "Close", refresh: "⟳ Refresh",
+    kTitle: "Kirchhoff analysis (live values)", kclT: "KCL — at every node, the currents leaving it add up to zero", kvlT: "KVL — round every loop, the voltages add up to zero",
+    kNote: "Signs: a current is + when it flows out of the node into the part. In a loop, each term is the voltage drop crossing that part in the walking direction.",
+    node: "Node", noLoops: "No closed loop of two-pin parts.", ground0: "ground", sumL: "Σ", runFirst: "Press ▶ Run first so the circuit has values.",
+    icTitle: "IC creator — turn this slide into a chip", icHelp: "Build the inside on this slide. Put an ⊸ IC pin part on every outside connection and name it (IN, OUT, VCC, GND…). Pins on the left side of the drawing become the chip's left pins, the rest the right pins. Then give it a name and press Create — it appears under “My ICs” in the parts list, on every slide.",
+    icName: "Chip name", icMake: "▣ Create IC", icNoPorts: "Add at least one ⊸ IC pin part (in the parts list under My ICs).", icDup: "Two IC pins have the same name: ", icMade: "IC created — find it under “My ICs”.", icMine: "Your ICs", icDel: "Remove",
+    keysT: "Keyboard shortcuts", keyList: [["Ctrl + C / Ctrl + V", "Copy / paste the selected part"], ["Ctrl + Z / Ctrl + Y", "Undo / redo"], ["Ctrl + D", "Duplicate"], ["R", "Rotate"], ["F", "Flip (mirror)"],
+      ["Delete", "Delete"], ["W", "Wire tool"], ["X", "Cut the selected wire"], ["Space", "Run / pause · press a switch, breaker or button · turn a multimeter dial"], ["Arrows", "Move the part (Shift: 4 steps)"],
+      ["[ ]", "Select the previous / next part"], ["Enter", "Edit the value"], ["+ / −", "Zoom"], ["Esc", "Stop the tool / clear selection"], ["Right-click / long press", "Part or wire menu: repair, colour, cut…"]],
+    wcol: { red: "Red", black: "Black", blue: "Blue", green: "Green", yellow: "Yellow", orange: "Orange", white: "White", purple: "Purple" },
+    perfs: { yellow: "Yellow", green: "Green", blue: "Blue", white: "White", black: "Black", cream: "Cream" } });
+  Object.assign(TX.hi, { repaired: "ठीक किया", burntTap: "जल गया — ठीक करने के लिए टैप करें", blownTap: "उड़ गया — ठीक करने के लिए टैप करें", flip: "⇋ पलटें", resetCb: "⏻ फिर चालू करें (रीसेट)",
+    dial: "⟳ डायल घुमाएँ", viewReal: "वास्तविक", perf: "बोर्ड का रंग", flowLbl: "धारा की दिशा", conv: "परंपरागत धारा (+ → −)", electron: "इलेक्ट्रॉन प्रवाह (− → +)",
+    wireColLbl: "नए तार का रंग", tools: "उपकरण", kirch: "🧮 किरचॉफ़ विश्लेषण", spiceBtn: "📄 NGSpice नेटलिस्ट", icBtn: "▣ आईसी निर्माता", keysBtn: "⌨ शॉर्टकट",
+    slides: "स्लाइड", addSlide: "＋ स्लाइड", dupSlide: "⧉", delSlide: "🗑", slideName: "स्लाइड", renameSlide: "नाम बदलने के लिए स्लाइड पर डबल-क्लिक करें", close: "बंद करें", refresh: "⟳ ताज़ा करें",
+    kTitle: "किरचॉफ़ विश्लेषण (लाइव मान)", kclT: "KCL — हर नोड पर निकलने वाली धाराओं का योग शून्य", kvlT: "KVL — हर लूप में वोल्टेजों का योग शून्य",
+    kNote: "चिह्न: नोड से घटक में जाने वाली धारा + है। लूप में हर पद चलने की दिशा में उस घटक का वोल्टेज ड्रॉप है।",
+    node: "नोड", noLoops: "दो-पिन घटकों का कोई बंद लूप नहीं।", ground0: "ग्राउंड", sumL: "Σ", runFirst: "पहले ▶ चलाएँ ताकि सर्किट में मान हों।",
+    icTitle: "आईसी निर्माता — इस स्लाइड को चिप बनाएँ", icHelp: "अंदर का सर्किट इस स्लाइड पर बनाएँ। हर बाहरी कनेक्शन पर ⊸ आईसी पिन लगाएँ और नाम दें (IN, OUT, VCC, GND…)। चित्र के बाईं ओर के पिन चिप के बाएँ पिन बनते हैं, बाकी दाएँ। फिर नाम देकर बनाएँ दबाएँ — यह घटक सूची में “मेरे आईसी” में हर स्लाइड पर दिखेगा।",
+    icName: "चिप का नाम", icMake: "▣ आईसी बनाएँ", icNoPorts: "कम से कम एक ⊸ आईसी पिन लगाएँ (घटक सूची में मेरे आईसी के नीचे)।", icDup: "दो आईसी पिनों का एक ही नाम है: ", icMade: "आईसी बन गया — “मेरे आईसी” में देखें।", icMine: "आपके आईसी", icDel: "हटाएँ",
+    keysT: "कीबोर्ड शॉर्टकट", keyList: [["Ctrl + C / Ctrl + V", "चुना घटक कॉपी / पेस्ट"], ["Ctrl + Z / Ctrl + Y", "पूर्ववत् / फिर से"], ["Ctrl + D", "प्रति बनाएँ"], ["R", "घुमाएँ"], ["F", "पलटें (दर्पण)"],
+      ["Delete", "हटाएँ"], ["W", "तार उपकरण"], ["X", "चुना तार काटें"], ["Space", "चलाएँ / रोकें · स्विच, ब्रेकर या बटन दबाएँ · मल्टीमीटर डायल घुमाएँ"], ["तीर", "घटक खिसकाएँ (Shift: 4 कदम)"],
+      ["[ ]", "पिछला / अगला घटक चुनें"], ["Enter", "मान बदलें"], ["+ / −", "ज़ूम"], ["Esc", "उपकरण बंद / चयन हटाएँ"], ["राइट-क्लिक / देर तक दबाएँ", "घटक या तार मेन्यू: ठीक करें, रंग, काटें…"]],
+    wcol: { red: "लाल", black: "काला", blue: "नीला", green: "हरा", yellow: "पीला", orange: "नारंगी", white: "सफ़ेद", purple: "बैंगनी" },
+    perfs: { yellow: "पीला", green: "हरा", blue: "नीला", white: "सफ़ेद", black: "काला", cream: "क्रीम" } });
+  TX.en.events.tripped = "breaker tripped (overload)"; TX.hi.events.tripped = "ब्रेकर ट्रिप (अधिक भार)";
   const COMMON = ["battery", "resistor", "led", "switch", "capacitor", "button", "ground", "voltmeter"];
   // one-click values for each part (the field still takes any value)
   const PRESETS = {
@@ -85,7 +115,7 @@
   };
   const LOG_SLIDER = { resistor: "R", capacitor: "C", electrolytic: "C", inductor: "L", pot: "R" };
   const SETTINGS = "quantix-circuit-settings";
-  const SET = { style: "iec", grid: true, vcol: true, dots: true, values: true, board: "green" };
+  const SET = { style: "iec", grid: true, vcol: true, dots: true, values: true, board: "green", look: "real", perf: "yellow", wireCol: "red", flow: "conv" };
   try { Object.assign(SET, JSON.parse(localStorage.getItem(SETTINGS) || "{}")); } catch (_) { /* private mode */ }
   const saveSet = () => { try { localStorage.setItem(SETTINGS, JSON.stringify(SET)); } catch (_) { /* private mode */ } };
 
@@ -136,17 +166,45 @@
     return { id: newId(), type: type, x: x, y: y, rot: rot || 0, label: nextLabel(def.prefix), p: p };
   }
   const partById = (id) => S.circuit.parts.find((p) => p.id === id);
+  const WIRE_HEX = Object.fromEntries((window.CircuitReal ? window.CircuitReal.WIRE_COLOURS : [["red", "#d62828"]]));
   function cleanCircuit(c) {
+    registerICs(c && c.ics);                     // custom ICs travel with the circuit that uses them
     const parts = (c && Array.isArray(c.parts) ? c.parts : []).filter((p) => p && PARTS[p.type]).map((p) => {
       const def = PARTS[p.type], params = {};
-      def.params.forEach((q) => { params[q.k] = p.p && p.p[q.k] != null ? p.p[q.k] : q.v; });
-      return { id: String(p.id || ""), type: p.type, x: Math.round(+p.x || 0), y: Math.round(+p.y || 0), rot: ((Math.round(+p.rot || 0) % 4) + 4) % 4, label: String(p.label || def.prefix).slice(0, 12), p: params };
+      def.params.forEach((q) => { params[q.k] = p.p && p.p[q.k] != null ? (q.text ? String(p.p[q.k]).slice(0, 80) : p.p[q.k]) : q.v; });
+      const out = { id: String(p.id || ""), type: p.type, x: Math.round(+p.x || 0), y: Math.round(+p.y || 0), rot: ((Math.round(+p.rot || 0) % 4) + 4) % 4, label: String(p.label || def.prefix).slice(0, 12), p: params };
+      if (p.flip) out.flip = true;
+      return out;
     });
     const seen = new Set();
     parts.forEach((p) => { if (!p.id || seen.has(p.id)) p.id = "q" + Math.random().toString(36).slice(2, 8); seen.add(p.id); });
-    const wires = (c && Array.isArray(c.wires) ? c.wires : []).map((w) => ({ x1: Math.round(+w.x1), y1: Math.round(+w.y1), x2: Math.round(+w.x2), y2: Math.round(+w.y2) }))
-      .filter((w) => [w.x1, w.y1, w.x2, w.y2].every(isFinite) && (w.x1 !== w.x2 || w.y1 !== w.y2));
+    const wires = (c && Array.isArray(c.wires) ? c.wires : []).map((w) => {
+      const o = { x1: Math.round(+w.x1), y1: Math.round(+w.y1), x2: Math.round(+w.x2), y2: Math.round(+w.y2) };
+      if (WIRE_HEX[w.c]) o.c = w.c;
+      return o;
+    }).filter((w) => [w.x1, w.y1, w.x2, w.y2].every(isFinite) && (w.x1 !== w.x2 || w.y1 !== w.y2));
     return { parts: parts, wires: wires };
+  }
+
+  // ------------------------------------------------------------------ custom ICs (IC creator)
+  const IC_STORE = "quantix-circuit-ics";
+  S.ics = {};
+  function registerICs(ics) {
+    if (!ics || typeof ics !== "object") return;
+    Object.entries(ics).forEach(([key, def]) => {
+      if (!/^[\w-]{1,40}$/.test(key) || !def || !Array.isArray(def.pinNames) || !def.circuit || !Array.isArray(def.circuit.parts)) return;
+      registerICs(def.circuit.ics);                                       // ICs used inside this one
+      const clean = { name: String(def.name || key).slice(0, 24), pinNames: def.pinNames.map((n) => String(n).slice(0, 8)).slice(0, 24), circuit: def.circuit, blurb: def.blurb ? String(def.blurb).slice(0, 200) : undefined };
+      CS.defineIC(key, clean); S.ics[key] = clean;
+    });
+  }
+  try { registerICs(JSON.parse(localStorage.getItem(IC_STORE) || "{}")); } catch (_) { /* private mode */ }
+  const saveICs = () => { try { localStorage.setItem(IC_STORE, JSON.stringify(S.ics)); } catch (_) { /* private mode */ } };
+  // the circuit plus the definitions of the custom ICs it uses (so a shared link or file works anywhere)
+  function withICs(c) {
+    const used = {}, visit = (circ) => circ.parts.forEach((p) => { const k = p.type.startsWith("ic:") ? p.type.slice(3) : null; if (k && S.ics[k] && !used[k]) { used[k] = S.ics[k]; visit(S.ics[k].circuit); } });
+    visit(c);
+    return Object.keys(used).length ? Object.assign({}, c, { ics: used }) : c;
   }
 
   // undo / redo + autosave
@@ -161,7 +219,7 @@
   function restore(json) { S.circuit = cleanCircuit(JSON.parse(json)); S.snap = json; S.sel = null; save(); changed(); }
   function undo() { if (!S.undo.length) return; S.redo.push(S.snap); restore(S.undo.pop()); }
   function redo() { if (!S.redo.length) return; S.undo.push(S.snap); restore(S.redo.pop()); }
-  function save() { try { localStorage.setItem(STORE, snapshot()); } catch (_) { /* private mode */ } }
+  function save() { try { localStorage.setItem(STORE, snapshot()); } catch (_) { /* private mode */ } if (S.slides) slidesSave(); }
 
   // ------------------------------------------------------------------ symbols
   // Drawn in each part's own grid units (rotation 0); pen() maps them to the screen.
@@ -170,8 +228,16 @@
     pot: [-2, -2, 2, 0.6], transformer: [-2, -2.3, 2, 2.3], npn: [-2, -2, 1.8, 2], pnp: [-2, -2, 1.8, 2], nmos: [-2, -2, 1.8, 2], pmos: [-2, -2, 1.8, 2],
     opamp: [-2, -2, 3, 2], timer555: [-3, -3, 3, 3], spdt: [-2, -1.4, 2, 1.4], relay: [-3, -2.3, 3, 2.3], seg7: [-4.4, -3.6, 4.4, 4],
     not: [-2, -1, 2, 1], and: [-2, -1.4, 2, 1.4], or: [-2, -1.4, 2, 1.4], nand: [-2, -1.4, 2, 1.4], nor: [-2, -1.4, 2, 1.4], xor: [-2, -1.4, 2, 1.4],
+    fan: [-2, -1.7, 2, 1.7], bell: [-2, -1.4, 2, 1.2], breaker: [-1.1, -2, 1.1, 2], opto: [-2, -1.5, 2, 1.5], dmm: [-2.1, -4.5, 2.1, 0.4],
+    wattmeter: [-2, -1.9, 2, 1.9], motor: [-2, -1.2, 2, 1.2], lamp: [-2, -1.4, 2, 1.3], buzzer: [-2, -1.15, 2, 1.15], port: [-0.3, -0.5, 1.5, 0.5],
+    breadboard: CS.BB.box,
   };
-  const boxOf = (type) => BOX[type] || [-2, -0.9, 2, 0.9];
+  function boxOf(type, p) {
+    if (type === "text" && p) { const n = Math.max(2, String(p.p.text || "").length) * 0.33 * (+p.p.size || 1); return [-n / 2, -0.5 * (+p.p.size || 1), n / 2, 0.5 * (+p.p.size || 1)]; }
+    const def = PARTS[type];
+    if (def && def.custom) { const ys = def.pins.map((q) => q[1]); return [-2.6, Math.min(-1, ...ys) - 0.9, 2.6, Math.max(1, ...ys) + 0.9]; }
+    return BOX[type] || [-2, -0.9, 2, 0.9];
+  }
 
   function valueText(p) {
     const q = p.p;
@@ -197,8 +263,8 @@
   }
 
   function pen(ctx, part) {
-    const sc = S.view.scale, r = part.rot || 0;
-    const X = (lx, ly) => { const q = CS.rotate([lx, ly], r); return [S.view.ox + (part.x + q[0]) * sc, S.view.oy + (part.y + q[1]) * sc]; };
+    const sc = S.view.scale, r = part.rot || 0, fl = part.flip ? -1 : 1;
+    const X = (lx, ly) => { const q = CS.rotate([fl * lx, ly], r); return [S.view.ox + (part.x + q[0]) * sc, S.view.oy + (part.y + q[1]) * sc]; };
     const g = {
       sc: sc, ctx: ctx,
       line(...pts) { ctx.beginPath(); for (let k = 0; k < pts.length; k += 2) { const s = X(pts[k], pts[k + 1]); k ? ctx.lineTo(s[0], s[1]) : ctx.moveTo(s[0], s[1]); } ctx.stroke(); },
@@ -209,7 +275,10 @@
         ctx.stroke();
       },
       circle(x, y, rad, fillStyle, noStroke) { const s = X(x, y); ctx.beginPath(); ctx.arc(s[0], s[1], rad * sc, 0, Math.PI * 2); if (fillStyle) { ctx.fillStyle = fillStyle; ctx.fill(); } if (!noStroke) ctx.stroke(); },
-      arc(x, y, rad, a0, a1, ccw) { const s = X(x, y), off = r * Math.PI / 2; ctx.beginPath(); ctx.arc(s[0], s[1], rad * sc, a0 + off, a1 + off, !!ccw); ctx.stroke(); },
+      arc(x, y, rad, a0, a1, ccw) {
+        if (fl < 0) { const b0 = Math.PI - a1, b1 = Math.PI - a0; a0 = b0; a1 = b1; }      // mirrored arc
+        const s = X(x, y), off = r * Math.PI / 2; ctx.beginPath(); ctx.arc(s[0], s[1], rad * sc, a0 + off, a1 + off, !!ccw); ctx.stroke();
+      },
       text(x, y, str, size, colour, align, weight) {
         const s = X(x, y); ctx.save(); ctx.fillStyle = colour || S.colors.body; ctx.font = (weight || "600") + " " + Math.max(8, size * sc) + "px " + "JetBrains Mono, ui-monospace, monospace";
         ctx.textAlign = align || "center"; ctx.textBaseline = "middle"; ctx.fillText(str, s[0], s[1]); ctx.restore();
@@ -382,6 +451,52 @@
       g.line(-2, 0, -1.1, 0); g.line(1.1, 0, 2, 0); g.circle(0, 0, 1.1, S.colors.dark ? "rgba(56,189,248,.10)" : "rgba(10,132,214,.07)"); g.text(0, 0, letter, 0.85);
       g.text(-1.55, -0.55, "+", 0.5);
     },
+    fan(g, p) {
+      g.line(-2, 0, -1.1, 0); g.line(1.1, 0, 2, 0); g.circle(0, 0, 1.1);
+      const a = S.sim.state(p.id).ang || 0, c = g.X(0, 0), R = 0.95 * g.sc;
+      g.ctx.save(); g.ctx.fillStyle = S.colors.accent;
+      for (let k = 0; k < 3; k++) { const b = a + k * 2.094; g.ctx.beginPath(); g.ctx.moveTo(c[0], c[1]); g.ctx.arc(c[0], c[1], R, b, b + 0.7); g.ctx.closePath(); g.ctx.fill(); }
+      g.ctx.restore();
+    },
+    bell(g, p, info) {
+      g.line(-2, 0, -1, 0); g.line(1, 0, 2, 0); g.line(-1, 0, -1, 0.5); g.line(1, 0, 1, 0.5);
+      g.arc(0, 0.5, 1, Math.PI, 0); g.line(-1, 0.5, 1, 0.5); g.circle(0, 0.75, 0.2);
+      if (info && info.ring) { const ph = (performance.now() / 90) % 1; for (let k = 0; k < 2; k++) g.arc(0, 0.3, 1.35 + (k + ph) * 0.4, -2.4, -0.75); }
+    },
+    breaker(g, p, info) {
+      const on = (p.p.on === true || p.p.on === "true") && !(info && info.tripped);
+      g.line(0, -2, 0, -1); g.line(0, 1, 0, 2); g.circle(0, -1, 0.13, S.colors.body); g.circle(0, 1, 0.13, S.colors.body);
+      g.ctx.lineWidth *= 1.4; g.line(0, 1, on ? 0.1 : 0.85, on ? -1 : -0.8); g.ctx.lineWidth /= 1.4;
+      g.arc(0.55, 0, 0.45, -Math.PI / 2, Math.PI / 2); g.text(1.05, -1.4, (p.p.curve || "C") + (p.p.Ir || 6), 0.38, S.colors.muted);
+      if (info && info.tripped) g.text(-1.0, 0, "TRIP", 0.36, S.colors.err);
+    },
+    opto(g, p, info) {
+      g.poly([-1.4, -1.4, 1.4, -1.4, 1.4, 1.4, -1.4, 1.4], S.colors.dark ? "rgba(167,139,250,.08)" : "rgba(124,58,237,.05)");
+      g.line(-2, -1, -0.8, -1, -0.8, -0.35); g.line(-2, 1, -0.8, 1, -0.8, 0.35);
+      g.poly([-1.15, -0.35, -0.45, -0.35, -0.8, 0.3], info && info.glow > 0.05 ? "#ff5a5a" : null); g.line(-1.15, 0.35, -0.45, 0.35);
+      arrow(g, -0.25, -0.2, 0.25, -0.2, 0.18); arrow(g, -0.25, 0.25, 0.25, 0.25, 0.18);
+      g.line(0.55, -0.5, 0.55, 0.5); g.line(0.55, -0.2, 1.1, -0.75, 1.1, -1, 2, -1); g.line(0.55, 0.2, 1.1, 0.75, 1.1, 1, 2, 1);
+    },
+    dmm(g, p, info) {
+      g.line(-2, 0, -2, -0.9, -1.2, -0.9); g.line(2, 0, 2, -0.9, 1.2, -0.9);
+      g.poly([-1.6, -4.3, 1.6, -4.3, 1.6, -0.9, -1.6, -0.9], S.colors.dark ? "rgba(250,204,21,.10)" : "rgba(250,204,21,.18)");
+      const show = info ? (info.display || (info.reading != null ? fmt(info.reading, info.unit, 4) : "—")) : "—";
+      g.text(0, -3.4, show, 0.55); g.text(0, -2.2, { vdc: "V⎓", vac: "V~", adc: "A⎓", aac: "A~", ohm: "Ω", cont: "🔊" }[p.p.mode] || "V", 0.7, S.colors.muted);
+      g.text(-1.45, -0.45, "+", 0.45); g.text(1.25, -0.45, "COM", 0.3, S.colors.muted);
+    },
+    wattmeter(g) {
+      g.circle(0, 0, 1.35, S.colors.dark ? "rgba(56,189,248,.10)" : "rgba(10,132,214,.07)"); g.text(0, 0, "W", 0.9);
+      g.line(-2, -1, -1.15, -0.7); g.line(2, -1, 1.15, -0.7); g.line(-2, 1, -1.15, 0.7); g.line(2, 1, 1.15, 0.7);
+      g.text(-1.75, -1.45, "I", 0.32, S.colors.muted); g.text(-1.75, 1.5, "V", 0.32, S.colors.muted);
+    },
+    text(g, p) { g.text(0, 0, String(p.p.text || ""), 0.6 * (+p.p.size || 1), S.colors.ink, "center", "600"); },
+    port(g, p) { g.poly([0, -0.45, 1.0, -0.45, 1.4, 0, 1.0, 0.45, 0, 0.45]); g.text(0.6, 0, String(p.p.name || "").slice(0, 5), 0.32); },
+    custom(g, p) {
+      const def = PARTS[p.type], b = boxOf(p.type);
+      g.poly([-2.3, b[1] + 0.2, 2.3, b[1] + 0.2, 2.3, b[3] - 0.2, -2.3, b[3] - 0.2], S.colors.dark ? "rgba(56,189,248,.08)" : "rgba(10,132,214,.05)");
+      def.pins.forEach((q, k) => { g.line(q[0], q[1], q[0] < 0 ? -2.3 : 2.3, q[1]); g.text(q[0] < 0 ? -1.6 : 1.6, q[1], def.pinNames[k].slice(0, 4), 0.3, S.colors.muted); });
+      g.text(0, b[1] + 0.75, String(def.custom.name || "IC").slice(0, 10), 0.42);
+    },
   };
   function drawSymbol(ctx, part, info) {
     const g = pen(ctx, part);
@@ -395,7 +510,8 @@
       case "nmos": SYM.mos(g, part, false); break; case "pmos": SYM.mos(g, part, true); break;
       case "not": case "and": case "or": case "nand": case "nor": case "xor": SYM.gate(g, part); break;
       case "voltmeter": SYM.meter(g, part, info, "V"); break; case "ammeter": SYM.meter(g, part, info, "A"); break;
-      default: (SYM[part.type] || SYM.resistor)(g, part, info);
+      case "breadboard": break;                                  // drawn under everything by draw()
+      default: (SYM[part.type] || (PARTS[part.type] && PARTS[part.type].custom ? SYM.custom : SYM.resistor))(g, part, info);
     }
     if (burnt) {
       const c = g.X(0, 0);
@@ -439,15 +555,19 @@
 
   // ------------------------------------------------------------------ hit testing
   function partBox(p) {
-    const b = boxOf(p.type), a = CS.rotate([b[0], b[1]], p.rot), c = CS.rotate([b[2], b[3]], p.rot);
+    const b0 = boxOf(p.type, p), b = p.flip ? [-b0[2], b0[1], -b0[0], b0[3]] : b0;
+    if (p.type === "breadboard") return [p.x + b[0], p.y + b[1], p.x + b[2], p.y + b[3]];
+    const a = CS.rotate([b[0], b[1]], p.rot), c = CS.rotate([b[2], b[3]], p.rot);
     return [p.x + Math.min(a[0], c[0]), p.y + Math.min(a[1], c[1]), p.x + Math.max(a[0], c[0]), p.y + Math.max(a[1], c[1])];
   }
+  // parts sitting on a breadboard win over the board itself; the board is picked by its edge or an empty spot
   function hitPart(g) {
+    let board = null;
     for (let k = S.circuit.parts.length - 1; k >= 0; k--) {
       const p = S.circuit.parts[k], b = partBox(p);
-      if (g[0] >= b[0] - 0.25 && g[0] <= b[2] + 0.25 && g[1] >= b[1] - 0.25 && g[1] <= b[3] + 0.25) return p;
+      if (g[0] >= b[0] - 0.25 && g[0] <= b[2] + 0.25 && g[1] >= b[1] - 0.25 && g[1] <= b[3] + 0.25) { if (p.type === "breadboard") board = board || p; else return p; }
     }
-    return null;
+    return board;
   }
   function hitWire(g) {
     let best = -1, bd = 0.4;
@@ -474,7 +594,7 @@
     if (a[0] === b[0] && a[1] === b[1]) return 0;
     const corner = vFirst ? [a[0], b[1]] : [b[0], a[1]];
     let n = 0;
-    [[a, corner], [corner, b]].forEach((s) => { if (s[0][0] !== s[1][0] || s[0][1] !== s[1][1]) { S.circuit.wires.push({ x1: s[0][0], y1: s[0][1], x2: s[1][0], y2: s[1][1] }); n++; } });
+    [[a, corner], [corner, b]].forEach((s) => { if (s[0][0] !== s[1][0] || s[0][1] !== s[1][1]) { S.circuit.wires.push({ x1: s[0][0], y1: s[0][1], x2: s[1][0], y2: s[1][1], c: SET.wireCol }); n++; } });
     return n;
   }
   // keyboard / panel wiring between two pins: pick the L whose path does not touch any other pin or wire point
@@ -515,10 +635,18 @@
     followPins(p, att); straighten(); commit();
   }
   function rotatePart(p) {
+    if (PARTS[p.type].noRotate) return;
     const att = attachments(p);
     p.rot = ((p.rot || 0) + 1) % 4;
     followPins(p, att); straighten(); commit();
     announce(p.label + " ⟳ " + p.rot * 90 + "°");
+  }
+  function flipPart(p) {
+    if (PARTS[p.type].noRotate) return;
+    const att = attachments(p);
+    p.flip = !p.flip; if (!p.flip) delete p.flip;
+    followPins(p, att); straighten(); commit();
+    announce(p.label + " ⇋ " + t("flip"));
   }
   function deleteSel() {
     if (!S.sel) return;
@@ -532,6 +660,13 @@
     if (!S.sel || S.sel.kind !== "part") return;
     const p = partById(S.sel.id); if (!p) return;
     const q = newPart(p.type, p.x + 3, p.y + 3, p.rot); q.p = JSON.parse(JSON.stringify(p.p));
+    S.circuit.parts.push(q); S.sel = { kind: "part", id: q.id }; commit(); announce(q.label + " " + t("placed"));
+  }
+  function pasteClip() {
+    let src; try { src = JSON.parse(S.clip); } catch (_) { return; }
+    if (!src || !PARTS[src.type]) return;
+    const at = S.hover || [src.x + 3, src.y + 3], q = newPart(src.type, at[0], at[1], src.rot);
+    q.p = JSON.parse(JSON.stringify(src.p || {})); if (src.flip) q.flip = true;
     S.circuit.parts.push(q); S.sel = { kind: "part", id: q.id }; commit(); announce(q.label + " " + t("placed"));
   }
   function freeSpot(type) {
@@ -762,6 +897,11 @@
         if (!drag.att.length) { alignToWire(drag.part); spliceIntoWires(drag.part); }
         commit();
       }
+      else if ((S.sim.partInfo(drag.part.id) || {}).burnt) {   // a burnt part: offer the repair right there
+        const b = partBox(drag.part); showMenu(drag.part, S.view.ox + b[2] * S.view.scale, S.view.oy + b[1] * S.view.scale);
+      }
+      else if (drag.part.type === "breaker") toggleBreaker(drag.part);
+      else if (drag.part.type === "dmm") turnDial(drag.part);
       else if (drag.part.type === "switch") { drag.part.p.on = !(drag.part.p.on === true); save(); renderPanels(true); announce(drag.part.label + ": " + (drag.part.p.on ? "ON" : "OFF")); }
       else if (drag.part.type === "spdt") { drag.part.p.pos = drag.part.p.pos === "B" ? "A" : "B"; save(); renderPanels(true); }
     }
@@ -803,22 +943,44 @@
   const menu = $("ctxMenu");
   function hideMenu() { menu.hidden = true; }
   function openMenu(title, items, px, py) {
-    fill(menu, h("div", { class: "mh" }, title), items.map(([lab, fn]) => h("button", { type: "button", role: "menuitem", onclick: () => { hideMenu(); fn(); } }, lab)));
+    fill(menu, h("div", { class: "mh" }, title), items.map(([lab, fn, colour]) => h("button", { type: "button", role: "menuitem", style: colour ? "color:" + colour : null, onclick: () => { hideMenu(); fn(); } }, lab)));
     menu.hidden = false;
     menu.style.left = Math.min(px, W - 200) + "px"; menu.style.top = Math.min(py, H - 40 * items.length - 40) + "px";
     menu.querySelector("button").focus();
   }
+  function repairPart(p) {
+    S.sim.repair(p.id); S.events = S.events.filter((e) => e[0] !== p.label);
+    if (p.type === "breaker") p.p.on = true;
+    renderPanels(true); announce("🔧 " + p.label + " " + t("repaired"));
+  }
+  function toggleBreaker(p) {
+    const info = S.sim.partInfo(p.id) || {};
+    if (info.tripped) { S.sim.repair(p.id); p.p.on = true; S.events = S.events.filter((e) => e[0] !== p.label); }
+    else p.p.on = !(p.p.on === true || p.p.on === "true");
+    save(); renderPanels(true); announce(p.label + ": " + (p.p.on ? "ON" : "OFF"));
+  }
+  const DIAL = ["vdc", "vac", "adc", "aac", "ohm", "cont"];
+  function turnDial(p) {
+    p.p.mode = DIAL[(DIAL.indexOf(p.p.mode) + 1) % DIAL.length];
+    commit(); announce(p.label + ": " + tr((PARTS.dmm.params[0].choices.find((c) => c[0] === p.p.mode) || [0, ""])[1]));
+  }
   function showMenu(p, px, py) {
-    const items = [[t("edit"), () => editPart(p)]];
+    const info = S.sim.partInfo(p.id) || {}, items = [];
+    if (info.burnt) items.push([t("repair") + " " + p.label, () => repairPart(p)]);
+    items.push([t("edit"), () => editPart(p)]);
     if (/^(switch|spdt)$/.test(p.type)) items.push([t("toggle"), () => { if (p.type === "switch") p.p.on = !(p.p.on === true); else p.p.pos = p.p.pos === "B" ? "A" : "B"; save(); renderPanels(true); }]);
-    items.push([t("rotate"), () => rotatePart(p)], [t("dup"), duplicateSel], [t("del"), deleteSel]);
+    if (p.type === "breaker") items.push([info.tripped ? t("resetCb") : t("toggle"), () => toggleBreaker(p)]);
+    if (p.type === "dmm") items.push([t("dial"), () => turnDial(p)]);
+    if (p.type !== "breadboard") items.push([t("rotate"), () => rotatePart(p)], [t("flip"), () => flipPart(p)]);
+    items.push([t("dup"), duplicateSel], [t("del"), deleteSel]);
     openMenu(p.label + " · " + tr(PARTS[p.type].name), items, px, py);
   }
   function showWireMenu(k, g, px, py) {
-    const at = snapPt(g);
+    const at = snapPt(g), w = S.circuit.wires[k];
     openMenu(t("wireSel"), [
       [t("cutHere"), () => cutWire(k, g)],
       [t("insertHere"), () => { S.insertAt = at; announce(t("insertHint")); $("psearch").focus(); }],
+      ...(window.CircuitReal ? CircuitReal.WIRE_COLOURS : []).map(([name, hex]) => ["● " + (t("wcol")[name] || name), () => { if (w) { w.c = name; SET.wireCol = name; saveSet(); commit(false); } }, hex]),
       [t("delWire"), () => { S.sel = { kind: "wire", k: k }; deleteSel(); }],
     ], px, py);
   }  menu.addEventListener("keydown", (e) => {
@@ -844,21 +1006,7 @@
     if (arrows[k]) {
       e.preventDefault();
       const d = arrows[k];
-      // pin under the mouse: a ring, so it is obvious where a wire can start or end
-    if (S.mouse && (S.mode === "select" || S.wireDrag) && !(drag && drag.kind === "part")) {
-      const pin = S.wireDrag ? nearestPoint(toGrid(S.mouse[0], S.mouse[1]), 0.7) : nearestPin(toGrid(S.mouse[0], S.mouse[1]), 0.45);
-      if (pin) {
-        const qx = S.view.ox + pin[0] * sc, qy = S.view.oy + pin[1] * sc;
-        ctx.strokeStyle = C.accent; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(qx, qy, Math.max(7, sc * 0.38), 0, Math.PI * 2); ctx.stroke();
-        if (!S.wireDrag) { ctx.font = "600 11px system-ui"; ctx.fillStyle = C.accent; ctx.textAlign = "left"; ctx.fillText(t("dragPin"), qx + 12, qy - 12); }
-      }
-    }
-    if (S.wireDrag && S.hover) {
-      const a = S.wireDrag.a, b = S.hover, corner = S.vFirst ? [a[0], b[1]] : [b[0], a[1]];
-      ctx.strokeStyle = C.accent; ctx.setLineDash([6, 4]); ctx.lineWidth = 2.5; ctx.beginPath();
-      ctx.moveTo(S.view.ox + a[0] * sc, S.view.oy + a[1] * sc); ctx.lineTo(S.view.ox + corner[0] * sc, S.view.oy + corner[1] * sc); ctx.lineTo(S.view.ox + b[0] * sc, S.view.oy + b[1] * sc); ctx.stroke(); ctx.setLineDash([]);
-    }
-    if (S.mode === "wire" && S.hover) { S.hover = [S.hover[0] + d[0], S.hover[1] + d[1]]; S.mouse = [S.view.ox + S.hover[0] * S.view.scale, S.view.oy + S.hover[1] * S.view.scale]; return; }
+      if (S.mode === "wire" && S.hover) { S.hover = [S.hover[0] + d[0], S.hover[1] + d[1]]; S.mouse = [S.view.ox + S.hover[0] * S.view.scale, S.view.oy + S.hover[1] * S.view.scale]; return; }
       if (p) movePart(p, d[0] * (e.shiftKey ? 4 : 1), d[1] * (e.shiftKey ? 4 : 1));
       else { S.view.ox -= d[0] * 40; S.view.oy -= d[1] * 40; }
       return;
@@ -874,9 +1022,12 @@
     if (ctrl && k.toLowerCase() === "z") { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
     if (ctrl && k.toLowerCase() === "y") { e.preventDefault(); redo(); return; }
     if (ctrl && k.toLowerCase() === "d") { e.preventDefault(); duplicateSel(); return; }
+    if (ctrl && k.toLowerCase() === "c" && p) { e.preventDefault(); S.clip = JSON.stringify(p); announce(p.label + " ⧉"); return; }
+    if (ctrl && k.toLowerCase() === "v" && S.clip) { e.preventDefault(); pasteClip(); return; }
     if (ctrl) return;
     if (k === "Delete" || k === "Backspace") { e.preventDefault(); deleteSel(); return; }
     if (k === "r" || k === "R") { if (p) rotatePart(p); return; }
+    if ((k === "f" || k === "F") && p) { flipPart(p); return; }
     if (k === "w" || k === "W") { setMode(S.mode === "wire" ? "select" : "wire"); if (!S.hover) S.hover = snapPt(toGrid(W / 2, H / 2)); return; }
     if (k === "Escape") { if (S.wireStart) S.wireStart = null; else { setMode("select"); S.sel = null; renderPanels(true); } return; }
     if (k === "+" || k === "=") { zoomAt(1.15, W / 2, H / 2); return; }
@@ -891,6 +1042,8 @@
       if (p && p.type === "switch") { p.p.on = !(p.p.on === true); save(); renderPanels(true); announce(p.label + ": " + (p.p.on ? "ON" : "OFF")); return; }
       if (p && p.type === "button") { p.p.on = true; S.pressing = p; renderPanels(true); return; }
       if (p && p.type === "spdt") { p.p.pos = p.p.pos === "B" ? "A" : "B"; save(); renderPanels(true); return; }
+      if (p && p.type === "breaker") { toggleBreaker(p); return; }
+      if (p && p.type === "dmm") { turnDial(p); return; }
       toggleRun();
     }
   });
@@ -943,13 +1096,17 @@
   // ------------------------------------------------------------------ drawing the board
   let lastFrame = 0;
   function draw(now) {
-    const C = S.colors, sc = S.view.scale;
+    const C = S.colors, sc = S.view.scale, REAL = SET.look === "real" && !!window.CircuitReal;
     ctx.clearRect(0, 0, W, H);
-    // grid dots
-    const x0 = Math.floor(-S.view.ox / sc), y0 = Math.floor(-S.view.oy / sc), x1 = x0 + Math.ceil(W / sc) + 1, y1 = y0 + Math.ceil(H / sc) + 1;
-    ctx.fillStyle = C.grid;
-    const step = sc < 12 ? 2 : 1;
-    if (SET.grid) for (let x = x0; x <= x1; x++) { if (x % step) continue; for (let y = y0; y <= y1; y++) { if (y % step) continue; ctx.fillRect(S.view.ox + x * sc - 1, S.view.oy + y * sc - 1, 2, 2); } }
+    if (REAL) CircuitReal.board(ctx, S.view, W, H, SET.perf);   // perforated board, like a real lab bench
+    else {   // grid dots
+      const x0 = Math.floor(-S.view.ox / sc), y0 = Math.floor(-S.view.oy / sc), x1 = x0 + Math.ceil(W / sc) + 1, y1 = y0 + Math.ceil(H / sc) + 1;
+      ctx.fillStyle = C.grid;
+      const step = sc < 12 ? 2 : 1;
+      if (SET.grid) for (let x = x0; x <= x1; x++) { if (x % step) continue; for (let y = y0; y <= y1; y++) { if (y % step) continue; ctx.fillRect(S.view.ox + x * sc - 1, S.view.oy + y * sc - 1, 2, 2); } }
+    }
+    // breadboards lie under the wires and parts
+    if (window.CircuitReal) S.circuit.parts.forEach((p) => { if (p.type === "breadboard") CircuitReal.breadboard(ctx, p, S.view, CS.bbStrip, CS.BB.cols); });
     // node voltage colouring range
     let vmax = 1;
     S.circuit.wires.forEach((w) => { const v = S.sim.pointVoltage(w.x1, w.y1); if (v != null) vmax = Math.max(vmax, Math.abs(v)); });
@@ -963,6 +1120,7 @@
     ctx.lineCap = "round";
     S.circuit.wires.forEach((w, k) => {
       const sel = S.sel && S.sel.kind === "wire" && S.sel.k === k;
+      if (REAL) { CircuitReal.wire(ctx, S.view.ox + w.x1 * sc, S.view.oy + w.y1 * sc, S.view.ox + w.x2 * sc, S.view.oy + w.y2 * sc, WIRE_HEX[w.c || SET.wireCol] || "#d62828", sc, sel); return; }
       ctx.strokeStyle = sel ? C.accent : vcol(S.sim.pointVoltage(w.x1, w.y1));
       ctx.lineWidth = sel ? 4 : Math.max(2, sc * 0.11);
       ctx.beginPath(); ctx.moveTo(S.view.ox + w.x1 * sc, S.view.oy + w.y1 * sc); ctx.lineTo(S.view.ox + w.x2 * sc, S.view.oy + w.y2 * sc); ctx.stroke();
@@ -972,15 +1130,20 @@
     S.circuit.wires.forEach((w) => { bump(w.x1, w.y1, 1); bump(w.x2, w.y2, 1); });
     S.circuit.wires.forEach((w) => deg.forEach((d, key) => { const q = key.split(",").map(Number); if (CS.onSegment(q[0], q[1], w) && !(q[0] === w.x1 && q[1] === w.y1) && !(q[0] === w.x2 && q[1] === w.y2)) deg.set(key, d + 2); }));
     allPins().forEach((q) => bump(q.x, q.y, 1));
-    deg.forEach((d, key) => { if (d < 3) return; const q = key.split(",").map(Number); ctx.fillStyle = vcol(S.sim.pointVoltage(q[0], q[1])); ctx.beginPath(); ctx.arc(S.view.ox + q[0] * sc, S.view.oy + q[1] * sc, Math.max(3, sc * 0.17), 0, Math.PI * 2); ctx.fill(); });
-    // current dots
+    deg.forEach((d, key) => {
+      if (d < 3) return;
+      const q = key.split(",").map(Number);
+      ctx.fillStyle = REAL ? "#cfd4da" : vcol(S.sim.pointVoltage(q[0], q[1]));      // a solder blob on the real board
+      ctx.beginPath(); ctx.arc(S.view.ox + q[0] * sc, S.view.oy + q[1] * sc, Math.max(3, sc * (REAL ? 0.2 : 0.17)), 0, Math.PI * 2); ctx.fill();
+    });
+    // current dots: conventional current runs + to −; electron flow is the other way round
     if (S.ran && S.flows && SET.dots) {
-      const dtReal = lastFrame ? Math.min(0.05, (now - lastFrame) / 1000) : 0;
-      ctx.fillStyle = C.dark ? "#ffe066" : "#e8a100";
+      const dtReal = lastFrame ? Math.min(0.05, (now - lastFrame) / 1000) : 0, dir = SET.flow === "electron" ? -1 : 1;
+      ctx.fillStyle = SET.flow === "electron" ? (C.dark ? "#7dd3fc" : "#0284c7") : (C.dark ? "#ffe066" : "#e8a100");
       S.flows.edges.forEach((e, k) => {
         const i = e.i, a = Math.abs(i);
         if (a < 1e-7) return;
-        const speed = Math.sign(i) * Math.min(5, 0.6 + Math.log10(a / 1e-7) * 0.7);   // grid units per second, log of current
+        const speed = dir * Math.sign(i) * Math.min(5, 0.6 + Math.log10(a / 1e-7) * 0.7);   // grid units per second, log of current
         const ph = ((S.dotPhase.get(k) || 0) + speed * (S.running ? dtReal : 0)) % 1;
         S.dotPhase.set(k, ph);
         const len = Math.hypot(e.pb[0] - e.pa[0], e.pb[1] - e.pa[1]);
@@ -995,29 +1158,40 @@
     S.circuit.parts.forEach((p) => {
       const info = S.sim.partInfo(p.id); infos[p.id] = info;
       const sel = S.sel && S.sel.kind === "part" && S.sel.id === p.id;
+      if (p.type === "breadboard") { if (sel) { const b = partBox(p); ctx.save(); ctx.strokeStyle = C.accent; ctx.setLineDash([5, 4]); ctx.lineWidth = 2; ctx.strokeRect(S.view.ox + b[0] * sc, S.view.oy + b[1] * sc, (b[2] - b[0]) * sc, (b[3] - b[1]) * sc); ctx.restore(); } return; }
       if (sel) { const b = partBox(p); ctx.save(); ctx.strokeStyle = C.accent; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5; ctx.strokeRect(S.view.ox + (b[0] - 0.35) * sc, S.view.oy + (b[1] - 0.35) * sc, (b[2] - b[0] + 0.7) * sc, (b[3] - b[1] + 0.7) * sc); ctx.restore(); }
-      drawSymbol(ctx, p, info);
-      // pin dots
-      CS.pinPositions(p).forEach((q) => { ctx.fillStyle = vcol(S.sim.pointVoltage(q[0], q[1])); ctx.beginPath(); ctx.arc(S.view.ox + q[0] * sc, S.view.oy + q[1] * sc, Math.max(2, sc * 0.1), 0, Math.PI * 2); ctx.fill(); });
+      if (!REAL || !CircuitReal.part(pen(ctx, p), p, info, realEnv())) drawSymbol(ctx, p, info);
+      // pin dots (on the real board: shiny solder joints)
+      CS.pinPositions(p).forEach((q) => { ctx.fillStyle = REAL ? "#c3c9cf" : vcol(S.sim.pointVoltage(q[0], q[1])); ctx.beginPath(); ctx.arc(S.view.ox + q[0] * sc, S.view.oy + q[1] * sc, Math.max(2, sc * (REAL ? 0.14 : 0.1)), 0, Math.PI * 2); ctx.fill(); });
+      const b = partBox(p);
+      if (info && info.stress > 0.01 && !info.burnt) heatBar(p, b, info.stress);
+      if (p.type === "text" || p.type === "port") return;
       // label + value (never rotated)
-      const b = partBox(p), vertical = (p.rot % 2 === 1) && !/^(battery|dcsupply|acsource|isource)$/.test(p.type) || (p.rot % 2 === 0 && /^(battery|dcsupply|acsource|isource)$/.test(p.type));
+      const vertical = (p.rot % 2 === 1) && !/^(battery|dcsupply|acsource|isource|breaker)$/.test(p.type) || (p.rot % 2 === 0 && /^(battery|dcsupply|acsource|isource|breaker)$/.test(p.type));
       const fs = Math.max(9, Math.min(14, sc * 0.5));
-      ctx.font = "600 " + fs + "px JetBrains Mono, ui-monospace, monospace"; ctx.fillStyle = C.accent;
+      ctx.font = "600 " + fs + "px JetBrains Mono, ui-monospace, monospace"; ctx.fillStyle = REAL ? (SET.perf === "white" || SET.perf === "cream" || SET.perf === "yellow" ? "#1c2638" : "#ffffff") : C.accent;
       let lx, ly;
       if (vertical) { ctx.textAlign = "left"; lx = S.view.ox + (b[2] + 0.45) * sc; ly = S.view.oy + (p.y - 0.25) * sc; }
       else { ctx.textAlign = "center"; lx = S.view.ox + p.x * sc; ly = S.view.oy + (b[1] - 0.55) * sc; }
       ctx.textBaseline = "middle";
+      if (info && info.stress > 0.01 && !info.burnt && !vertical) ly -= sc * 0.45;      // room for the heat bar
       if (p.type !== "ground") ctx.fillText(p.label, lx, vertical ? ly : ly - fs * 0.55);
       const vt = valueText(p);
-      if (vt && SET.values) { ctx.fillStyle = C.muted; ctx.font = "500 " + (fs * 0.92) + "px JetBrains Mono, ui-monospace, monospace"; ctx.fillText(vt, lx, vertical ? ly + fs * 1.1 : ly + fs * 0.5); }
-      if (info && info.reading != null) {
-        const txt = fmt(info.reading, info.unit, 4), x = vertical ? lx : S.view.ox + p.x * sc, y = vertical ? ly + fs * 2.3 : S.view.oy + (b[3] + 0.8) * sc;
+      if (vt && SET.values && !REAL) { ctx.fillStyle = C.muted; ctx.font = "500 " + (fs * 0.92) + "px JetBrains Mono, ui-monospace, monospace"; ctx.fillText(vt, lx, vertical ? ly + fs * 1.1 : ly + fs * 0.5); }
+      if (info && (info.reading != null || info.display) && !(REAL && /^(voltmeter|ammeter|dmm|wattmeter)$/.test(p.type))) {
+        const txt = info.display || fmt(info.reading, info.unit, 4), x = vertical ? lx : S.view.ox + p.x * sc, y = vertical ? ly + fs * 2.3 : S.view.oy + (b[3] + 0.8) * sc;
         ctx.font = "700 " + (fs * 1.05) + "px JetBrains Mono, ui-monospace, monospace";
         const wv = ctx.measureText(txt).width + 10;
         ctx.fillStyle = C.dark ? "#06101e" : "#0f1b2d"; roundRect(vertical ? x - 3 : x - wv / 2, y - fs * 0.8, wv, fs * 1.6, 5); ctx.fill();
         ctx.fillStyle = "#7CFFB2"; ctx.textAlign = vertical ? "left" : "center"; ctx.fillText(txt, vertical ? x + 2 : x, y);
       }
-      if (info && info.burnt) { ctx.fillStyle = C.err; ctx.font = "700 " + fs + "px system-ui"; ctx.textAlign = "center"; ctx.fillText("💥 " + t("burnt"), S.view.ox + p.x * sc, S.view.oy + (b[3] + 0.9) * sc); }
+      if (info && info.burnt) {
+        const msg = "💥 " + (info.burnt === "blown" ? t("blownTap") : t("burntTap"));
+        ctx.font = "700 " + fs + "px system-ui"; ctx.textAlign = "center";
+        const wv = ctx.measureText(msg).width + 12, bx = S.view.ox + p.x * sc, by = S.view.oy + (b[3] + 0.95) * sc;
+        ctx.fillStyle = "rgba(127,29,29,.88)"; roundRect(bx - wv / 2, by - fs * 0.85, wv, fs * 1.7, 6); ctx.fill();
+        ctx.fillStyle = "#fff"; ctx.fillText(msg, bx, by);
+      }
     });
     // ghost of the part being placed / wire being drawn
     if (S.mode === "place" && S.placing && S.hover) {
@@ -1071,6 +1245,35 @@
     if (!S.circuit.parts.length) { ctx.fillStyle = C.muted; ctx.font = "500 15px system-ui"; ctx.textAlign = "center"; ctx.fillText(t("empty"), W / 2, H / 2); }
     lastFrame = now;
     return infos;
+  }
+  // overload heat above a part: fills green -> yellow -> red; at the end the part burns
+  function heatBar(p, b, f) {
+    const sc = S.view.scale, w = Math.max(30, Math.min(70, (b[2] - b[0]) * sc * 0.8)), h = Math.max(5, sc * 0.22);
+    const x = S.view.ox + (b[0] + b[2]) / 2 * sc - w / 2, y = S.view.oy + b[1] * sc - h - Math.max(4, sc * 0.25);
+    ctx.save();
+    ctx.fillStyle = "rgba(10,14,22,.75)"; roundRect(x - 2, y - 2, w + 4, h + 4, 4); ctx.fill();
+    const gr = ctx.createLinearGradient(x, 0, x + w, 0);
+    gr.addColorStop(0, "#22c55e"); gr.addColorStop(0.5, "#facc15"); gr.addColorStop(1, "#ef4444");
+    ctx.fillStyle = gr; roundRect(x, y, Math.max(2, w * f), h, 3); ctx.fill();
+    if (f > 0.5) {   // smoke starts curling up
+      const c = [S.view.ox + p.x * sc, S.view.oy + p.y * sc], ph = performance.now() / 700;
+      for (let k = 0; k < 2; k++) { const q = (ph + k / 2) % 1; ctx.fillStyle = "rgba(150,150,150," + (0.35 * (1 - q) * (f - 0.5) * 2) + ")"; ctx.beginPath(); ctx.arc(c[0] + Math.sin(ph * 3 + k) * 4, c[1] - q * sc * 2, sc * (0.2 + q * 0.4), 0, Math.PI * 2); ctx.fill(); }
+    }
+    ctx.restore();
+  }
+  function capCode(C) {   // ceramic capacitor marking: 2 digits + number of zeros, in pF (104 = 100 nF)
+    const pf = C * 1e12;
+    if (!(pf > 0)) return "0";
+    if (pf < 10) return Number(pf.toPrecision(2)) + "p";
+    let e = Math.floor(Math.log10(pf)) - 1, sig = Math.round(pf / Math.pow(10, e));
+    if (sig >= 100) { sig = Math.round(sig / 10); e += 1; }
+    return String(sig) + String(e);
+  }
+  let ENV = null;
+  function realEnv() {
+    if (!ENV) ENV = { bands: CS.bands, smd: CS.smdCode, fmt: fmt, ledRGB: CS.LED_RGB, PARTS: PARTS, capCode: capCode, state: (id) => S.sim.state(id) };
+    ENV.ink = S.colors.dark && !(SET.perf === "white" || SET.perf === "cream" || SET.perf === "yellow") ? "#e6f0ff" : "#1c2638";
+    return ENV;
   }
   function roundRect(x, y, w, hh, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + hh, r); ctx.arcTo(x + w, y + hh, x, y + hh, r); ctx.arcTo(x, y + hh, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
   function mix(a, b, f) {
@@ -1204,7 +1407,7 @@
     const groups = [];
     if (!q) groups.push(h("details", { class: "pgroup", open: true }, h("summary", { class: "lbl" }, "★ " + t("common")), h("div", { class: "pgrid" }, COMMON.map((k) => item(PARTS[k])))));
     CS.CATS.forEach(([cat, label]) => {
-      const items = Object.values(PARTS).filter((d) => d.cat === cat && match(d));
+      const items = Object.values(PARTS).filter((d) => d.cat === cat && match(d) && (!d.custom || S.ics[d.type.slice(3)]));
       if (items.length) groups.push(h("details", { class: "pgroup", open: q ? true : null }, h("summary", { class: "lbl" }, tr(label) + " (" + items.length + ")"), items.map(item)));
     });
     fill($("palette"), groups);
@@ -1252,6 +1455,9 @@
         extra.push(h("div", { class: "chips" }, q.choices.map((c) => h("button", { type: "button", class: "swatch" + (c[0] === val ? " on" : ""), style: "--sw:" + (CS.LED_RGB[c[0]] || "#888"),
           "aria-label": tr(c[1]), title: tr(c[1]), "aria-pressed": String(c[0] === val), onclick: () => setVal(c[0]) }))));
       }
+    } else if (q.text) {
+      control = h("input", { id: id, type: "text", value: String(val == null ? "" : val), maxlength: "80",
+        onchange: (e) => { const v = e.target.value.trim().slice(0, 80); if (p.type === "port") setVal(v.replace(/\s+/g, "_").slice(0, 8) || "P"); else setVal(v); } });
     } else if (q.bool) {
       control = h("input", { id: id, type: "checkbox", onchange: (e) => { p.p[q.k] = e.target.checked; apply(); } });
       control.checked = val === true;
@@ -1384,7 +1590,10 @@
     document.documentElement.lang = S.lang; document.title = t("title") + " · Quantix";
     $("tTitle").textContent = t("title");
     [["selBtn", "select"], ["wireBtn", "wire"], ["cutBtn", "cut"], ["fitBtn", "fit"], ["newBtn", "clear"], ["v2d", "view2d"], ["v3d", "view3d"], ["saveBtn", "save"], ["openBtn", "open"],
-      ["shareBtn", "share"], ["pngBtn", "png"], ["bomBtn", "bom"], ["resetBtn", "reset"], ["speedLbl", "speed"], ["tdivLbl", "tdiv"]].forEach(([id, k]) => { $(id).textContent = t(k); });
+      ["shareBtn", "share"], ["pngBtn", "png"], ["bomBtn", "bom"], ["resetBtn", "reset"], ["speedLbl", "speed"], ["tdivLbl", "tdiv"],
+      ["vReal", "viewReal"], ["flowLbl", "flowLbl"], ["kirchBtn", "kirch"], ["spiceBtn", "spiceBtn"], ["icBtn", "icBtn"], ["keysBtn", "keysBtn"], ["dlgClose", "close"]].forEach(([id, k]) => { $(id).textContent = t(k); });
+    fill($("flowSel"), [["conv", t("conv")], ["electron", t("electron")]].map(([v, l]) => { const o = h("option", { value: v }, l); if (SET.flow === v) o.selected = true; return o; }));
+    renderSlides(); setView(S.view3d);
     $("undoBtn").textContent = t("undo"); $("redoBtn").textContent = t("redo");
     $("undoBtn").setAttribute("aria-label", "Undo (Ctrl+Z)"); $("redoBtn").setAttribute("aria-label", "Redo (Ctrl+Y)");
     $("partsLbl").textContent = t("parts"); $("psearch").placeholder = t("search"); $("propsLbl").textContent = t("props"); $("liveLbl").textContent = t("live"); $("scopeLbl").textContent = t("scope");
@@ -1402,8 +1611,14 @@
     const style = h("select", { id: "set-style", onchange: (e) => { SET.style = e.target.value; saveSet(); } }, [["iec", t("iec")], ["ansi", t("ansi")]].map(([v, l]) => { const o = h("option", { value: v }, l); if (SET.style === v) o.selected = true; return o; }));
     const board = h("div", { class: "chips", role: "group", "aria-label": t("board") }, t("boards").map(([v, l]) => h("button", { type: "button", class: "swatch board" + (SET.board === v ? " on" : ""), "data-board": v, title: l, "aria-label": l, "aria-pressed": String(SET.board === v),
       onclick: () => { SET.board = v; saveSet(); if (S.pcb && S.pcb.setBoard) S.pcb.setBoard(v); renderSettings(); } })));
+    const perfHex = { yellow: "#d6cd6c", green: "#2f7d4a", blue: "#2d5a9e", white: "#eceff3", black: "#20242b", cream: "#efe2c4" };
+    const perf = h("div", { class: "chips", role: "group", "aria-label": t("perf") }, Object.keys(perfHex).map((v) => h("button", { type: "button", class: "swatch" + (SET.perf === v ? " on" : ""), style: "--sw:" + perfHex[v],
+      title: t("perfs")[v], "aria-label": t("perfs")[v], "aria-pressed": String(SET.perf === v), onclick: () => { SET.perf = v; saveSet(); renderSettings(); } })));
+    const wcols = h("div", { class: "chips", role: "group", "aria-label": t("wireColLbl") }, (window.CircuitReal ? CircuitReal.WIRE_COLOURS : []).map(([v, hex]) => h("button", { type: "button", class: "swatch" + (SET.wireCol === v ? " on" : ""), style: "--sw:" + hex,
+      title: t("wcol")[v], "aria-label": t("wcol")[v], "aria-pressed": String(SET.wireCol === v), onclick: () => { SET.wireCol = v; saveSet(); renderSettings(); } })));
     fill($("settings"), h("summary", {}, t("settings")), h("div", { class: "setgrid" },
       h("label", { for: "set-style", class: "setrow" }, t("style") + " "), style, chk("grid", t("grid")), chk("vcol", t("vcol")), chk("dots", t("dots")), chk("values", t("vals")),
+      h("div", { class: "setrow" }, t("perf")), perf, h("div", { class: "setrow" }, t("wireColLbl")), wcols,
       h("div", { class: "setrow" }, t("board")), board));
   }
   function renderTip() {
@@ -1464,12 +1679,13 @@
   function setView(three) {
     if (three && !window.CircuitPCB3D) {
       $("v3d").disabled = true;
-      (window.THREE ? Promise.resolve() : loadScript("/web/vendor/three.min.js")).then(() => loadScript("/web/circuit_3d.js?v=20261029a"))
+      (window.THREE ? Promise.resolve() : loadScript("/web/vendor/three.min.js")).then(() => loadScript("/web/circuit_3d.js?v=20261030a"))
         .then(() => { $("v3d").disabled = false; setView(true); }, () => { $("v3d").disabled = false; announce("3D could not load."); });
       return;
     }
     S.view3d = three;
-    $("v2d").setAttribute("aria-pressed", String(!three)); $("v3d").setAttribute("aria-pressed", String(three));
+    $("v2d").setAttribute("aria-pressed", String(!three && SET.look !== "real")); $("vReal").setAttribute("aria-pressed", String(!three && SET.look === "real"));
+    $("v3d").setAttribute("aria-pressed", String(three));
     $("cv").hidden = three; $("pcb").hidden = !three; $("tip3d").hidden = !three;
     if (three) {
       if (!S.pcb) S.pcb = window.CircuitPCB3D.create($("pcb"));
@@ -1477,6 +1693,107 @@
       S.pcb.setCircuit(S.circuit); S.pcb.resize();
     }
   }
+
+  // ------------------------------------------------------------------ slides: several circuits in one project
+  const SLIDES = "quantix-circuit-slides";
+  S.slides = null; S.slide = 0;
+  try { const d = JSON.parse(localStorage.getItem(SLIDES) || "null"); if (d && Array.isArray(d.list) && d.list.length) { S.slides = d.list.slice(0, 40); S.slide = Math.min(+d.cur || 0, S.slides.length - 1); } } catch (_) { S.slides = null; }
+  function slidesSave() {
+    if (!S.slides) return;
+    S.slides[S.slide].c = snapshot();
+    try { localStorage.setItem(SLIDES, JSON.stringify({ list: S.slides, cur: S.slide })); } catch (_) { /* private mode or full */ }
+  }
+  function switchSlide(k) {
+    if (!S.slides || k === S.slide || !S.slides[k]) return;
+    slidesSave(); S.slide = k;
+    let c; try { c = JSON.parse(S.slides[k].c); } catch (_) { c = { parts: [], wires: [] }; }
+    S.undo = []; S.redo = [];
+    loadCircuit(c); renderSlides(); announce(t("slideName") + " " + S.slides[k].name);
+  }
+  function addSlide(copy) {
+    slidesSave();
+    S.slides.push({ name: String(S.slides.length + 1), c: copy ? snapshot() : JSON.stringify({ parts: [], wires: [] }) });
+    switchSlide(S.slides.length - 1);
+  }
+  function deleteSlide() {
+    if (!S.slides || S.slides.length < 2) return;
+    S.slides.splice(S.slide, 1); S.slide = Math.max(0, S.slide - 1);
+    let c; try { c = JSON.parse(S.slides[S.slide].c); } catch (_) { c = { parts: [], wires: [] }; }
+    S.undo = []; S.redo = []; loadCircuit(c); renderSlides();
+  }
+  function renderSlides() {
+    if (!S.slides) return;
+    fill($("slides"), h("span", { class: "keys" }, t("slides") + ":"), S.slides.map((s, k) => h("button", { type: "button", role: "tab", class: "slide", "aria-selected": String(k === S.slide), title: t("renameSlide"),
+      onclick: () => switchSlide(k),
+      ondblclick: (e) => {
+        const inp = h("input", { type: "text", value: s.name, maxlength: "20", "aria-label": t("slideName"), class: "slide",
+          onkeydown: (ev) => { if (ev.key === "Enter") inp.blur(); if (ev.key === "Escape") { inp.value = s.name; inp.blur(); } },
+          onblur: () => { s.name = inp.value.trim().slice(0, 20) || s.name; slidesSave(); renderSlides(); } });
+        e.currentTarget.replaceWith(inp); inp.focus(); inp.select();
+      } }, s.name)),
+      h("button", { type: "button", class: "btn small", onclick: () => addSlide(false) }, t("addSlide")),
+      h("button", { type: "button", class: "btn small", title: t("dup"), "aria-label": t("dup"), onclick: () => addSlide(true) }, t("dupSlide")),
+      S.slides.length > 1 ? h("button", { type: "button", class: "btn small", title: t("del"), "aria-label": t("del"), onclick: deleteSlide }, t("delSlide")) : null);
+  }
+
+  // ------------------------------------------------------------------ dialogs: Kirchhoff, IC creator, shortcuts
+  function openDlg(title, body) {
+    $("dlgTitle").textContent = title; fill($("dlgBody"), body);
+    const d = $("dlg"); if (!d.open) { if (d.showModal) d.showModal(); else d.setAttribute("open", ""); }
+  }
+  $("dlgClose").onclick = () => { $("dlg").close(); cv.focus(); };
+  function kirchhoffView() {
+    const k = CS.kirchhoff(S.sim), A = (x) => fmt(x, "A"), V = (x) => fmt(x, "V");
+    const mark = (ok) => h("span", { class: ok ? "okk" : "bad" }, ok ? " ✓" : " ✗");
+    const signed = (x, f) => (x >= 0 ? "+" : "−") + f(Math.abs(x));
+    openDlg(t("kTitle"), [
+      S.ran ? null : h("p", { class: "warn" }, t("runFirst")),
+      h("p", { class: "muted" }, t("kNote")),
+      h("h3", {}, t("kclT")),
+      h("div", { class: "kgrid" }, k.kcl.map((n) => h("div", { class: "kbox" },
+        h("h4", {}, t("node") + " " + (n.node === 0 ? "0 (" + t("ground0") + ")" : n.node) + " · V = " + V(n.v)),
+        h("div", { class: "kterms" }, n.terms.map((tm) => tm.name + " " + signed(tm.i, A)).join("   "), h("br"), t("sumL") + " = " + A(n.sum), mark(n.ok))))),
+      h("h3", {}, t("kvlT")),
+      k.kvl.length ? h("div", { class: "kgrid" }, k.kvl.map((l, j) => h("div", { class: "kbox" },
+        h("h4", {}, "Loop " + (j + 1) + ": " + l.terms.map((tm) => tm.name).join(" → ") + " → " + l.terms[0].name),
+        h("div", { class: "kterms" }, l.terms.map((tm) => signed(tm.v, V) + " (" + tm.name + ")").join(" "), " = " + V(l.sum), mark(l.ok))))) : h("p", { class: "muted" }, t("noLoops")),
+      h("p", {}, h("button", { type: "button", class: "btn small", onclick: kirchhoffView }, t("refresh"))),
+    ]);
+  }
+  function spiceExport() {
+    const ac = S.circuit.parts.filter((p) => p.type === "acsource").map((p) => +p.p.f).filter((f) => f > 0);
+    const stop = ac.length ? 5 / Math.min(...ac) : 0.01;
+    const name = (S.slides && S.slides[S.slide] ? S.slides[S.slide].name : "circuit").replace(/[^\w-]+/g, "_");
+    download(name + ".cir", "text/plain", CS.spice(S.sim, { title: "Quantix Circuit Lab — " + name, stop: stop }));
+  }
+  function icView(msg) {
+    const ports = S.circuit.parts.filter((p) => p.type === "port");
+    const mid = ports.length ? ports.reduce((s, p) => s + p.x, 0) / ports.length : 0;
+    const left = ports.filter((p) => p.x <= mid).sort((a, b) => a.y - b.y), right = ports.filter((p) => p.x > mid).sort((a, b) => a.y - b.y);
+    const name = h("input", { type: "text", id: "icName", value: "MyChip", maxlength: "24" });
+    const create = () => {
+      const pins = left.concat(right).map((p) => String(p.p.name || "P"));
+      if (!pins.length) return icView(t("icNoPorts"));
+      const dup = pins.find((n, i) => pins.indexOf(n) !== i);
+      if (dup) return icView(t("icDup") + dup);
+      const nm = name.value.trim().slice(0, 24) || "MyChip", key = nm.replace(/[^\w]+/g, "_").slice(0, 20) + "_" + Date.now().toString(36);
+      registerICs({ [key]: { name: nm, pinNames: pins, circuit: withICs(JSON.parse(snapshot())) } });
+      saveICs(); renderPalette(); announce(t("icMade")); icView("✓ " + nm + " — " + t("icMade"));
+    };
+    openDlg(t("icTitle"), [
+      h("p", {}, t("icHelp")),
+      msg ? h("p", { class: msg[0] === "✓" ? "okk" : "warn" }, msg) : null,
+      h("div", { class: "param" }, h("label", { for: "icName" }, t("icName")), name),
+      h("p", { class: "kterms" }, "◀ " + (left.map((p) => p.p.name).join(", ") || "—") + "   |   " + (right.map((p) => p.p.name).join(", ") || "—") + " ▶"),
+      h("p", {}, h("button", { type: "button", class: "btn primary", onclick: create }, t("icMake"))),
+      Object.keys(S.ics).length ? h("div", {}, h("h3", {}, t("icMine")), h("ul", {}, Object.entries(S.ics).map(([key, def]) => h("li", {}, def.name + " (" + def.pinNames.join(", ") + ") ",
+        h("button", { type: "button", class: "btn small", onclick: () => { delete S.ics[key]; saveICs(); renderPalette(); icView(); } }, t("icDel")))))) : null,
+    ]);
+  }
+  function keysView() {
+    openDlg(t("keysT"), h("table", { class: "keytab" }, h("tbody", {}, t("keyList").map(([k, v]) => h("tr", {}, h("td", {}, k), h("td", {}, v))))));
+  }
+  $("kirchBtn").onclick = kirchhoffView; $("spiceBtn").onclick = spiceExport; $("icBtn").onclick = () => icView(); $("keysBtn").onclick = keysView;
 
   // ------------------------------------------------------------------ main loop
   let last = 0;
@@ -1505,7 +1822,9 @@
   $("fitBtn").onclick = () => { fit(); if (S.pcb && S.view3d) S.pcb.setCircuit(S.circuit); };
   $("newBtn").onclick = () => { if (S.snap) { S.undo.push(S.snap); S.redo = []; } loadCircuit({ parts: [], wires: [] }); };
   $("examples").onchange = (e) => { if (e.target.value) loadExample(e.target.value); e.target.value = ""; };
-  $("v2d").onclick = () => setView(false); $("v3d").onclick = () => setView(true);
+  const setLook = (look) => { SET.look = look; saveSet(); setView(false); renderSettings(); };
+  $("v2d").onclick = () => setLook("schematic"); $("vReal").onclick = () => setLook("real"); $("v3d").onclick = () => setView(true);
+  $("flowSel").onchange = (e) => { SET.flow = e.target.value; saveSet(); announce(t(SET.flow === "electron" ? "electron" : "conv")); };
   $("psearch").oninput = renderPalette;
   $("ch1").onchange = $("ch2").onchange = (e) => {
     const k = e.target.id === "ch1" ? 0 : 1, v = e.target.value;
@@ -1516,7 +1835,7 @@
   $("holdBtn").onclick = () => { S.scopeHold = !S.scopeHold; $("holdBtn").textContent = S.scopeHold ? t("go") : t("hold"); };
   $("sound").onchange = (e) => { S.sound = e.target.checked; };
   $("damage").onchange = (e) => { S.damage = e.target.checked; S.sim.damage = S.damage; };
-  $("saveBtn").onclick = () => download("circuit.quantix.json", "application/json", JSON.stringify(S.circuit, null, 1));
+  $("saveBtn").onclick = () => download("circuit.quantix.json", "application/json", JSON.stringify(withICs(S.circuit), null, 1));
   $("openBtn").onclick = () => $("fileIn").click();
   $("fileIn").onchange = (e) => {
     const f = e.target.files[0]; if (!f) return;
@@ -1524,8 +1843,8 @@
     e.target.value = "";
   };
   $("shareBtn").onclick = () => {
-    const url = location.origin + location.pathname + "#c=" + encode(S.circuit);
-    history.replaceState(null, "", "#c=" + encode(S.circuit));
+    const url = location.origin + location.pathname + "#c=" + encode(withICs(S.circuit));
+    history.replaceState(null, "", "#c=" + encode(withICs(S.circuit)));
     if (window.QuantixShare && (navigator.share || window.QuantixAndroid)) { window.QuantixShare({ title: t("title") + " · Quantix", url: url }); return; }
     (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => announce(t("copied")), () => announce(t("copyFail")));
     $("say").textContent = navigator.clipboard ? t("copied") : t("copyFail");
@@ -1561,10 +1880,16 @@
   if (m) { try { start = decode(m[1]); } catch (_) { start = null; } }
   const exHash = location.hash.match(/^#ex=([\w-]+)/);
   if (!start && exHash && EXAMPLES.some((x) => x.id === exHash[1])) startEx = exHash[1];
-  if (!start && !startEx) { try { const saved = localStorage.getItem(STORE); if (saved) start = JSON.parse(saved); } catch (_) { start = null; } }
-  if (start && start.parts && start.parts.length) loadCircuit(start);
+  if (S.slides) {   // a shared link or example opens as a new slide; otherwise the slide you were on
+    if (start || startEx) { S.slides.push({ name: String(S.slides.length + 1), c: "{}" }); S.slide = S.slides.length - 1; }
+    else { try { start = JSON.parse(S.slides[S.slide].c); } catch (_) { start = null; } }
+  }
+  if (!start && !startEx && !S.slides) { try { const saved = localStorage.getItem(STORE); if (saved) start = JSON.parse(saved); } catch (_) { start = null; } }
+  if (start && start.parts && (start.parts.length || S.slides)) loadCircuit(start);
   else { const ex = EXAMPLES.find((x) => x.id === (startEx || "led")); loadCircuit(ex ? ex.make() : { parts: [], wires: [] }, ex && ex.id); }
+  if (!S.slides) { S.slides = [{ name: "1", c: snapshot() }]; S.slide = 0; slidesSave(); }
+  renderSlides();
   $("sound").checked = S.sound; $("damage").checked = S.damage;
   requestAnimationFrame(frame);
-  window.QuantixCircuit = { state: S, loadExample: loadExample };   // for tests / debugging
+  window.QuantixCircuit = { state: S, loadExample: loadExample, load: loadCircuit };   // for tests / debugging
 })();
