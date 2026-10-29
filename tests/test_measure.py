@@ -175,3 +175,43 @@ def test_unknown_object_falls_back_to_its_outline():
     assert d.class_name == "cuboid"
     assert d.x1 == pytest.approx(150, abs=12) and d.x2 == pytest.approx(450, abs=12)
     assert d.y2 - d.y1 == pytest.approx(340, rel=0.06)
+
+
+def test_live_frame_api_finds_coin_and_shapes(client):
+    """Live camera frame: the coin sets the scale by itself, every shape comes back with 2D / 3D and real sizes."""
+    img = cv2.imread(str(SAMPLE))
+    k = 960 / max(img.shape[:2])
+    ok_, buf = cv2.imencode(".jpg", cv2.resize(img, None, fx=k, fy=k, interpolation=cv2.INTER_AREA), [cv2.IMWRITE_JPEG_QUALITY, 85])
+    body = client.post(f"{P}/measure/live", files={"file": ("f.jpg", buf.tobytes(), "image/jpeg")}, data={"ref": "coin_10"}).json()
+    assert body["success"], body
+    d = body["data"]
+    assert d["ref"]["kind"] == "circle" and d["mm_per_px"] == pytest.approx(0.1 / k, rel=0.04)
+    by = {o["class_name"]: o for o in d["objects"]}
+    assert {"rectangle", "circle", "triangle"} <= by.keys()
+    assert by["rectangle"]["dims_mm"]["l"] == pytest.approx(80, rel=0.05) and by["rectangle"]["dims_mm"]["b"] == pytest.approx(40, rel=0.06)
+    assert by["circle"]["dims_mm"]["d"] == pytest.approx(60, rel=0.05)
+    assert all(o["dimension"] == "2D" and len(o["outline"]) >= 3 for o in d["objects"])
+    # a quick frame without the models keeps the shapes through the hints from the frame above
+    hints = json.dumps([{"box": o["box"], "prior": o.get("prior"), "object": o.get("object")} for o in d["objects"]])
+    fast = client.post(f"{P}/measure/live", files={"file": ("f.jpg", buf.tobytes(), "image/jpeg")},
+                       data={"ref": "coin_10", "models": "false", "hints": hints}).json()["data"]
+    assert sorted(o["class_name"] for o in fast["objects"]) == sorted(by)
+    assert not any(o.get("object") == "frisbee" for o in d["objects"])        # a paper disc is not an everyday object
+    bad = client.post(f"{P}/measure/live", files={"file": ("f.jpg", buf.tobytes(), "image/jpeg")}, data={"ref": "nope"}).json()
+    assert not bad["success"] and bad["error"]["errorCode"] == "UNKNOWN_REFERENCE"
+
+
+def test_measure_page_has_live_camera(client):
+    html = client.get("/measure").text
+    assert 'id="liveBtn"' in html and 'id="liveVid"' in html and "/measure/live" in html
+
+
+def test_checkerboard_is_not_a_coin_but_a_lit_coin_is():
+    import numpy as np
+    yy, xx = np.mgrid[:400, :400]
+    board = (((xx // 25) + (yy // 25)) % 2 * 200 + 30).astype(np.uint8)            # a checkerboard (TV test card)
+    assert measure.circle_score(board, 200, 200, 120) < 0.55
+    table = np.full((400, 400), 120, np.uint8)
+    lit = np.clip(120 + 90 * np.cos(np.arctan2(yy - 200, xx - 200)), 0, 255)       # shiny: lighter one side, darker the other
+    coin = np.where(np.hypot(xx - 200, yy - 200) <= 60, lit, table).astype(np.uint8)
+    assert measure.circle_score(coin, 200, 200, 60) > 0.75

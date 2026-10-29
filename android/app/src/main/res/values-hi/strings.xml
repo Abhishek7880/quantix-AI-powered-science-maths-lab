@@ -12,6 +12,7 @@
     <string name="sc_chem">रसायन लैब</string>
     <string name="sc_plc">पीएलसी लैब</string>
     <string name="sc_photo">फ़ोटो AI</string>
+    <string name="sc_live">लाइव मापन</string>
     <string name="app_name">Quantix (क्वांटिक्स)</string>
     <string name="share">शेयर करें</string>
     <string name="update_title">अपडेट उपलब्ध:</string>

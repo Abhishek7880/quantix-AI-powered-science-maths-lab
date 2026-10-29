@@ -25,6 +25,7 @@ history, config, model export) answer 403, and the heavy AI routes are rate-limi
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import json
 import logging
@@ -67,6 +68,14 @@ API_PREFIX = "/api/v1"
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    if PUBLIC_MODE:                                   # load the two small models now, not on a visitor's first photo
+        def warm():
+            for kind in ("shapes", "coco"):
+                try:
+                    _auto_model(kind).predict(np.zeros((320, 320, 3), np.uint8), annotate=False)
+                except Exception:
+                    log.warning("could not warm up the %s model", kind)
+        threading.Thread(target=warm, daemon=True).start()
     yield
     s = _camera.get("session")
     if s is not None:  # always release the camera on shutdown
@@ -100,18 +109,20 @@ _OWNER_ONLY = ("/dataset", "/training", "/evaluation", "/camera", "/history", "/
 _HEAVY = ("/predict/image", "/measure/references", "/measure/shapes", "/handwriting/recognize", "/handwriting/solve",
           "/formulas/calc/solve", "/formulas/pdf")
 HEAVY_LIMIT, HEAVY_WINDOW_S = 40, 60                 # per visitor: 40 heavy requests a minute
+LIVE_LIMIT = 150                                     # live camera frames (light, no AI models): ~2.5 a second
 _heavy_hits: dict[str, list[float]] = {}
 _heavy_lock = threading.Lock()
 
 
-def _heavy_allowed(ip: str) -> bool:
+def _heavy_allowed(ip: str, limit: int | None = None) -> bool:
+    limit = HEAVY_LIMIT if limit is None else limit      # read at call time (tests and config may change it)
     now = time.monotonic()
     with _heavy_lock:
         if len(_heavy_hits) > 5000:                  # forget idle visitors so memory stays small
             for k in [k for k, v in _heavy_hits.items() if not v or now - v[-1] > HEAVY_WINDOW_S]:
                 del _heavy_hits[k]
         hits = [t for t in _heavy_hits.get(ip, []) if now - t < HEAVY_WINDOW_S]
-        if len(hits) >= HEAVY_LIMIT:
+        if len(hits) >= limit:
             _heavy_hits[ip] = hits
             return False
         hits.append(now)
@@ -126,9 +137,12 @@ async def public_guard(request: Request, call_next):
         if route.startswith(_OWNER_ONLY):
             return fail(403, "NOT_AVAILABLE_ONLINE", "Not available on the public site",
                         "Training, datasets, camera, evaluation and server files only work on the owner's own computer.")
-        if route.startswith(_HEAVY) and not _heavy_allowed(request.client.host if request.client else "?"):
+        ip = request.client.host if request.client else "?"
+        if route.startswith(_HEAVY) and not _heavy_allowed(ip):
             return fail(429, "TOO_MANY_REQUESTS", "Too many requests",
                         f"Please wait a minute — at most {HEAVY_LIMIT} image / solver requests per minute.")
+        if route == "/measure/live" and not _heavy_allowed("live:" + ip, LIVE_LIMIT):
+            return fail(429, "TOO_MANY_REQUESTS", "Too many requests", "Live measuring is busy — please wait a few seconds.")
     return await call_next(request)
 
 
@@ -380,6 +394,38 @@ async def measure_references(file: UploadFile = File(...)):
     img = await _read_upload_image(file)
     found = measure.find_references(img)
     return ok(found, f"{len(found['circles'])} circle(s), {len(found['rects'])} rectangle(s) found")
+
+
+_live_gate = asyncio.Semaphore(2)                    # the small server measures at most two live frames at once
+
+
+@app.post(f"{API_PREFIX}/measure/live", tags=["measure"])
+async def measure_live(file: UploadFile = File(...), ref: str = Form("coin_10"), mm_per_px: float | None = Form(None, gt=0),
+                       models: bool = Form(True), hints: str | None = Form(None)):
+    """One live-camera frame (send about 960 px): reference -> scale, outlines -> 2D shape / 3D solid and real size,
+    the two small models name objects (cup -> cylinder). models=false skips them (fast) and uses `hints` instead:
+    a JSON list [{box, prior, object}] the page kept from the last frame that ran them. The page averages several
+    frames; "Freeze" runs the full Measure on the sharp photo."""
+    from starlette.concurrency import run_in_threadpool
+    from src import measure
+    if ref not in measure.REFERENCES:
+        raise InputValidationError(f"Unknown reference '{ref}'.", error_code="UNKNOWN_REFERENCE", error_title="Unknown reference")
+    try:
+        hint_list = [h for h in json.loads(hints) if isinstance(h, dict)][:10] if hints else None
+    except ValueError:
+        hint_list = None
+    img = await _read_upload_image(file)
+    if max(img.shape[:2]) > 1280:                    # a whole photo by mistake: keep it quick
+        k = 1280 / max(img.shape[:2])
+        img = cv2.resize(img, (round(img.shape[1] * k), round(img.shape[0] * k)), interpolation=cv2.INTER_AREA)
+    if _live_gate.locked():                          # the page simply sends its next frame a little later
+        return fail(503, "BUSY", "Busy", "Live measuring is busy — trying again.")
+    async with _live_gate:
+        t0 = time.perf_counter()
+        r = await run_in_threadpool(measure.live_frame, img, ref, CLASS_KNOWLEDGE, mm_per_px, 3,
+                                    _auto_model if models else None, hint_list)
+    r["ms"] = round((time.perf_counter() - t0) * 1000, 1)
+    return ok(r, f"{len(r['objects'])} object(s)" + ("" if r["mm_per_px"] else " — no reference in view"))
 
 
 @app.post(f"{API_PREFIX}/measure/shapes", tags=["measure"])

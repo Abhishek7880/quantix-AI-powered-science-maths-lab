@@ -330,7 +330,7 @@
     const setNet = (ok) => root.classList.toggle("is-offline", !ok);
     try { setNet(A.isOnline ? A.isOnline() : navigator.onLine); } catch (_) { /* older app */ }
     addEventListener("quantix-net", (e) => setNet(e.detail));
-    const live = /\/api\/v1\/(predict|measure\/(references|shapes)|feedback|contact|handwriting|solve|eq|formulas\/(pdf|calc\/solve)|chemistry)/;
+    const live = /\/api\/v1\/(predict|measure\/(references|shapes|live)|feedback|contact|handwriting|solve|eq|formulas\/(pdf|calc\/solve)|chemistry)/;
     const f0 = window.fetch.bind(window);
     window.fetch = (input, init) => f0(input, init).catch((err) => {
       const u = typeof input === "string" ? input : (input && input.url) || "";

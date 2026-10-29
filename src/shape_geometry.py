@@ -212,7 +212,7 @@ def analyse(img: np.ndarray, mask: np.ndarray, prior: str | None = None) -> dict
     edges, _ = _inner_edges(img, mask)
     poly = _poly(cnt, P)
     nv = len(poly)
-    outline = cv2.approxPolyDP(cnt, 0.004 * P, True).reshape(-1, 2).astype(int).tolist()[:160]
+    outline = cv2.approxPolyDP(cnt, min(1.5, 0.003 * P), True).reshape(-1, 2).astype(int).tolist()[:240]
     # flat (2D) or solid (3D)? Shading and inner edges say "solid"; a detector's solid label too.
     looks_3d = shade > 10 or edges > 1.2
     # how well the fitted ellipse covers the outline (a drawn or cut circle/ellipse: ~0.97+; polygons: lower)

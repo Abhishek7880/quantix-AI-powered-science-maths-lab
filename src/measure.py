@@ -78,11 +78,14 @@ def refine_circle(gray: np.ndarray, cx: float, cy: float, r: float) -> tuple[flo
 
 
 def circle_score(gray: np.ndarray, cx: float, cy: float, r: float) -> float:
-    """Share of 120 rays that cross a clear edge within ±15 % of the radius (a real coin rim: about 0.8–1.0;
-    a Hough circle found in wood grain or a shadow: well below 0.5)."""
+    """Share of 120 rays that cross a clear edge within ±15 % of the radius (a real coin rim: about 0.8–1.0; a
+    Hough circle found in wood grain or a shadow: well below 0.5). Going round a real rim, "lighter than outside"
+    and "darker than outside" change only a few times (a shiny coin: lit side, shaded side: 0–2 changes); a circle
+    found in a checkerboard or texture flips every few rays (16–32), so its score is halved. Circles mostly outside
+    the frame score 0."""
     g = cv2.GaussianBlur(gray, (3, 3), 0).astype(np.float32)
     h, w = g.shape
-    hit = tot = 0
+    signs, tot = [], 0
     for a in np.linspace(0, 2 * np.pi, 120, endpoint=False):
         rr = np.linspace(0.85 * r, 1.15 * r, 16)
         xs, ys = cx + rr * np.cos(a), cy + rr * np.sin(a)
@@ -90,8 +93,13 @@ def circle_score(gray: np.ndarray, cx: float, cy: float, r: float) -> float:
             continue
         prof = cv2.remap(g, xs.reshape(1, -1).astype(np.float32), ys.reshape(1, -1).astype(np.float32), cv2.INTER_LINEAR).ravel()
         tot += 1
-        hit += float(np.abs(prof[:4].mean() - prof[-4:].mean())) > 12
-    return hit / tot if tot > 20 else 0.0
+        step = float(prof[:4].mean() - prof[-4:].mean())
+        if abs(step) > 12:
+            signs.append(step > 0)
+    if tot < 90:
+        return 0.0
+    flips = sum(signs[i] != signs[i - 1] for i in range(len(signs))) if len(signs) > 1 else 0
+    return len(signs) / tot * (1.0 if flips <= 6 else 0.5)
 
 
 def best_reference(img: np.ndarray, ref_key: str) -> dict | None:
@@ -296,6 +304,146 @@ def _shape_entry(cls: str, dims_mm: dict, class_info: dict, extra: dict) -> dict
             "variables": info.get("variables", {}), "results": _evaluate(info, dims_formula), **extra}
 
 
+def _is_reference(mask: np.ndarray, exclude: dict | None) -> bool:
+    """Is this region the reference itself (the coin / card that sets the scale)?"""
+    if not exclude:
+        return False
+    ys, xs = np.nonzero(mask)
+    if not len(xs):
+        return False
+    if "circle" in exclude:
+        c = exclude["circle"]
+        return math.hypot(xs.mean() - c["cx"], ys.mean() - c["cy"]) < 0.6 * c["r"] and 0.5 < math.sqrt(len(xs) / math.pi) / c["r"] < 1.5
+    if "rect" in exclude:
+        pts = np.array(exclude["rect"]["pts"], np.int32)
+        return cv2.pointPolygonTest(pts, (float(xs.mean()), float(ys.mean())), False) >= 0
+    return False
+
+
+def _live_priors(img: np.ndarray, get_model, masks: list) -> list:
+    """For each object mask: (shape prior, object name) from the two small models (COCO objects, drawn shapes).
+    A COCO object ("cup" -> cylinder) wins; a shapes-model label counts only when the shading agrees (a shaded
+    "sphere" stays a sphere, a flat paper "sphere" is a circle, a shaded "triangle" is a cone)."""
+    from src import everyday
+    from src import shape_geometry as sg
+    dets = []
+    for kind, conf in (("coco", 0.3), ("shapes", everyday.SHAPES_CONF)):
+        try:
+            ds, _, _ = get_model(kind).predict(img, conf=conf, annotate=False)
+        except Exception:                               # a model missing on this machine: outlines alone
+            continue
+        dets += [(kind, d) for d in ds if kind == "shapes" or (everyday.shape_of(d.class_name) and d.class_name not in everyday.CONTEXT)]
+    out = []
+    for m in masks:
+        ys, xs = np.nonzero(m)
+        bx = (xs.min(), ys.min(), xs.max(), ys.max())
+        def overlap(d):
+            ix = max(0, min(bx[2], d.x2) - max(bx[0], d.x1)); iy = max(0, min(bx[3], d.y2) - max(bx[1], d.y1))
+            inter = ix * iy
+            union = (bx[2] - bx[0]) * (bx[3] - bx[1]) + (d.x2 - d.x1) * (d.y2 - d.y1) - inter
+            return inter / max(union, 1)
+        best = sorted(((overlap(d), kind != "coco", -d.confidence, kind, d) for kind, d in dets), key=lambda t: (-t[0], t[1], t[2]))
+        prior, name = None, None
+        if best and best[0][0] > 0.4:
+            _, _, _, kind, d = best[0]
+            if kind == "coco":
+                # an everyday object only when it looks like one (a paper disc is not a "frisbee")
+                if sg.looks_solid(img, m, lenient=True):
+                    info = everyday.shape_of(d.class_name)
+                    prior, name = info["shape"], info["object"]
+            else:
+                solid = sg.looks_solid(img, m, lenient=d.class_name in sg.SOLIDS)
+                if (d.class_name in sg.SOLIDS) == solid:
+                    prior = d.class_name
+                elif solid:
+                    prior = sg.SOLID_OF.get(d.class_name)
+        out.append((prior, name))
+    return out
+
+
+def _priors_from_hints(masks: list, hints: list) -> list:
+    """Priors the page remembered from the last frame that ran the models: matched by box overlap."""
+    out = []
+    for m in masks:
+        ys, xs = np.nonzero(m)
+        bx = (xs.min(), ys.min(), xs.max(), ys.max())
+        best, pick = 0.0, (None, None)
+        for hnt in hints:
+            b = hnt.get("box") or [0, 0, 0, 0]
+            ix = max(0, min(bx[2], b[2]) - max(bx[0], b[0])); iy = max(0, min(bx[3], b[3]) - max(bx[1], b[1]))
+            inter = ix * iy
+            iou = inter / max(1, (bx[2] - bx[0]) * (bx[3] - bx[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter)
+            if iou > max(best, 0.4):
+                best, pick = iou, (hnt.get("prior"), hnt.get("object"))
+        out.append(pick)
+    return out
+
+
+def live_frame(img: np.ndarray, ref_key: str, class_info: dict | None = None, mm_per_px: float | None = None,
+               max_objects: int = 3, get_model=None, hints: list | None = None) -> dict:
+    """One camera frame for live measuring (send about 960 px): quick, about 0.1–0.5 s.
+    The reference (ref_key, e.g. "coin_10") found in the frame sets the scale unless mm_per_px is given; each
+    object's outline gives its 2D shape or 3D solid and real size. With get_model, the two small models name
+    the objects and settle the solids (sphere vs cylinder vs box). The client averages several frames.
+    Returns {width, height, ref: {kind, circle|rect, mm_per_px} | None, mm_per_px, objects: [...] biggest first}."""
+    from src import shape_geometry as sg
+    class_info = class_info or {}
+    h, w = img.shape[:2]
+    ref = best_reference(img, ref_key) if not mm_per_px else None
+    scale = mm_per_px or (ref["mm_per_px"] if ref else None)
+    exclude = {ref["kind"]: ref[ref["kind"]]} if ref else None
+    cut = np.ones((h, w), np.uint8)                     # the reference's pixels never belong to an object
+    if ref and ref["kind"] == "circle":
+        c = ref["circle"]
+        cv2.circle(cut, (int(c["cx"]), int(c["cy"])), int(c["r"] * 1.15) + 2, 0, -1)
+    elif ref:
+        cv2.fillPoly(cut, [np.array(ref["rect"]["pts"], np.int32)], 0)
+
+    masks = []
+    for m in sg.foreground_regions(img):
+        if _is_reference(m, exclude):
+            continue
+        ys, xs = np.nonzero(m)
+        if xs.min() <= 2 or ys.min() <= 2 or xs.max() >= w - 3 or ys.max() >= h - 3:
+            continue                                    # cut off by the frame edge: no true size
+        masks.append(m & cut)
+    if not masks:                                       # busy background: the subject in the middle of the frame
+        m = sg.main_object(img)
+        if m is not None and not _is_reference(m, exclude):
+            masks.append(m & cut)
+
+    objects = []
+    masks = sorted(masks, key=lambda m: -int(m.sum()))[:max_objects]
+    if get_model is not None and masks:
+        priors = _live_priors(img, get_model, masks)
+    elif hints:
+        priors = _priors_from_hints(masks, hints)
+    else:
+        priors = [(None, None)] * len(masks)
+    for m, (prior, obj_name) in zip(masks, priors):
+        a = sg.analyse(img, m, prior)
+        if not a:
+            continue
+        ys, xs = np.nonzero(m)
+        extra = {"dimension": a["dimension"], "box": [int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())],
+                 "outline": a["outline"], "assumptions": a["notes"]}
+        if scale:
+            dims_mm = {k: v * scale ** POWER.get(k, 1) for k, v in a["dims_px"].items()}
+            entry = _shape_entry(a["class_name"], dims_mm, class_info, extra)
+            vol = next((x["value_mm"] for x in entry["results"] if x.get("power") == 3), None)
+            if vol and a["dimension"] == "3D":
+                entry["capacity_ml"] = round(vol / 1000, 1)
+        else:                                           # no reference in view: shape only
+            info = class_info.get(a["class_name"]) or {}
+            entry = {"class_name": a["class_name"], "name": info.get("name", a["class_name"].title()), "dims_mm": {}, "results": [], **extra}
+        entry["prior"] = prior                          # the page sends these back as hints for the next frames
+        if obj_name:                                    # "cup → Cylinder"
+            entry["object"] = obj_name
+            entry["name"] = f"{obj_name} → {entry['name']}"
+        objects.append(entry)
+    return {"width": w, "height": h, "ref": ref, "mm_per_px": scale, "objects": objects}
+
+
 def analyse_photo(img: np.ndarray, mm_per_px: float, class_info: dict | None = None, get_model=None,
                   exclude: dict | None = None, depth_mm: float | None = None) -> dict:
     """Every object in a photo: exact outline -> 2D shape or 3D solid, real sizes and formulas.
@@ -316,18 +464,7 @@ def analyse_photo(img: np.ndarray, mm_per_px: float, class_info: dict | None = N
     fg = sg.foreground_regions(img)
 
     def is_reference(mask) -> bool:
-        if not exclude:
-            return False
-        ys, xs = np.nonzero(mask)
-        if not len(xs):
-            return False
-        if "circle" in exclude:
-            c = exclude["circle"]
-            return math.hypot(xs.mean() - c["cx"], ys.mean() - c["cy"]) < 0.6 * c["r"] and 0.5 < math.sqrt(len(xs) / math.pi) / c["r"] < 1.5
-        if "rect" in exclude:
-            pts = np.array(exclude["rect"]["pts"], np.int32)
-            return cv2.pointPolygonTest(pts, (float(xs.mean()), float(ys.mean())), False) >= 0
-        return False
+        return _is_reference(mask, exclude)
 
     def iou(m1, m2) -> float:
         a = np.logical_and(m1, m2).sum()

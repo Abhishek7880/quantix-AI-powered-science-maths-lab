@@ -70,7 +70,8 @@ import java.util.Map;
 public class MainActivity extends Activity {
     private static final String SITE = BuildConfig.SITE;
     private static final String HOST = Uri.parse(SITE).getHost();
-    private static final int REQ_FILE = 1, REQ_CAMERA_PERMISSION = 2;
+    private static final int REQ_FILE = 1, REQ_CAMERA_PERMISSION = 2, REQ_WEB_CAMERA = 4;
+    private android.webkit.PermissionRequest pendingWebCamera;   // live camera in Measure, waiting for the permission
 
     private WebView web;
     private View splash;                       // the launch screen, kept until the first page is drawn
@@ -396,6 +397,23 @@ public class MainActivity extends Activity {
             @Override
             public void onProgressChanged(WebView view, int p) { if (p >= 80) hideSplash(); }
 
+            /** The live camera in Measure (getUserMedia): only our own site, only the camera, after Android's permission. */
+            @Override
+            public void onPermissionRequest(android.webkit.PermissionRequest req) {
+                runOnUiThread(() -> {
+                    boolean ours = req.getOrigin() != null && HOST.equals(req.getOrigin().getHost());
+                    boolean cam = java.util.Arrays.asList(req.getResources()).contains(android.webkit.PermissionRequest.RESOURCE_VIDEO_CAPTURE);
+                    if (!ours || !cam) { req.deny(); return; }
+                    if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                        req.grant(new String[] {android.webkit.PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+                    } else {
+                        if (pendingWebCamera != null) pendingWebCamera.deny();
+                        pendingWebCamera = req;
+                        requestPermissions(new String[] {Manifest.permission.CAMERA}, REQ_WEB_CAMERA);
+                    }
+                });
+            }
+
             @Override
             public boolean onConsoleMessage(android.webkit.ConsoleMessage m) {
                 if (m.messageLevel() == android.webkit.ConsoleMessage.MessageLevel.ERROR)
@@ -655,6 +673,12 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int req, String[] perms, int[] grants) {
         super.onRequestPermissionsResult(req, perms, grants);
         if (req == REQ_CAMERA_PERMISSION) openChooser();     // without the camera the gallery still works
+        if (req == REQ_WEB_CAMERA && pendingWebCamera != null) {
+            boolean ok = grants.length > 0 && grants[0] == PackageManager.PERMISSION_GRANTED;
+            if (ok) pendingWebCamera.grant(new String[] {android.webkit.PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+            else pendingWebCamera.deny();
+            pendingWebCamera = null;
+        }
     }
 
     // ---------------------------------------------------------------- navigation, offline
