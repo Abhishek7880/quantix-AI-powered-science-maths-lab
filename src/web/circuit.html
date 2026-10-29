@@ -140,6 +140,8 @@
   .ctxmenu .mh { font: 600 11px var(--f-mono); color: var(--muted); padding: 4px 8px; }
   .ctxmenu button { text-align: left; padding: 7px 10px; border: 0; border-radius: 8px; background: none; color: var(--ink); font: inherit; font-size: 13.5px; cursor: pointer; }
   .ctxmenu button:hover, .ctxmenu button:focus-visible { background: var(--soft); }
+  .stage .fab, .sheet-x, .sheet-back { display: none; }
+  .sheet-head { display: flex; justify-content: space-between; align-items: center; }
   /* phones: the board first, parts list below it, properties last */
   @media (max-width: 760px) {
     main { display: flex !important; flex-direction: column; padding-top: 8px; }
@@ -153,6 +155,13 @@
     .pgrid { grid-template-columns: repeat(4, 1fr); }
     .pgrid .pitem { font-size: 11px; padding: 6px 2px; }
     .pitem { min-height: 44px; }
+    .stage .fab { display: inline-flex; position: absolute; right: 10px; bottom: 10px; z-index: 6; border-radius: 999px; padding: 10px 16px; box-shadow: 0 6px 18px rgba(2,6,16,.35); }
+    body.sheet .palette-card { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1001; margin: 0; max-height: 72vh; overflow: auto; border-radius: 18px 18px 0 0;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom)); box-shadow: 0 -10px 30px rgba(2,6,16,.35); background: var(--panel-solid); backdrop-filter: none; }
+    html.in-app body.sheet .palette-card { bottom: calc(60px + env(safe-area-inset-bottom)); max-height: calc(100vh - 150px); padding-bottom: 14px; }
+    body.sheet .sheet-back { display: block; position: fixed; inset: 0; z-index: 1000; background: rgba(2,6,16,.5); }
+    body.sheet .sheet-x { display: inline-flex; }
+    body.sheet .sheet-head { position: sticky; top: -8px; z-index: 1; background: var(--panel-solid); padding: 4px 0; }
   }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
@@ -207,8 +216,9 @@
 </header>
 
 <main>
+  <div class="sheet-back" id="sheetBack" aria-hidden="true"></div>
   <aside class="card palette-card" aria-labelledby="partsLbl">
-    <div class="lbl" id="partsLbl">Parts</div>
+    <div class="sheet-head"><div class="lbl" id="partsLbl">Parts</div><button class="btn small sheet-x" id="sheetClose" type="button" aria-label="Close">✕</button></div>
     <input id="psearch" type="search" aria-label="Search parts" autocomplete="off">
     <div id="palette"></div>
   </aside>
@@ -239,6 +249,7 @@
       <div class="ctxmenu" id="ctxMenu" role="menu" hidden></div>
       <canvas id="cv" tabindex="0" role="application" aria-label="Circuit board. Arrow keys move the selected part, R rotates, W draws wires, [ and ] select parts." aria-describedby="hint"></canvas>
       <div id="pcb" hidden></div>
+      <button class="btn primary fab" id="partsFab" type="button" aria-expanded="false">＋ Parts</button>
     </div>
     <div class="statusbar"><span id="status"></span><span id="warn" class="warn" role="status" hidden></span></div>
     <p class="keys" id="hint"></p>
@@ -280,10 +291,10 @@
 <dialog id="dlg" class="dlg" aria-labelledby="dlgTitle"><div class="dlghead"><h2 id="dlgTitle"></h2><button class="btn small" id="dlgClose" type="button">✕</button></div><div id="dlgBody"></div></dialog>
 <div id="say" class="sr-only" aria-live="polite"></div>
 
-<script src="/web/circuit_sim.js?v=20261030a"></script>
-<script src="/web/circuit_examples.js?v=20261030a"></script>
-<script src="/web/circuit_real.js?v=20261030a"></script>
-<script src="/web/circuit_ui.js?v=20261030a"></script>
+<script src="/web/circuit_sim.js?v=20261030b"></script>
+<script src="/web/circuit_examples.js?v=20261030b"></script>
+<script src="/web/circuit_real.js?v=20261030b"></script>
+<script src="/web/circuit_ui.js?v=20261030b"></script>
 <script src="/web/sci_bg.js"></script>
 <script src="/web/site.js"></script>
 </body>

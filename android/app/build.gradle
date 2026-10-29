@@ -16,8 +16,8 @@ android {
         applicationId 'com.abhishek.quantix'
         minSdk 24
         targetSdk 34
-        versionCode 5
-        versionName '1.4'
+        versionCode 6
+        versionName '1.5'
         // the site the app shows; change here to point a test build at another server
         buildConfigField 'String', 'SITE', '"https://quantix-ai-abhi.duckdns.org"'
     }

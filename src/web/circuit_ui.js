@@ -20,6 +20,8 @@
       slowed: "Your computer can't keep up — running slower than the chosen speed.", t: "t", nodes: "nodes", empty: "Empty board — add parts or load an example.",
       placed: "placed", deleted: "deleted", copied: "Share link copied", copyFail: "Could not copy — the link is in the address bar.",
       bad: "Not a number. Examples: 4.7k, 10u, 2M2, 100n", col: ["Part", "Value", "V", "I", "P", ""], volts: "V", amps: "A", watts: "W",
+      partsFab: "＋ Parts",
+      touchKeys: "Touch: ＋ Parts adds a part · drag a part to move it · drag from a pin dot to wire · tap a switch, breaker or meter to use it · tap a burnt part to repair · long-press a part or wire for options (rotate, flip, duplicate, colour, delete) · two fingers to zoom and pan",
       keys: "Mouse: drag parts from the list · drag from a pin to wire · double-click to edit · right-click for options.  Keys: [ ] pick part · Enter edit · Arrows move · R rotate · Del delete · W wire · Space run/pause or press a switch · Ctrl+Z / Ctrl+Y",
       tip3d: "Drag to rotate · wheel to zoom · double-click to reset. Live: LEDs, lamps and the motor follow the simulation.",
       rt: "real time", min: "Vmin", max: "Vmax", pp: "p-p", avg: "avg", rms: "RMS", freq: "f", place: "Click the board to place", wiring: "Click to finish the wire (Shift: vertical first) · Esc to stop",
@@ -37,6 +39,8 @@
       slowed: "कंप्यूटर साथ नहीं दे पा रहा — चुनी गति से धीमा चल रहा है।", t: "t", nodes: "नोड", empty: "बोर्ड खाली है — घटक जोड़ें या उदाहरण खोलें।",
       placed: "रखा गया", deleted: "हटाया गया", copied: "शेयर लिंक कॉपी हुआ", copyFail: "कॉपी नहीं हुआ — लिंक पता-पट्टी में है।",
       bad: "संख्या नहीं है। उदाहरण: 4.7k, 10u, 2M2, 100n", col: ["घटक", "मान", "V", "I", "P", ""], volts: "V", amps: "A", watts: "W",
+      partsFab: "＋ घटक",
+      touchKeys: "टच: ＋ घटक से घटक जोड़ें · खिसकाने के लिए घटक खींचें · तार के लिए पिन बिंदु से खींचें · स्विच, ब्रेकर या मीटर चलाने के लिए टैप करें · जला घटक ठीक करने के लिए टैप करें · विकल्पों के लिए घटक या तार को देर तक दबाएँ (घुमाएँ, पलटें, दोहराएँ, रंग, हटाएँ) · ज़ूम और खिसकाने के लिए दो उँगलियाँ",
       keys: "माउस: सूची से घटक खींचें · तार के लिए पिन से खींचें · बदलने के लिए डबल-क्लिक · विकल्पों के लिए राइट-क्लिक।  कुंजियाँ: [ ] घटक चुनें · Enter बदलें · तीर खिसकाएँ · R घुमाएँ · Del हटाएँ · W तार · Space चलाएँ/रोकें या स्विच दबाएँ · Ctrl+Z / Ctrl+Y",
       tip3d: "घुमाने के लिए खींचें · ज़ूम के लिए व्हील · रीसेट के लिए डबल-क्लिक। एलईडी, बल्ब और मोटर सिमुलेशन के साथ चलते हैं।",
       rt: "वास्तविक समय", min: "Vmin", max: "Vmax", pp: "p-p", avg: "औसत", rms: "RMS", freq: "f", place: "रखने के लिए बोर्ड पर क्लिक करें", wiring: "तार पूरा करने के लिए क्लिक करें (Shift: पहले खड़ा) · रोकने के लिए Esc",
@@ -1398,8 +1402,11 @@
       onclick: (e) => {
         if (palDrag.done) { palDrag.done = false; return; }
         if (S.insertAt) { const at = S.insertAt; S.insertAt = null; placePart(d.type, at); cv.focus(); return; }
-        if (matchMedia("(max-width: 760px)").matches) {   // phones: the list is below the board, so place at once and show it
-          placePart(d.type, freeSpot(d.type)); $("stage").scrollIntoView({ behavior: "smooth", block: "center" }); return;
+        if (matchMedia("(max-width: 760px)").matches) {   // phones: place at once, close the parts sheet and show the board
+          const was = document.body.classList.contains("sheet");
+          placePart(d.type, freeSpot(d.type)); partsSheet(false);
+          if (!was) $("stage").scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
         }
         if (e.detail === 0) { const at = freeSpot(d.type); placePart(d.type, at); cv.focus(); return; }   // keyboard: place at once
         S.placing = d.type; setMode("place"); renderPalette(); announce(t("place"));
@@ -1439,7 +1446,7 @@
     $("selBtn").setAttribute("aria-pressed", String(S.mode === "select" || S.mode === "place"));
     $("wireBtn").setAttribute("aria-pressed", String(S.mode === "wire"));
     $("cutBtn").setAttribute("aria-pressed", String(S.mode === "cut"));
-    $("hint").textContent = S.mode === "wire" ? t("wiring") : S.mode === "place" ? t("place") : S.mode === "cut" ? t("cutting") : t("keys");
+    $("hint").textContent = S.mode === "wire" ? t("wiring") : S.mode === "place" ? t("place") : S.mode === "cut" ? t("cutting") : matchMedia("(pointer: coarse)").matches ? t("touchKeys") : t("keys");
     renderPalette();
   }
   function paramInput(p, q) {
@@ -1591,7 +1598,7 @@
     $("tTitle").textContent = t("title");
     [["selBtn", "select"], ["wireBtn", "wire"], ["cutBtn", "cut"], ["fitBtn", "fit"], ["newBtn", "clear"], ["v2d", "view2d"], ["v3d", "view3d"], ["saveBtn", "save"], ["openBtn", "open"],
       ["shareBtn", "share"], ["pngBtn", "png"], ["bomBtn", "bom"], ["resetBtn", "reset"], ["speedLbl", "speed"], ["tdivLbl", "tdiv"],
-      ["vReal", "viewReal"], ["flowLbl", "flowLbl"], ["kirchBtn", "kirch"], ["spiceBtn", "spiceBtn"], ["icBtn", "icBtn"], ["keysBtn", "keysBtn"], ["dlgClose", "close"]].forEach(([id, k]) => { $(id).textContent = t(k); });
+      ["vReal", "viewReal"], ["flowLbl", "flowLbl"], ["kirchBtn", "kirch"], ["spiceBtn", "spiceBtn"], ["icBtn", "icBtn"], ["keysBtn", "keysBtn"], ["dlgClose", "close"], ["partsFab", "partsFab"]].forEach(([id, k]) => { $(id).textContent = t(k); });
     fill($("flowSel"), [["conv", t("conv")], ["electron", t("electron")]].map(([v, l]) => { const o = h("option", { value: v }, l); if (SET.flow === v) o.selected = true; return o; }));
     renderSlides(); setView(S.view3d);
     $("undoBtn").textContent = t("undo"); $("redoBtn").textContent = t("redo");
@@ -1819,6 +1826,16 @@
   $("wireBtn").onclick = () => { setMode(S.mode === "wire" ? "select" : "wire"); cv.focus(); };
   $("cutBtn").onclick = () => { setMode(S.mode === "cut" ? "select" : "cut"); cv.focus(); };
   $("undoBtn").onclick = undo; $("redoBtn").onclick = redo;
+  // phones: the parts list opens as a bottom sheet over the board
+  function partsSheet(open) {
+    document.body.classList.toggle("sheet", open);
+    $("partsFab").setAttribute("aria-expanded", String(open));
+    if (open) { $("palette").scrollTop = 0; $("sheetClose").focus(); } else if (document.activeElement && $("palette").contains(document.activeElement)) cv.focus();
+  }
+  $("partsFab").onclick = () => partsSheet(true);
+  $("sheetClose").onclick = () => partsSheet(false);
+  $("sheetBack").onclick = () => partsSheet(false);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && document.body.classList.contains("sheet")) partsSheet(false); });
   $("fitBtn").onclick = () => { fit(); if (S.pcb && S.view3d) S.pcb.setCircuit(S.circuit); };
   $("newBtn").onclick = () => { if (S.snap) { S.undo.push(S.snap); S.redo = []; } loadCircuit({ parts: [], wires: [] }); };
   $("examples").onchange = (e) => { if (e.target.value) loadExample(e.target.value); e.target.value = ""; };
